@@ -1,0 +1,836 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#ifndef APSTUDIO_INVOKED
+#include "targetver.h"
+#endif
+#include "afxres.h"
+#include "verrsrc.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// “ú–{Œê (“ú–{) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
+LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
+#pragma code_page(932)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#ifndef APSTUDIO_INVOKED\r\n"
+    "#include ""targetver.h""\r\n"
+    "#endif\r\n"
+    "#include ""afxres.h""\r\n"
+    "#include ""verrsrc.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#include ""res\\StViewer.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""      // Standard components\r\n"
+    "#if !defined(_AFXDLL)\r\n"
+    "#include ""afxprint.rc""        // printing/print preview resources\r\n"
+    "#include ""afxribbon.rc""        // MFC ribbon and control bar resources\r\n"
+    "#endif\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// XML
+//
+
+IDR_XML_STVIEWER        XML                     "res\\StViewer.xml"
+
+#endif    // “ú–{Œê (“ú–{) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// ‰pŒê resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_NEUTRAL
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
+
+IDR_MAINFRAME_256       BITMAP                  "res\\Toolbar256.bmp"
+
+IDR_MAINFRAME_ADVANCED  BITMAP                  "res\\ToolbarAdvanced.bmp"
+
+IDR_MAINFRAME_ADVANCED256 BITMAP                  "res\\ToolbarAdvanced256.bmp"
+
+IDR_TOOLBAR_DRAWING     BITMAP                  "res\\toolbar_drawing.bmp"
+
+IDR_TOOLBAR_DRAWING_256 BITMAP                  "res\\toolbar_drawing256.bmp"
+
+IDR_DEFECTIVE_PIXEL_DETECTION BITMAP                  "res\\DefectivePixelDetection.bmp"
+
+IDR_DEFECTIVE_PIXEL_DETECTION_256 BITMAP                  "res\\DefectivePixelDetection256.bmp"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DIALOG_VIDEO_FILE DIALOGEX 0, 0, 305, 205
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CLIPCHILDREN | WS_CAPTION | WS_SYSMENU
+CAPTION "Video File Configuration"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,195,183,50,14,WS_DISABLED
+    PUSHBUTTON      "Cancel",IDCANCEL,247,183,50,14
+    LISTBOX         IDC_LIST_FILE_NAME,55,119,244,44,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "File Name",IDC_STATIC,7,119,32,8
+    PUSHBUTTON      "Add",IDC_BUTTON_ADD_FILE_NAME,247,167,50,14
+END
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 207, 63
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About StViewer"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,14,14,20,20
+    LTEXT           "StViewer, Version 1.0",IDC_STATIC_VERSION,48,21,114,8,SS_NOPREFIX
+    DEFPUSHBUTTON   "OK",IDOK,131,41,50,14,WS_GROUP
+END
+
+IDD_DIALOG_CONFIGURATION_FILE DIALOGEX 0, 0, 291, 116
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Configuration File Setting"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "Node Map Window",IDC_STATIC,6,6,83,8
+    COMBOBOX        IDC_COMBO_CONFIG_FILE_DEVICE_NODE_MAP_WINDOW,102,6,180,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Display Image Window",IDC_STATIC,6,24,90,12
+    COMBOBOX        IDC_COMBO_CONFIG_FILE_DISPLAY_IMAGE_WINDOW,102,24,180,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Pixel Format Converter",IDC_STATIC,6,43,76,8
+    COMBOBOX        IDC_COMBO_CONFIG_FILE_PIXEL_FORMAT_CONVERTER,102,41,180,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Defective Pixel Detection",IDC_STATIC,7,58,90,12
+    COMBOBOX        IDC_COMBO_CONFIG_FILE_DEFECTIVE_PIXEL_DETECTION,102,58,180,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "StViewer",IDC_STATIC,6,78,29,8
+    COMBOBOX        IDC_COMBO_CONFIG_FILE_STVIEWER,102,75,180,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,180,96,50,14
+    PUSHBUTTON      "&Cancel",IDCANCEL,234,96,50,14
+END
+
+IDD_DIALOG_STILL_IMAGE_FILES DIALOGEX 0, 0, 309, 200
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Still image files setting"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "File type",IDC_STATIC,6,102,28,8
+    COMBOBOX        IDC_COMBO_FILE_TYPE,66,102,66,12,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "File count",IDC_STATIC,6,121,32,8
+    EDITTEXT        IDC_EDIT_SAVE_IMAGE_FILE_COUNT,66,121,48,12,ES_AUTOHSCROLL
+    LTEXT           "Save an image per                               images.",IDC_STATIC_SAVE_AN_IMAGE_PER,132,121,147,8
+    EDITTEXT        IDC_EDIT_SAVE_A_IMAGE_PER,198,121,30,12,ES_AUTOHSCROLL
+    LTEXT           "Path",IDC_STATIC,6,138,16,8
+    EDITTEXT        IDC_EDIT_STILL_IMAGE_FILES_PATH,66,138,174,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "&Reference ...",IDC_BUTTON_STILL_IMAGE_FILES_PATH,246,138,56,14
+    LTEXT           "File name pattern",IDC_STATIC,6,156,57,8
+    EDITTEXT        IDC_EDIT_STILL_IMAGE_FILES_NAME_PATTERN,66,156,174,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,198,179,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,252,179,50,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_DIALOG_VIDEO_FILE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 298
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 198
+    END
+
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 200
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 56
+    END
+
+    IDD_DIALOG_CONFIGURATION_FILE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 284
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 109
+    END
+
+    IDD_DIALOG_STILL_IMAGE_FILES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 302
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 193
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\StViewer.ico"
+
+IDR_CAMERA_CTRL         ICON                    "res\\StViewerDoc.ico"
+
+IDI_OUTPUT_WND          ICON                    "res\\output_wnd.ico"
+
+IDI_OUTPUT_WND_HC       ICON                    "res\\output_wnd_hc.ico"
+
+IDI_PROPERTIES_WND      ICON                    "res\\properties_wnd.ico"
+
+IDI_PROPERTIES_WND_HC   ICON                    "res\\properties_wnd_hc.ico"
+
+IDI_FILE_CTRL           ICON                    "res\\StStillImageDoc.ico"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_MAINFRAME TOOLBAR 16, 16
+BEGIN
+    BUTTON      ID_FILE_NEW
+    BUTTON      ID_FILE_OPEN
+    BUTTON      ID_FILE_CLOSE
+    SEPARATOR
+    BUTTON      ID_ACQ_START
+    BUTTON      ID_ACQ_STOP
+    SEPARATOR
+    BUTTON      ID_SAVE_STILL_IMAGE
+    BUTTON      ID_SAVE_STILL_IMAGE
+    BUTTON      ID_STOP_RECORDING
+END
+
+IDR_MAINFRAME_256 TOOLBAR 16, 16
+BEGIN
+    BUTTON      ID_FILE_NEW
+    BUTTON      ID_FILE_OPEN
+    BUTTON      ID_FILE_CLOSE
+    SEPARATOR
+    BUTTON      ID_ACQ_START
+    BUTTON      ID_ACQ_STOP
+    SEPARATOR
+    BUTTON      ID_SAVE_STILL_IMAGE
+    BUTTON      ID_START_RECORDING
+    BUTTON      ID_STOP_RECORDING
+END
+
+IDR_MAINFRAME_ADVANCED TOOLBAR 16, 16
+BEGIN
+    BUTTON      ID_FILE_LOAD_CAMERA_CONFIG_FILE
+    BUTTON      ID_FILE_SAVE_CAMERA_CONFIG_FILE
+    SEPARATOR
+    BUTTON      ID_APP_EXIT
+    SEPARATOR
+    BUTTON      ID_WINDOW_FULLSCREEN
+    BUTTON      ID_WINDOW_CASCADE
+    BUTTON      ID_WINDOW_TILE_VERT
+    BUTTON      ID_WINDOW_TILE_HORZ
+    SEPARATOR
+    BUTTON      ID_VIEW_STATUS_BAR
+END
+
+IDR_MAINFRAME_ADVANCED256 TOOLBAR 16, 16
+BEGIN
+    BUTTON      ID_FILE_LOAD_CAMERA_CONFIG_FILE
+    BUTTON      ID_FILE_SAVE_CAMERA_CONFIG_FILE
+    SEPARATOR
+    BUTTON      ID_APP_EXIT
+    SEPARATOR
+    BUTTON      ID_WINDOW_FULLSCREEN
+    BUTTON      ID_WINDOW_CASCADE
+    BUTTON      ID_WINDOW_TILE_VERT
+    BUTTON      ID_WINDOW_TILE_HORZ
+    SEPARATOR
+    BUTTON      ID_VIEW_STATUS_BAR
+END
+
+IDR_TOOLBAR_DRAWING TOOLBAR 16, 16
+BEGIN
+    BUTTON      ID_DRAWING_NONE
+    BUTTON      ID_DRAWING_SELECT
+    BUTTON      ID_DRAWING_LINE
+    BUTTON      ID_DRAWING_RECTANGLE
+    BUTTON      ID_DRAWING_ELLIPSE
+    BUTTON      ID_DRAWING_TEXT
+    BUTTON      ID_DRAWING_ANGLE
+    BUTTON      ID_DRAWING_POLYGON
+    BUTTON      ID_DRAWING_PERPENDICULAR
+    BUTTON      ID_DRAWING_ARC
+    BUTTON      ID_DRAWING_BEZIER
+    BUTTON      ID_DRAWING_FREEHAND
+    BUTTON      ID_DRAWING_CROSS
+    SEPARATOR
+    BUTTON      ID_H_GRID_COUNT
+    BUTTON      ID_V_GRID_COUNT
+END
+
+IDR_TOOLBAR_DRAWING_256 TOOLBAR 16, 16
+BEGIN
+    BUTTON      ID_DRAWING_NONE
+    BUTTON      ID_DRAWING_SELECT
+    BUTTON      ID_DRAWING_LINE
+    BUTTON      ID_DRAWING_RECTANGLE
+    BUTTON      ID_DRAWING_ELLIPSE
+    BUTTON      ID_DRAWING_TEXT
+    BUTTON      ID_DRAWING_ANGLE
+    BUTTON      ID_DRAWING_POLYGON
+    BUTTON      ID_DRAWING_PERPENDICULAR
+    BUTTON      ID_DRAWING_ARC
+    BUTTON      ID_DRAWING_BEZIER
+    BUTTON      ID_DRAWING_FREEHAND
+    BUTTON      ID_DRAWING_CROSS
+    SEPARATOR
+    BUTTON      ID_H_GRID_COUNT
+    BUTTON      ID_V_GRID_COUNT
+END
+
+IDR_DEFECTIVE_PIXEL_DETECTION TOOLBAR 16, 16
+BEGIN
+    BUTTON      ID_BUTTON_DETECT_DEFECTIVE_PIXEL
+    BUTTON      ID_BUTTON_CLEAR_DETECTED_PIXEL_INFO
+    BUTTON      ID_BUTTON_REGSTER_DEFECTIVE_PIXEL
+    BUTTON      ID_BUTTON_DEREGSTER_DEFECTIVE_PIXEL
+    BUTTON      ID_BUTTON_GET_REGISTERED_PIXE_INFO
+    BUTTON      ID_BUTTON_SAVE_AVERAGED_IMAGE
+    BUTTON      ID_BUTTON_HIGHLIGHT_DEFECTIVE_PIXELS
+    BUTTON      ID_BUTTON_PIXEL_CORRECTION_ENABLED
+END
+
+IDR_DEFECTIVE_PIXEL_DETECTION_256 TOOLBAR 16, 16
+BEGIN
+    BUTTON      ID_BUTTON_DETECT_DEFECTIVE_PIXEL
+    BUTTON      ID_BUTTON_CLEAR_DETECTED_PIXEL_INFO
+    BUTTON      ID_BUTTON_REGSTER_DEFECTIVE_PIXEL
+    BUTTON      ID_BUTTON_DEREGSTER_DEFECTIVE_PIXEL
+    BUTTON      ID_BUTTON_GET_REGISTERED_PIXE_INFO
+    SEPARATOR
+    BUTTON      ID_BUTTON_SAVE_AVERAGED_IMAGE
+    BUTTON      ID_BUTTON_HIGHLIGHT_DEFECTIVE_PIXELS
+    BUTTON      ID_BUTTON_PIXEL_CORRECTION_ENABLED
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Open a camera\tCtrl+O",      ID_FILE_NEW
+        MENUITEM "&Load still image ...",       ID_FILE_OPEN
+        MENUITEM "&Close",                      ID_FILE_CLOSE
+        MENUITEM SEPARATOR
+        MENUITEM "Configuration &File Setting ...", ID_FILE_CONFIGURATIONFILESETTING
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&View"
+    BEGIN
+        POPUP "&Toolbars and Docking Windows"
+        BEGIN
+            MENUITEM "<placeholder>",               ID_VIEW_TOOLBAR
+        END
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+        MENUITEM "&Interface Node ...",         ID_VIEW_INTERFACENODE
+        MENUITEM "S&ystem Node ...",            ID_VIEW_SYSTEMNODE
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About StViewer...",          ID_APP_ABOUT
+    END
+END
+
+IDR_CAMERA_CTRL MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Open a camera\tCtrl+O",      ID_FILE_NEW
+        MENUITEM "&Load still image ...",       ID_FILE_OPEN
+        MENUITEM "&Close",                      ID_FILE_CLOSE
+        MENUITEM "Start Acquisition",           ID_ACQ_START
+        MENUITEM "Stop Acquisition",            ID_ACQ_STOP
+        MENUITEM SEPARATOR
+        MENUITEM "Save Still Image ...",        ID_SAVE_STILL_IMAGE
+        MENUITEM "Start Recording ...",         ID_START_RECORDING
+        MENUITEM "Stop Recording",              ID_STOP_RECORDING
+        MENUITEM SEPARATOR
+        MENUITEM "Save &Camera Config File ...", ID_FILE_SAVE_CAMERA_CONFIG_FILE
+        MENUITEM "&Load Camera Config File ...", ID_FILE_LOAD_CAMERA_CONFIG_FILE
+        MENUITEM SEPARATOR
+        MENUITEM "Save Camera &Description File ...", ID_FILE_SAVE_CAMERA_DESCRIPTION_FILE
+        MENUITEM SEPARATOR
+        MENUITEM "Configuration &File Setting ...", ID_FILE_CONFIGURATIONFILESETTING
+        MENUITEM SEPARATOR
+        MENUITEM "Start calculating FFC correction value ...", ID_FILE_START_FFC
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&View"
+    BEGIN
+        POPUP "&Toolbars and Docking Windows"
+        BEGIN
+            MENUITEM "<placeholder>",               ID_VIEW_TOOLBAR
+        END
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+        MENUITEM "&Interface Node ...",         ID_VIEW_INTERFACENODE
+        POPUP "&Graph data source"
+        BEGIN
+            MENUITEM "&Registered image",           ID_GRAPHDATASOURCE_REGISTEREDIMAGE
+            MENUITEM "&Converted image",            ID_GRAPHDATASOURCE_CONVERTEDIMAGE
+        END
+        MENUITEM "S&ystem Node ...",            ID_VIEW_SYSTEMNODE
+    END
+    POPUP "&Window"
+    BEGIN
+        MENUITEM "&Full Screen",                ID_WINDOW_FULLSCREEN
+        MENUITEM "&Cascade",                    ID_WINDOW_CASCADE
+        POPUP "&Tile"
+        BEGIN
+            MENUITEM "&Horizontal",                 ID_WINDOW_TILE_HORZ
+            MENUITEM "&Vertical",                   ID_WINDOW_TILE_VERT
+        END
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About StViewer...",          ID_APP_ABOUT
+    END
+END
+
+IDR_OUTPUT_POPUP MENU
+BEGIN
+    POPUP "Popup"
+    BEGIN
+        MENUITEM "&Copy",                       ID_EDIT_COPY
+        MENUITEM "&Clear",                      ID_EDIT_CLEAR
+    END
+END
+
+IDR_DEFECTIVE_PIXEL_DETECTION MENU
+BEGIN
+    POPUP "&Register"
+    BEGIN
+        MENUITEM "&Register selected pixels",   ID_REGISTER_REGISTERSELECTEDPIXELS
+        MENUITEM "&Deregister selected pixels", ID_REGISTER_DEREGISTERSELECTEDPIXELS
+    END
+    POPUP "&Detection"
+    BEGIN
+        MENUITEM "&Clear detected defective pixel information", ID_DETECTION_CLEARDETECTEDDEFECTIVEPIXELINFORMATION
+    END
+END
+
+IDI_FILE_CTRL MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Open a camera\tCtrl+O",      ID_FILE_NEW
+        MENUITEM "&Load still image ...",       ID_FILE_OPEN
+        MENUITEM "&Close",                      ID_FILE_CLOSE
+        MENUITEM SEPARATOR
+        MENUITEM "Save Still Image ...",        ID_SAVE_STILL_IMAGE
+        MENUITEM SEPARATOR
+        MENUITEM "Configuration &File Setting ...", ID_FILE_CONFIGURATIONFILESETTING
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&View"
+    BEGIN
+        POPUP "&Toolbars and Docking Windows"
+        BEGIN
+            MENUITEM "<placeholder>",               ID_VIEW_TOOLBAR
+        END
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+        MENUITEM "&Interface Node ...",         ID_VIEW_INTERFACENODE
+        POPUP "&Graph data source"
+        BEGIN
+            MENUITEM "&Registered image",           ID_GRAPHDATASOURCE_REGISTEREDIMAGE
+            MENUITEM "&Converted image",            ID_GRAPHDATASOURCE_CONVERTEDIMAGE
+        END
+        MENUITEM "S&ystem Node ...",            ID_VIEW_SYSTEMNODE
+    END
+    POPUP "&Window"
+    BEGIN
+        MENUITEM "&Full Screen",                ID_WINDOW_FULLSCREEN
+        MENUITEM "&Cascade",                    ID_WINDOW_CASCADE
+        POPUP "&Tile"
+        BEGIN
+            MENUITEM "&Horizontal",                 ID_WINDOW_TILE_HORZ
+            MENUITEM "&Vertical",                   ID_WINDOW_TILE_VERT
+        END
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About StViewer...",          ID_APP_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS
+BEGIN
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,2,2,90
+ PRODUCTVERSION 1,2,2,90
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "FileDescription", "StViewer"
+            VALUE "FileVersion", "1.2.2.90"
+            VALUE "InternalName", "StViewer.exe"
+            VALUE "OriginalFilename", "StViewer.exe"
+            VALUE "ProductName", "StViewer"
+            VALUE "ProductVersion", "1.2.2.90"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_DIALOG_CONFIGURATION_FILE AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_STILL_IMAGE_FILES AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_DIALOG_STILL_IMAGE_FILES DLGINIT
+BEGIN
+    IDC_COMBO_FILE_TYPE, 0x403, 6, 0
+0x7473, 0x6172, 0x0077, 
+    IDC_COMBO_FILE_TYPE, 0x403, 4, 0
+0x6d62, 0x0070, 
+    IDC_COMBO_FILE_TYPE, 0x403, 4, 0
+0x706a, 0x0067, 
+    IDC_COMBO_FILE_TYPE, 0x403, 5, 0
+0x6974, 0x6666, "\000" 
+    IDC_COMBO_FILE_TYPE, 0x403, 4, 0
+0x6e70, 0x0067, 
+    IDC_COMBO_FILE_TYPE, 0x403, 4, 0
+0x7363, 0x0076, 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
+    IDS_STATUS_FPS          "0.00[fps] / 0.00[bps]"
+    IDS_STATUS_PIXEL_INFO   "(0, 0) -"
+    IDS_STATUS_RECEIVED_IMAGE_COUNT "Received=0[Dropped=0]"
+    IDS_DEVICE_OPENED       "Device opened."
+    IDS_DEVICE_CLOSED       "Device closed."
+    IDS_STREAMING_STARTED   "Streaming started."
+    IDS_STREAMING_STOPPED   "Streaming stopped."
+    IDS_DEVICE_LOST         "Device lost."
+    IDS_TOOLBAR_ADVANCED    "Advanced"
+    IDS_TOOLBAR_DRAWING     "Drawing"
+    IDS_STRING_FFC_START    "Start calculating FFC correction values. This operation takes tens of seconds, during which the application becomes inoperable."
+END
+
+STRINGTABLE
+BEGIN
+    IDR_MAINFRAME           "StViewer"
+    IDR_CAMERA_CTRL         "\nCameraDevice\nCameraDevice\n\n\nCameraDevice.Document\nCameraDevice.Document"
+    ID_WINDOW_MANAGER       "&Windows..."
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_APP_TITLE       "StViewer"
+    AFX_IDS_IDLEMESSAGE     "Ready"
+END
+
+STRINGTABLE
+BEGIN
+    ID_FILE_NEW             "Open a camera.\nOpen"
+    ID_FILE_OPEN            "Load a straw image file.\nLoad"
+    ID_FILE_CLOSE           "Close the active camera or file.\nClose"
+END
+
+STRINGTABLE
+BEGIN
+    ID_APP_ABOUT            "&About StViewer..."
+    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+END
+
+STRINGTABLE
+BEGIN
+    ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
+    ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
+END
+
+STRINGTABLE
+BEGIN
+    ID_WINDOW_ARRANGE       "Arrange icons at the bottom of the window\nArrange Icons"
+    ID_WINDOW_CASCADE       "Arrange all the windows in a cascade format.\nCascade Windows"
+    ID_WINDOW_TILE_HORZ     "Tile all the windows so that one window appears above another.\nTile windows[Horizontal]"
+    ID_WINDOW_TILE_VERT     "Tile all the windows so that one window appears beside another.\nTile windows[Vertical]"
+END
+
+STRINGTABLE
+BEGIN
+    ID_EDIT_CLEAR           "Erase everything\nErase All"
+    ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
+END
+
+STRINGTABLE
+BEGIN
+    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle Status Bar"
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_SCSIZE          "Change the window size"
+    AFX_IDS_SCMOVE          "Change the window position"
+    AFX_IDS_SCMINIMIZE      "Reduce the window to an icon"
+    AFX_IDS_SCMAXIMIZE      "Enlarge the window to full size"
+    AFX_IDS_SCNEXTWINDOW    "Switch to the next document window"
+    AFX_IDS_SCPREVWINDOW    "Switch to the previous document window"
+    AFX_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_SCRESTORE       "Restore the window to normal size"
+    AFX_IDS_SCTASKLIST      "Activate Task List"
+    AFX_IDS_MDICHILD        "Activate this window"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_STRING_FFC_END_SUCCEEDED 
+                            "Succeeded. If you want to save FFC correction values to the camera, execute UserSetSave."
+    IDS_FILE_OPENED         "File opened."
+    IDS_FILE_CLOSED         "File closed."
+    IDS_STRING_FILE_TIME    " %Y/%m/%d %H:%M:%S"
+    IDS_TOOLBAR_STANDARD    "Standard"
+    IDS_TOOLBAR_CUSTOMIZE   "Customize..."
+END
+
+STRINGTABLE
+BEGIN
+    IDS_OUTPUT_WND          "Output"
+    IDS_PROPERTIES_WND      "Properties"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_LOG_TAB             "Log"
+END
+
+STRINGTABLE
+BEGIN
+    ID_ACQ_START            "Acquisition Start\nStart"
+    ID_ACQ_STOP             "Acquisition Stop\nStop"
+    ID_SAVE_STILL_IMAGE     "Save still image file\nSave"
+    ID_STOP_RECORDING       "Stop Recording\nStop"
+    ID_START_RECORDING      "Start Recording\nStart"
+    ID_FILE_SAVE_CAMERA_CONFIG_FILE 
+                            "Save the camera configuration file\nSave Config"
+    ID_FILE_LOAD_CAMERA_CONFIG_FILE 
+                            "Load the cmaera configuration file\nLoad Config"
+END
+
+STRINGTABLE
+BEGIN
+    ID_DRAWING_NONE         "Disable drawing funciton by mouse\nDisable"
+    ID_DRAWING_SELECT       "Select drawing objects.\nSelect"
+    ID_DRAWING_LINE         "Draw line\nLine"
+    ID_DRAWING_RECTANGLE    "Draw rectangle.\nRectangle"
+    ID_DRAWING_ELLIPSE      "Draw ellipse.\nEllipse"
+    ID_DRAWING_TEXT         "Draw text.\nText"
+    ID_DRAWING_ANGLE        "Draw line to measure angle.\nAngle"
+    ID_DRAWING_POLYGON      "Draw polygon.\nPolygon"
+    ID_DRAWING_PERPENDICULAR "Draw perpendicular.\nPerpendicular"
+    ID_DRAWING_ARC          "Draw arc.\nArc"
+    ID_DRAWING_BEZIER       "Draw bezier curve.\nBezier"
+    ID_DRAWING_FREEHAND     "Draw by free hand.\nFree hand"
+    ID_DRAWING_CROSS        "Draw cross.\nCross"
+END
+
+STRINGTABLE
+BEGIN
+    ID_H_GRID_COUNT         "Horizontal grid line count.\nH Grid Lines"
+    ID_V_GRID_COUNT         "Vertical grid line count.\nV Grid Lines"
+END
+
+STRINGTABLE
+BEGIN
+    ID_WINDOW_FULLSCREEN    "Toggles full screen mode On and Off\nToggles Full Screen"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_STRING_FFC_END_FAILED "Failed."
+END
+
+STRINGTABLE
+BEGIN
+    ID_BUTTON_DETECT_DEFECTIVE_PIXEL 
+                            "Start detecting defective pixel. When the number of defective pixels exceeds the detectable number, the pixels with a poor evaluation value are left preferentially.\nDetect"
+    ID_BUTTON_CLEAR_DETECTED_PIXEL_INFO 
+                            "Clear detected defective pixel information.\nClear"
+    ID_BUTTON_REGSTER_DEFECTIVE_PIXEL 
+                            "Register selecting defective pixel information to the camera. The number of defective pixels actually registered is limited to the number of defective pixels that can be registered with the camera. If you want the defective pixel registration to be valid after the power is turned on again, execute ""UserSetSave"" additionally.\nRegister"
+    ID_BUTTON_DEREGSTER_DEFECTIVE_PIXEL 
+                            "Deregister selecting defective pixel information from the camera. To enable the unregistration of defective pixels even after the power supply is turned on again, execute ""UserSetSave"" additionally.\nDeregister"
+    ID_BUTTON_GET_REGISTERED_PIXE_INFO 
+                            "Refresh registered defective pixels information.\nRefresh"
+    ID_BUTTON_SAVE_AVERAGED_IMAGE 
+                            "Saves the averaged monochrome image used to detect the defective pixels.\nSave image"
+    ID_BUTTON_HIGHLIGHT_DEFECTIVE_PIXELS 
+                            "Defective pixel highlighting (Overlay).\nHighlight"
+END
+
+STRINGTABLE
+BEGIN
+    ID_BUTTON_PIXEL_CORRECTION_ENABLED 
+                            "Enabled defective pixel correction.Some cameras cannot enable or disable defect pixel correction during streaming.\nEnabled correction"
+END
+
+STRINGTABLE
+BEGIN
+    IDI_FILE_CTRL           "\nStRawImageFile\nStRawImageFile\nStRaw(*.straw)\n.straw\nStRawImageFile.Document\nStRawImageFile.Document"
+    IDI_FILE_BMP_CTRL       "\nBMPImageFile\nBMPImageFile\nBMP(*.BMP)\n.BMP\nBMPImageFile.Document\nBMPImageFile.Document"
+    IDI_FILE_PNG_CTRL       "\nPNGImageFile\nPNGImageFile\nPNG(*.PNG)\n.PNG\nPNGImageFile.Document\nPNGImageFile.Document"
+    IDI_FILE_TIF_CTRL       "\nTIFImageFile\nTIFImageFile\nTIF(*.tif)\n.TIF\nTIFImageFile.Document\nTIFImageFile.Document"
+    IDI_FILE_TIFF_CTRL      "\nTIFFImageFile\nTIFFImageFile\nTIFF(*.tiff)\n.TIFF\nTIFFImageFile.Document\nTIFFImageFile.Document"
+    IDI_FILE_JPG_CTRL       "\nJPGImageFile\nJPGImageFile\nJPG(*.jpg)\n.JPG\nJPGImageFile.Document\nJPGImageFile.Document"
+    IDI_FILE_JPEG_CTRL      "\nJPEGImageFile\nJPEGImageFile\nJPEG(*.jpeg)\n.JPEG\nJPEGImageFile.Document\nJPEGImageFile.Document"
+END
+
+#endif    // ‰pŒê resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE 9, 1
+#include "res\StViewer.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"      // Standard components
+#if !defined(_AFXDLL)
+#include "afxprint.rc"        // printing/print preview resources
+#include "afxribbon.rc"        // MFC ribbon and control bar resources
+#endif
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
