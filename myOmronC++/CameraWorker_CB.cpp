@@ -29,7 +29,8 @@ bool CameraWorker_CB::initialize()
 
 		// 데이터 스트림 콜백 설정 (this 포인터를 pvContext로 전달)
 		RegisterCallback(m_pDataStream, &CameraWorker_CB::OnStCallbackFunction, this);
-
+		// NOTE: this를 넘기는 목적 : 콜백이 발생했을 때, 어떤 객체의 멤버 함수로 처리를 위임할지 알려주기 위함
+		
 		m_initialized = true;
 		return true;
 	}
@@ -94,6 +95,8 @@ void __stdcall CameraWorker_CB::OnStCallbackFunction(IStCallbackParamBase* pIStC
 	{
 		// pvContext로 넘긴 this 포인터를 다시 캐스팅하여 멤버 함수 호출
 		static_cast<CameraWorker_CB*>(pvContext)->handleCallback(pIStCallbackParamBase);
+		// static_cast : C++에서 형 변환을 할 때 사용하는 연산자, 컴파일 타임에 변환
+		// <> : 템플릿을 사용하여 타입을 지정
 	}
 }
 
@@ -103,7 +106,12 @@ void CameraWorker_CB::handleCallback(IStCallbackParamBase* pCallbackParam)
 	// 콜백 파라미터의 타입 확인
 	if (pCallbackParam->GetCallbackType() == StCallbackType_GenTLEvent_DataStreamNewBuffer)
 	{
+		
 		IStCallbackParamGenTLEventNewBuffer* pNewBufferParam = dynamic_cast<IStCallbackParamGenTLEventNewBuffer*>(pCallbackParam);
+		// NOTE: dynamic_cast를 사용한 이유 : 다형성을 활용하여 IStCallbackParamBase에서 파생된 
+		//									IStCallbackParamGenTLEventNewBuffer 타입으로 안전하게 다운캐스팅하기 위함
+		// NOTE: static_cast와의 차이점 : dynamic_cast는 런타임에 타입 체크를 수행하여 실패할 경우 nullptr을 반환
+		// 
 
 		try
 		{
@@ -117,8 +125,12 @@ void CameraWorker_CB::handleCallback(IStCallbackParamBase* pCallbackParam)
 				std::cout << "Block ID: " << pBuffer->GetIStStreamBufferInfo()->GetFrameID()
 					<< "Size: " << pImage->GetImageWidth() << " x " << pImage->GetImageHeight()
 					<< "First byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pImage->GetImageBuffer())) << std::endl;
+				// reinterpret_cast : 서로 관련 없는 포인터 타입 간의 변환을 수행하는 연산자
+				// dynamic_cast가 아닌 static_cast를 사용한 이유 :
+				// dynamic_cast는 상속 관계가 있는 클래스 포인터/참조를 안전하게 변환할 때 사용되며,
+				// 여기에서는 단순히 기본 타입 간의 변환(uint8_t* -> uint32_t) 이므로 static_cast를 사용해도 안전
 			}
-			else
+			
 			{
 				std::cout << "No image present in the buffer." << std::endl;
 			}
