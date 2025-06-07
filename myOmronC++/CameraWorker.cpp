@@ -107,3 +107,23 @@ void CameraWorker::StopAcquisition()
 		std::cerr << "Stop acqiusition error: " << e.GetDescription() << std::endl;
 	}
 }
+
+
+// 사용 예시 (main.cpp에서 호출)
+/*
+int main()
+{
+	CameraWorker cameraWorker(10); // 10개의 이미지 획득
+	if (cameraWorker.initialize())
+	{
+		cameraWorker.StartAcquisition();
+
+		// ... 이미지 처리 로직 ...
+	}
+	else
+	{
+		std::cerr << "Camera initialization failed." << std::endl;
+	}
+	return 0;
+}
+*/
