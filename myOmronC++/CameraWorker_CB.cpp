@@ -8,7 +8,7 @@ CameraWorker_CB::CameraWorker_CB()
 
 CameraWorker_CB::~CameraWorker_CB()
 {
-
+	stopAcquisition();
 }
 
 bool CameraWorker_CB::initialize()
@@ -129,3 +129,28 @@ void CameraWorker_CB::handleCallback(IStCallbackParamBase* pCallbackParam)
 		}
 	}
 }
+
+// 사용 예시 (main.cpp에서 호출)
+/*
+int main()
+{
+	CameraWorker_CB cameraWorker;
+	if (cameraWorker.initialize())
+	{
+		cameraWorker.startAcquisition();
+		
+		// ... 이미지 처리 로직 ...
+		
+		std::cout << "Press Enter to stop acquisition..." << std::endl;
+		std::cin.get(); // 사용자 입력 대기
+
+		cameraWorker.stopAcquisition();
+	}
+	else
+	{
+		std::cerr << "Camera initialization failed." << std::endl;
+	}
+	return 0;
+}
+
+*/

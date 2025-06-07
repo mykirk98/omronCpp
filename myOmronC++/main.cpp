@@ -1,23 +1,26 @@
 #include <StApi_TL.h>		// TL : Transport Layer
 #include "CameraWorker.h"
+#include "CameraWorker_CB.h"
 
 
 
 int main(int /* args */, char** /* argv */)
 {
-	std::cout << "This is myOmronC++ application." << std::endl
-		<< "It is designed to work with Omron cameras using StApi." << std::endl
-		<< "Copyright by ChangSeong Yoo" << std::endl;
-
-	CameraWorker cameraWorker(100);	// 100개의 이미지를 획득할 카메라 워커 객체 생성
-
+	CameraWorker_CB cameraWorker;
 	if (cameraWorker.initialize())
 	{
-		cameraWorker.StartAcquisition();
+		cameraWorker.startAcquisition();
+
+		// ... 이미지 처리 로직 ...
+
+		std::cout << "Press Enter to stop acquisition..." << std::endl;
+		std::cin.get(); // 사용자 입력 대기
+
+		//cameraWorker.stopAcquisition();
 	}
-
-	std::cout << "Press Enter to exit..." << std::endl;
-	std::cin.get(); // Enter 키 입력 대기
-
+	else
+	{
+		std::cerr << "Camera initialization failed." << std::endl;
+	}
 	return 0;
 }
