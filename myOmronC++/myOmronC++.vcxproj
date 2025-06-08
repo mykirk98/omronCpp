@@ -129,6 +129,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CameraEventWorker.cpp" />
     <ClCompile Include="CameraWorker.cpp" />
     <ClCompile Include="CameraWorker_CB.cpp" />
     <ClCompile Include="main.cpp">
@@ -136,8 +137,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CameraEventWorker.h" />
     <ClInclude Include="CameraWorker.h" />
     <ClInclude Include="CameraWorker_CB.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="myOmronC++.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
