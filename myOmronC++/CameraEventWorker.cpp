@@ -40,7 +40,8 @@ bool CameraEventWorker::initialize()
 
 		// 데이터 스트림 생성
 		m_pDataStream = m_pDevice->CreateIStDataStream(0);
-		// NOTE: 데이터스트림 : 카메라에서 이미지를 연속적으로 받아오는 통로를 의미(파이프라인과 유사함)
+		// NOTE:
+		// 데이터스트림 : 카메라에서 이미지를 연속적으로 받아오는 통로를 의미(파이프라인과 유사함)
 
 		// 카메라의 원격 포트에서 노드 맵 가져오기
 		m_pNodeMap = m_pDevice->GetRemoteIStPort()->GetINodeMap();
@@ -60,13 +61,7 @@ bool CameraEventWorker::initialize()
 
 		RegisterCallback(pNodeCallback, &OnNodeCallbackFunction, (uint32_t)0, cbPostInsideLock);
 
-		CEnumerationPtr pEventSelector(m_pNodeMap->GetNode(EVENT_SELECTOR));
-		CEnumEntryPtr pEventSelectorEntry(pEventSelector->GetEntryByName(TARGET_EVENT_NAME));
-		pEventSelector->SetIntValue(pEventSelectorEntry->GetValue());
-
-		CEnumerationPtr pEventNotification(m_pNodeMap->GetNode(EVENT_NOTIFICATION));
-		CEnumEntryPtr pEventNotificationEntry(pEventNotification->GetEntryByName(EVENT_NOTIFICATION_ON));
-		pEventNotification->SetIntValue(pEventNotificationEntry->GetValue());
+		enableExposureEndEvent();
 
 		m_initialized = true;
 		return true;
@@ -76,6 +71,17 @@ bool CameraEventWorker::initialize()
 		std::cerr << "Initialization error: " << e.GetDescription() << std::endl;
 		return false;
 	}
+}
+
+void CameraEventWorker::enableExposureEndEvent()
+{
+	CEnumerationPtr pEventSelector(m_pNodeMap->GetNode(EVENT_SELECTOR));
+	CEnumEntryPtr pEventSelectorEntry(pEventSelector->GetEntryByName(TARGET_EVENT_NAME));
+	pEventSelector->SetIntValue(pEventSelectorEntry->GetValue());
+
+	CEnumerationPtr pEventNotification(m_pNodeMap->GetNode(EVENT_NOTIFICATION));
+	CEnumEntryPtr pEventNotificationEntry(pEventNotification->GetEntryByName(EVENT_NOTIFICATION_ON));
+	pEventNotification->SetIntValue(pEventNotificationEntry->GetValue());
 }
 
 void CameraEventWorker::startAcquisition()
@@ -102,7 +108,7 @@ void CameraEventWorker::startAcquisition()
 				IStImage* pImage = pBuffer->GetIStImage();
 
 				std::cout << "Block ID: " << pBuffer->GetIStStreamBufferInfo()->GetFrameID()
-					<< "Size: " << pImage->GetImageWidth() << " x " << pImage->GetImageHeight()
+					<< " Size: " << pImage->GetImageWidth() << " x " << pImage->GetImageHeight()
 					<< " First byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pImage->GetImageBuffer()))
 					<< " Timestamp = " << pBuffer->GetIStStreamBufferInfo()->GetTimestamp() << std::endl;
 				// 타임스탬프 : 카메라 내부의 정밀 클럭 기준으로 이미지가 획득된 시점의 시간 정보
