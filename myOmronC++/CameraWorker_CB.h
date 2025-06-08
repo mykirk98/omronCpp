@@ -21,7 +21,7 @@ public:
 private:
 	static void __stdcall OnStCallbackFunction(IStCallbackParamBase* pIStCallbackParamBase, void* pvContext);
 	void handleCallback(IStCallbackParamBase* pCallbackParam);
-
+	
 	
 private:
 	CStApiAutoInit m_StApiAutoInit;	// StApi √ ±‚»≠ ∞¥√º

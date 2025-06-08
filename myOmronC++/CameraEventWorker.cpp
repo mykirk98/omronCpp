@@ -59,6 +59,7 @@ bool CameraEventWorker::initialize()
 			// return false
 		}
 
+		// 노드에 콜백 함수 등록 (이벤트 발생 시 콜백 함수 호출)
 		RegisterCallback(pNodeCallback, &OnNodeCallbackFunction, (uint32_t)0, cbPostInsideLock);
 
 		enableExposureEndEvent();
@@ -94,12 +95,19 @@ void CameraEventWorker::startAcquisition()
 
 	try
 	{
+		// 이벤트 수집 스레드 시작 (비동기 이벤트 수신용)
 		m_pDevice->StartEventAcquisitionThread();
+		//NOTE: 이벤트 수신 전용 스레드를 생성하여, 카메라에서 발생하는 하드웨어 이벤트를 실시간으로 감지하고,
+		//		등록된 콜백 함수를 호출
+
+		// 이미지 획득 시작 (호스트(PC) 측)
 		m_pDataStream->StartAcquisition(m_imageCount);
+		// 이미지 획득 시작 (카메라 측)
 		m_pDevice->AcquisitionStart();
 
 		while (m_pDataStream->IsGrabbing())
 		{
+			// 데이터 스트림에서 버퍼 획득
 			CIStStreamBufferPtr pBuffer(m_pDataStream->RetrieveBuffer(5000));
 			// TODO: pBuffer = m_pDataStream->RetrieveBuffer(5000); 차이 검사하기
 
@@ -129,8 +137,11 @@ void CameraEventWorker::stopAcquisition()
 {
 	try
 	{
+		// 이미지 획득 종료 (카메라 측)
 		m_pDevice->AcquisitionStop();
+		// 이미지 획득 종료 (호스트(PC) 측)
 		m_pDataStream->StopAcquisition();
+		// 이벤트 수집 스레드 종료
 		m_pDevice->StopEventAcquisitionThread();
 		
 		m_initialized = false;
