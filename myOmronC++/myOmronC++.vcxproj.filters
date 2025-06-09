@@ -24,6 +24,12 @@
     <ClCompile Include="CameraWorker_CB.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="CameraEventWorker.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraWorker_Chunk.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CameraWorker.h">
@@ -33,6 +39,12 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraEventWorker.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraWorker_Chunk.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,15 +1,13 @@
-#include "CameraEventWorker.h"
+#include "CameraWorker_Chunk.h"
 
 int main()
 {
-	std::cout << "2025/06/08 - Camera Event C++ Code" << std::endl;
+	std::cout << "Camera Worker Class with Chunk Data" << std::endl;
 
-	CameraEventWorker camera(100);
+	CameraWorker_Chunk camera(100);
 	if (camera.initialize())
 	{
 		camera.startAcquisition();
 	}
-
-	/*std::cout << "Press Enter to stop acquisition..." << std::endl;
-	std::cin.get();*/
+	return 0;
 }
