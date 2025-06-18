@@ -38,9 +38,6 @@
     <ClInclude Include="CameraWorker_CB.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="CameraEventWorker.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
