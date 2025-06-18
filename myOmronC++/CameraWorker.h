@@ -30,7 +30,6 @@ private:
 
 	uint64_t m_imageCount;	// 획득할 이미지 수
 	
-	std::wstring m_savePath;	// 이미지 저장 경로
 	
 	CStApiAutoInit m_StApiAutoInit;	// StApi 초기화 객체
 	// StApi 라이브러리의 자동 초기화를 위한 객체로,
@@ -39,5 +38,7 @@ private:
 	CIStDevicePtr m_pDevice;	// 장치 객체
 	CIStDataStreamPtr m_pDataStream;	// 데이터 스트림 객체
 	
+	std::wstring m_savePath;	// 이미지 저장 경로
+	CIStImageBufferPtr m_pImageBuffer;	// 이미지 버퍼 포인터
 };
 

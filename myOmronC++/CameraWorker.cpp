@@ -1,11 +1,11 @@
 #include "CameraWorker.h"
-#include <iostream>
 
 CameraWorker::CameraWorker(uint64_t imageCount)
 	: m_imageCount(imageCount)
 	, m_initialized(false)
 	, m_isImageSaved(false)
 	, m_savePath(L"")
+	, m_pImageBuffer(nullptr)
 {
 }
 
@@ -90,39 +90,23 @@ void CameraWorker::StartAcquisition()
 			// 이미지가 저장되었다면 후속 작업 수행
 			if (m_isImageSaved)
 			{
-				GenICam::gcstring strFileNameRaw = SetSavePath();
-				strFileNameRaw.append(".StApiRaw");
-
-				// StApiRaw 파일에서 이미지를 읽어올 버퍼 객체 생성
-				CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
-
-				// 이미지 파일 입출력을 위한 filer 객체 생성
-				CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
-
-				std::wcout << std::endl << L"Loading " << strFileNameRaw.w_str().c_str() << L"... ";
-				//NOTE: w_str(): wide string(wchar_t*) 포인터로 반환
-				//NOTE: c_str(): char* 포인터로 반환
-				//NOTE: L: wide string 리터럴을 의미, 각 문자가 2바이트로 표현됨
-
-				pStillImageFiler->Load(pImageBuffer, strFileNameRaw);
-				std::cout << "done." << std::endl;
-
-				// 픽셀 포맷 변환을 위한 converter 객체 생성
-				CIStPixelFormatConverterPtr pPixelFormatConverter(CreateIStConverter(StConverterType_PixelFormat));
-
-				// BGR8 포맷으로 변환
-				pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_BGR8);
-				pPixelFormatConverter->Convert(pImageBuffer->GetIStImage(), pImageBuffer);
-
-				GenICam::gcstring strFileName = SetSavePath();
-				strFileName.append(".bmp");
-
-				//CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
-				//CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
-
-				std::wcout << std::endl << L"Saving " << strFileName.w_str().c_str() << L"... ";
-				pStillImageFiler->Save(pImageBuffer->GetIStImage(), StStillImageFileFormat_Bitmap, strFileName);//BUG: Save BMP image error: There is no available image.
-				std::cout << "done." << std::endl;
+				// 저장된 StApiRaw 이미지 파일을 로드
+				if (LoadImage())
+				{
+					// 이미지 포맷 설정
+					if (SetImageFormat())
+					{
+						// BMP 이미지로 저장
+						if (SaveBMPImage())
+						{
+							std::cout << "Image saved successfully." << std::endl;
+						}
+					}
+				}
+			}
+			else
+			{
+				std::cerr << "Failed to save image." << std::endl;
 			}
 		}
 	}
@@ -155,15 +139,13 @@ GenICam::gcstring CameraWorker::SetSavePath()
 {
 	try
 	{
-		//wchar_t szPath[MAX_PATH] = { 0 };
-		//TODO: 위 코드처럼 값을 초기화한 것이랑 안 한 것의 차이가 있는지 확인
 		wchar_t szPath[MAX_PATH];
 		SHGetFolderPathW(NULL, CSIDL_MYPICTURES, NULL, 0, szPath);
 
 		GenICam::gcstring strFileNameHeader(szPath);
 		strFileNameHeader.append("\\");
 		strFileNameHeader.append(m_pDevice->GetIStDeviceInfo()->GetDisplayName());
-		//TODO: 프레임ID를 포함한 파일 이름 생성
+		//TODO: 프레임ID를 포함한 파일 이름 생성, 현재는 streamBuffer가 StartAcquisition메소드의 지역 변수로 선언되어 있어 접근 불가
 
 		return strFileNameHeader;
 		//NOTE: StApiRaw: 카메라에서 획득한 원본 이미지 데이터와 관련 메타데이터를 그대로 저장
@@ -184,6 +166,7 @@ bool CameraWorker::SaveImage(IStImage* pImage)
 
 		// 정지(still) 이미지를 파일로 처리하는 기능을 담당하는 객체 생성 (StApi_IP.h 라이브러리에서 제공)
 		CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
+		//TODO: SaveImage() 함수의 pStillImageFiler와 LoadImage() 함수의 pStillImageFiler는 동일한 객체를 사용해야 하는지 확인
 		
 		std::wcout << std::endl << L"Saving " << strFileName.w_str().c_str() << L"... ";
 
@@ -207,8 +190,8 @@ bool CameraWorker::LoadImage()
 		GenICam::gcstring strFileNameRaw = SetSavePath();
 		strFileNameRaw.append(".StApiRaw");
 		
-		// StApiRaw 파일에서 이미지를 읽어올 버퍼 객체 생성
-		CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
+		// StApiRaw 파일에서 이미지를 읽어올 버퍼 객체 생성, 임시로 저장하고 처리하기 위한 이미지 버퍼 객체
+		m_pImageBuffer = CreateIStImageBuffer();
 
 		// 이미지 파일 입출력을 위한 filer 객체 생성
 		CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
@@ -218,24 +201,8 @@ bool CameraWorker::LoadImage()
 		//NOTE: c_str(): char* 포인터로 반환
 		//NOTE: L: wide string 리터럴을 의미, 각 문자가 2바이트로 표현됨
 
-		pStillImageFiler->Load(pImageBuffer, strFileNameRaw);
-		std::cout << "done." << std::endl;
-
-		// 픽셀 포맷 변환을 위한 converter 객체 생성
-		CIStPixelFormatConverterPtr pPixelFormatConverter(CreateIStConverter(StConverterType_PixelFormat));
-
-		// BGR8 포맷으로 변환
-		pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_BGR8);
-		pPixelFormatConverter->Convert(pImageBuffer->GetIStImage(), pImageBuffer);
-
-		GenICam::gcstring strFileName = SetSavePath();
-		strFileName.append(".bmp");
-
-		//CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
-		//CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
-
-		std::wcout << std::endl << L"Saving " << strFileName.w_str().c_str() << L"... ";
-		pStillImageFiler->Save(pImageBuffer->GetIStImage(), StStillImageFileFormat_Bitmap, strFileName);//BUG: Save BMP image error: There is no available image.
+		//pStillImageFiler->Load(pImageBuffer, strFileNameRaw);
+		pStillImageFiler->Load(m_pImageBuffer, strFileNameRaw);
 		std::cout << "done." << std::endl;
 
 		return true;
@@ -251,14 +218,12 @@ bool CameraWorker::SetImageFormat()
 {
 	try
 	{
-		CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
-		
 		// 픽셀 포맷 변환을 위한 converter 객체 생성
 		CIStPixelFormatConverterPtr pPixelFormatConverter(CreateIStConverter(StConverterType_PixelFormat));
 		
 		// BGR8 포맷으로 변환
 		pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_BGR8);
-		pPixelFormatConverter->Convert(pImageBuffer->GetIStImage(), pImageBuffer);
+		pPixelFormatConverter->Convert(m_pImageBuffer->GetIStImage(), m_pImageBuffer);
 
 		return true;
 	}
@@ -276,11 +241,10 @@ bool CameraWorker::SaveBMPImage()
 		GenICam::gcstring strFileName = SetSavePath();
 		strFileName.append(".bmp");
 
-		CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
 		CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
 
 		std::wcout << std::endl << L"Saving " << strFileName.w_str().c_str() << L"... ";
-		pStillImageFiler->Save(pImageBuffer->GetIStImage(), StStillImageFileFormat_Bitmap, strFileName);//BUG: Save BMP image error: There is no available image.
+		pStillImageFiler->Save(m_pImageBuffer->GetIStImage(), StStillImageFileFormat_Bitmap, strFileName);
 		std::cout << "done." << std::endl;
 
 		return true;
