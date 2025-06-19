@@ -110,7 +110,7 @@ void CameraWorker::StopAcquisition()
 	}
 }
 
-GenICam::gcstring CameraWorker::SetSavePath(GenICam::gcstring frameID)
+GenICam::gcstring CameraWorker::SetSavePath(const GenICam::gcstring frameID)
 {
 	try
 	{
@@ -124,7 +124,7 @@ GenICam::gcstring CameraWorker::SetSavePath(GenICam::gcstring frameID)
 		strFileNameHeader.append(m_pDevice->GetIStDeviceInfo()->GetDisplayName());
 		//TODO: 프레임ID를 포함한 파일 이름 생성, 현재는 streamBuffer가 StartAcquisition메소드의 지역 변수로 선언되어 있어 접근 불가
         strFileNameHeader.append(frameID);
-
+		
 		return strFileNameHeader;
 		//NOTE: StApiRaw: 카메라에서 획득한 원본 이미지 데이터와 관련 메타데이터를 그대로 저장
 	}
@@ -135,102 +135,28 @@ GenICam::gcstring CameraWorker::SetSavePath(GenICam::gcstring frameID)
 	}
 }
 
-//bool CameraWorker::SaveImage(IStImage* pImage)
-//{
-//	try
-//	{
-//		GenICam::gcstring strFileName = SetSavePath();
-//		strFileName.append(".StApiRaw");
-//
-//		// 정지(still) 이미지를 파일로 처리하는 기능을 담당하는 객체 생성 (StApi_IP.h 라이브러리에서 제공)
-//		CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
-//		
-//		std::wcout << std::endl << L"Saving " << strFileName.w_str().c_str() << L"... ";
-//
-//		pStillImageFiler->Save(pImage, StStillImageFileFormat_StApiRaw, strFileName);
-//
-//		std::cout << "done." << std::endl;
-//
-//		return true;
-//	}
-//	catch (const GenICam::GenericException& e)
-//	{
-//		std::cerr << "Save image error: " << e.GetDescription() << std::endl;
-//		return false;
-//	}
-//}
-//
-//bool CameraWorker::LoadImage()
-//{
-//	try
-//	{
-//		GenICam::gcstring strFileNameRaw = SetSavePath();
-//		strFileNameRaw.append(".StApiRaw");
-//		
-//		// StApiRaw 파일에서 이미지를 읽어올 버퍼 객체 생성, 임시로 저장하고 처리하기 위한 이미지 버퍼 객체
-//		//m_pImageBuffer = CreateIStImageBuffer();
-//
-//		// 이미지 파일 입출력을 위한 filer 객체 생성
-//		CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
-//
-//		std::wcout << std::endl << L"Loading " << strFileNameRaw.w_str().c_str() << L"... ";
-//		//NOTE: w_str(): wide string(wchar_t*) 포인터로 반환
-//		//NOTE: c_str(): char* 포인터로 반환
-//		//NOTE: L: wide string 리터럴을 의미, 각 문자가 2바이트로 표현됨
-//
-//		//pStillImageFiler->Load(pImageBuffer, strFileNameRaw);.3
-//		std::cout << "done." << std::endl;
-//
-//		return true;
-//	}
-//	catch (const GenICam::GenericException& e)
-//	{
-//		std::cerr << "Load image error: " << e.GetDescription() << std::endl;
-//		return false;
-//	}
-//}
+void CameraWorker::LoadImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& filePath)
+{
+	try
+	{
+		// 이미지 파일 입출력을 위한 filer 객체 생성
+		CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
 
-//bool CameraWorker::SetImageFormat()
-//{
-//	try
-//	{
-//		// 픽셀 포맷 변환을 위한 converter 객체 생성
-//		CIStPixelFormatConverterPtr pPixelFormatConverter(CreateIStConverter(StConverterType_PixelFormat));
-//		
-//		// BGR8 포맷으로 변환
-//		pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_BGR8);
-//
-//		return true;
-//	}
-//	catch (const GenICam::GenericException& e)
-//	{
-//		std::cerr << "Set image format error: " << e.GetDescription() << std::endl;
-//		return false;
-//	}
-//}
+		std::wcout << std::endl << L"Loading " << filePath.w_str().c_str() << L"... ";
+		//NOTE: w_str(): wide string(wchar_t*) 포인터로 반환
+		//NOTE: c_str(): char* 포인터로 반환
+		//NOTE: L: wide string 리터럴을 의미, 각 문자가 2바이트로 표현됨
+		pStillImageFiler->Load(pImageBuffer, filePath);
 
-//bool CameraWorker::SaveBMPImage()
-//{
-//	try
-//	{
-//		GenICam::gcstring strFileName = SetSavePath();
-//		strFileName.append(".bmp");
-//
-//		CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
-//
-//		std::wcout << std::endl << L"Saving " << strFileName.w_str().c_str() << L"... ";
-//		std::cout << "done." << std::endl;
-//
-//		return true;
-//	}
-//	catch (const GenICam::GenericException& e)
-//	{
-//		std::cerr << "Save BMP image error: " << e.GetDescription() << std::endl;
-//		return false;
-//	}
-//}
+		std::cout << "done." << std::endl;
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "Load image error: " << e.GetDescription() << std::endl;
+	}
+}
 
-void CameraWorker::SaveBMPImage(CIStImageBufferPtr& pImageBuffer, GenICam::gcstring& savePath)
+void CameraWorker::SaveBMPImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath)
 {
 	try
 	{	

@@ -28,24 +28,24 @@ public:
 	void StopAcquisition();
 	
 protected:
-
+	
 private:
 	/*
 	@brief 이미지 저장 경로 설정 함수
 	@return : 이미지 저장 경로 문자열
 	*/
 	GenICam::gcstring SetSavePath(GenICam::gcstring frameID);
-	/* @brief 이미지 로드 함수 */
-	//bool LoadImage();
-	/* @brief 이미지 포맷 설정 함수 */
-	//bool SetImageFormat();
-	/* @brief BMP 이미지 저장 함수 */
-	//bool SaveBMPImage();
 	/*
-	@brief BMP 이미지 저장 함수 (이미지 버퍼를 인자로 받음) 
+	@brief 이미지 로드 함수
+	@param pImageBuffer : 로드한 이미지를 저장할 이미지 버퍼 포인터
+	@param filePath : 불러올 이미지 파일 경로
+	*/
+	void LoadImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& filePath);
+	/*
+	@brief BMP 이미지 저장 함수 (이미지 버퍼를 인자로 받음)
 	@param pImageBuffer : 저장할 이미지 버퍼 포인터
 	*/
-	void SaveBMPImage(CIStImageBufferPtr& pImageBuffer, GenICam::gcstring& savePath);
+	void SaveBMPImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath);
 	/*
 	@brief 픽셀 포맷 변환 함수
 	@param pSrcImage : 변환할 원본 이미지 포인터
