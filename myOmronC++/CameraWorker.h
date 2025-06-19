@@ -31,12 +31,10 @@ protected:
 
 private:
 	/*
-	@brief 이미지 저장 경로 설정 함수 
+	@brief 이미지 저장 경로 설정 함수
 	@return : 이미지 저장 경로 문자열
 	*/
-	GenICam::gcstring SetSavePath();
-	/* @brief StApiRaw 이미지 저장 함수 */
-	//bool SaveImage(IStImage* pImage);
+	GenICam::gcstring SetSavePath(GenICam::gcstring frameID);
 	/* @brief 이미지 로드 함수 */
 	//bool LoadImage();
 	/* @brief 이미지 포맷 설정 함수 */
@@ -47,7 +45,7 @@ private:
 	@brief BMP 이미지 저장 함수 (이미지 버퍼를 인자로 받음) 
 	@param pImageBuffer : 저장할 이미지 버퍼 포인터
 	*/
-	void SaveBMPImage(CIStImageBufferPtr& pImageBuffer);
+	void SaveBMPImage(CIStImageBufferPtr& pImageBuffer, GenICam::gcstring& savePath);
 	/*
 	@brief 픽셀 포맷 변환 함수
 	@param pSrcImage : 변환할 원본 이미지 포인터
