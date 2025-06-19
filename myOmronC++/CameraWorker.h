@@ -65,6 +65,4 @@ private:
 	CIStSystemPtr m_pSystem;	// 시스템 객체
 	CIStDevicePtr m_pDevice;	// 디바이스 객체
 	CIStDataStreamPtr m_pDataStream;	// 데이터 스트림 객체
-	
-	std::wstring m_savePath;	// 이미지 저장 경로
 };

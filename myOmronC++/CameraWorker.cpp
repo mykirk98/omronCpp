@@ -4,7 +4,6 @@ CameraWorker::CameraWorker(uint64_t imageCount)
 	: m_imageCount(imageCount)
 	, m_initialized(false)
 	, m_isImageSaved(false)
-	, m_savePath(L"")
 {
 }
 
@@ -65,6 +64,7 @@ void CameraWorker::StartAcquisition()
 				// 이미지 데이터가 있는 경우 IStImage 객체 생성
 				IStImage* pImage = pStreamBuffer->GetIStImage();
 				
+				//OPTIMIZE: 간단하게 프레임 ID를 문자열로 변환할 수 있지 않을까?
                 GenICam::gcstring frameID = GenICam::gcstring(std::to_string(pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()).c_str());
 				
 				// 이미지 정보 출력
@@ -115,14 +115,14 @@ GenICam::gcstring CameraWorker::SetSavePath(const GenICam::gcstring frameID)
 	try
 	{
 		// 사용자 문서 폴더 경로 가져오기
-		wchar_t szPath[MAX_PATH];
+		wchar_t szPath[MAX_PATH] = { 0 };
 		SHGetFolderPathW(NULL, CSIDL_MYPICTURES, NULL, 0, szPath);
 		
 		// 이미지 저장 경로 설정
 		GenICam::gcstring strFileNameHeader(szPath);
 		strFileNameHeader.append("\\");
+		strFileNameHeader.append("OmronCameraExperiments\\");
 		strFileNameHeader.append(m_pDevice->GetIStDeviceInfo()->GetDisplayName());
-		//TODO: 프레임ID를 포함한 파일 이름 생성, 현재는 streamBuffer가 StartAcquisition메소드의 지역 변수로 선언되어 있어 접근 불가
         strFileNameHeader.append(frameID);
 		
 		return strFileNameHeader;
