@@ -1,9 +1,10 @@
 #include "CameraWorker.h"
-#include <iostream>
 
 CameraWorker::CameraWorker(uint64_t imageCount)
 	: m_imageCount(imageCount)
 	, m_initialized(false)
+	, m_isImageSaved(false)
+	, m_savePath(L"")
 {
 }
 
@@ -11,7 +12,6 @@ CameraWorker::~CameraWorker()
 {
 	if (m_initialized)
 	{
-		// 카메라 획득 중지
 		StopAcquisition();
 	}
 }
@@ -22,13 +22,10 @@ bool CameraWorker::initialize()
 	{
 		// 시스템 객체 생성 (장치 검색 및 연결)
 		m_pSystem = CreateIStSystem();
-		
 		// 첫 번째 장치 생성 및 연결
 		m_pDevice = m_pSystem->CreateFirstIStDevice();
-		
 		// 장치 정보 출력
 		std::cout << "Device=" << m_pDevice->GetIStDeviceInfo()->GetDisplayName() << std::endl;
-		
 		// 이미지 스트림 데이터를 처리하기 위한 데이터스트림 객체 생성
 		m_pDataStream = m_pDevice->CreateIStDataStream(0);
 		
@@ -54,10 +51,8 @@ void CameraWorker::StartAcquisition()
 	{
 		// 호스트(PC) 측의 이미지 획득 시작
 		m_pDataStream->StartAcquisition(m_imageCount);
-
 		// 카메라 측의 이미지 획득 시작
 		m_pDevice->AcquisitionStart();
-
 		// 이미지 획득 및 상태 확인을 위한 루프
 		while (m_pDataStream->IsGrabbing())
 		{
@@ -70,12 +65,20 @@ void CameraWorker::StartAcquisition()
 				// 이미지 데이터가 있는 경우 IStImage 객체 생성
 				IStImage* pImage = pStreamBuffer->GetIStImage();
 				
+                GenICam::gcstring frameID = GenICam::gcstring(std::to_string(pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()).c_str());
+				
 				// 이미지 정보 출력
-				std::cout << "BlockId=" << pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()
+				std::cout << "BlockId=" << frameID
 					<< " Size: " << pImage->GetImageWidth()
 					<< " x " << pImage->GetImageHeight()
 					<< " First byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pImage->GetImageBuffer()))
 					<< std::endl;
+				
+				CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
+				ConvertToBGR8(pImage, StPFNC_BGR8, pImageBuffer);
+				
+				GenICam::gcstring savePath = SetSavePath(frameID);
+				SaveBMPImage(pImageBuffer, savePath);
 			}
 			else
 			{
@@ -97,7 +100,6 @@ void CameraWorker::StopAcquisition()
 		{
 			// 카메라 측 이미지 획득 중지
 			m_pDevice->AcquisitionStop();
-			
 			// 호스트(PC) 측 이미지 획득 중지
 			m_pDataStream->StopAcquisition();
 		}
@@ -107,6 +109,86 @@ void CameraWorker::StopAcquisition()
 		std::cerr << "Stop acqiusition error: " << e.GetDescription() << std::endl;
 	}
 }
+
+GenICam::gcstring CameraWorker::SetSavePath(const GenICam::gcstring frameID)
+{
+	try
+	{
+		// 사용자 문서 폴더 경로 가져오기
+		wchar_t szPath[MAX_PATH];
+		SHGetFolderPathW(NULL, CSIDL_MYPICTURES, NULL, 0, szPath);
+		
+		// 이미지 저장 경로 설정
+		GenICam::gcstring strFileNameHeader(szPath);
+		strFileNameHeader.append("\\");
+		strFileNameHeader.append(m_pDevice->GetIStDeviceInfo()->GetDisplayName());
+		//TODO: 프레임ID를 포함한 파일 이름 생성, 현재는 streamBuffer가 StartAcquisition메소드의 지역 변수로 선언되어 있어 접근 불가
+        strFileNameHeader.append(frameID);
+		
+		return strFileNameHeader;
+		//NOTE: StApiRaw: 카메라에서 획득한 원본 이미지 데이터와 관련 메타데이터를 그대로 저장
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "Set save path error: " << e.GetDescription() << std::endl;
+		return GenICam::gcstring();
+	}
+}
+
+void CameraWorker::LoadImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& filePath)
+{
+	try
+	{
+		// 이미지 파일 입출력을 위한 filer 객체 생성
+		CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
+
+		std::wcout << std::endl << L"Loading " << filePath.w_str().c_str() << L"... ";
+		//NOTE: w_str(): wide string(wchar_t*) 포인터로 반환
+		//NOTE: c_str(): char* 포인터로 반환
+		//NOTE: L: wide string 리터럴을 의미, 각 문자가 2바이트로 표현됨
+		pStillImageFiler->Load(pImageBuffer, filePath);
+
+		std::cout << "done." << std::endl;
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "Load image error: " << e.GetDescription() << std::endl;
+	}
+}
+
+void CameraWorker::SaveBMPImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath)
+{
+	try
+	{	
+		// 이미지 저장 경로에 확장자 추가
+		GenICam::gcstring strSaveDir = savePath;
+		strSaveDir.append(".bmp");
+
+		CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
+
+		std::wcout << std::endl << L"Saving " << strSaveDir.w_str().c_str() << L"... " << std::endl;
+		//NOTE: w_str(): wide string(wchar_t*) 포인터로 반환
+		//NOTE: c_str(): char* 포인터로 반환
+		//NOTE: L: wide string 리터럴을 의미, 각 문자가 2바이트로 표현됨
+		pStillImageFiler->Save(pImageBuffer->GetIStImage(), StStillImageFileFormat_Bitmap, strSaveDir);
+		std::cout << "done." << std::endl;
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "Save BMP image error: " << e.GetDescription() << std::endl;
+	}
+}
+
+void CameraWorker::ConvertToBGR8(IStImage* pSrcImage, EStPixelFormatNamingConvention_t dstFormat, CIStImageBufferPtr& pDstBuffer)
+{
+	// 픽셀 포맷 변환을 위한 converter 객체 생성
+	CIStPixelFormatConverterPtr pPixelFormatConverter(CreateIStConverter(StConverterType_PixelFormat));
+	
+	// BGR8 포맷으로 변환
+	pPixelFormatConverter->SetDestinationPixelFormat(dstFormat);
+	pPixelFormatConverter->Convert(pSrcImage, pDstBuffer);
+}
+
 
 
 // 사용 예시 (main.cpp에서 호출)
