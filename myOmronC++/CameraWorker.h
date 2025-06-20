@@ -5,6 +5,38 @@
 #include <ShlObj.h>
 
 using namespace StApi;
+
+struct StApiRaw
+{
+	static constexpr const char* extension = ".StApiRaw";
+	static constexpr EStStillImageFileFormat_t fileFormat = StStillImageFileFormat_StApiRaw;
+};
+struct BMP
+{
+	static constexpr const char* extension = ".bmp";
+	static constexpr EStStillImageFileFormat_t fileFormat = StStillImageFileFormat_Bitmap;
+};
+struct TIFF
+{
+	static constexpr const char* extension = ".tif";
+	static constexpr EStStillImageFileFormat_t fileFormat = StStillImageFileFormat_TIFF;
+};
+struct PNG
+{
+	static constexpr const char* extension = ".png";
+	static constexpr EStStillImageFileFormat_t fileFormat = StStillImageFileFormat_PNG;
+};
+struct JPEG
+{
+	static constexpr const char* extension = ".jpg";
+	static constexpr EStStillImageFileFormat_t fileFormat = StStillImageFileFormat_JPEG;
+};
+struct CSV
+{
+	static constexpr const char* extension = ".csv";
+	static constexpr EStStillImageFileFormat_t fileFormat = StStillImageFileFormat_CSV;
+};
+
 /*
 @brief 기본적인 카메라 작업을 수행하는 클래스.
 @brief 단순한 이미지 획득 및 저장 기능을 제공하며, 카메라 초기화, 이미지 획득 시작 및 종료 기능을 포함합니다.
@@ -62,6 +94,9 @@ public:
 	@param savePath : 이미지 저장 경로
 	*/
 	void SaveCSVImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath);
+
+	template<typename FORMAT>
+	void SaveImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath);
 
 protected:
 	

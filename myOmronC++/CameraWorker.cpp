@@ -79,7 +79,8 @@ void CameraWorker::StartAcquisition()
 				ConvertToBGR8(pImage, StPFNC_BGR8, pImageBuffer);
 				
 				GenICam::gcstring savePath = SetSavePath(frameID);
-				SaveBMPImage(pImageBuffer, savePath);
+				//SaveBMPImage(pImageBuffer, savePath);
+				SaveImage<BMP>(pImageBuffer, savePath);
 			}
 			else
 			{
@@ -357,7 +358,29 @@ void CameraWorker::SaveCSVImage(CIStImageBufferPtr& pImageBuffer, const GenICam:
 	SaveImage(pImageBuffer, savePath, StStillImageFileFormat_CSV);
 }
 
+template<typename FORMAT>
+void CameraWorker::SaveImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath)
+{
+	try
+	{
+		// 이미지 저장 경로에 확장자 추가 by 템플릿
+		GenICam::gcstring strSaveDir = SavePath;
+		strSaveDir.append(FORMAT::extension);
+		
+		// 이미지 저장을 위한 filer 객체 생성
+		CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
 
+		// 이미지 저장
+		std::wcout << std::endl << L"Saving " << savePath.w_str().c_str() << L"... " << std::endl;
+		pStillImageFiler->Save(pImageBuffer->GetIStImage(), FORMAT::fileFormat, savePath);
+		std::cout << "done." << std::endl;
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "Save image error: " << e.GetDescription() << std::endl;
+	}
+}
+//TODO:
 
 
 
