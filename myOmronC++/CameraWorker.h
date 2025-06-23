@@ -58,42 +58,6 @@ public:
 	void StartAcquisition();
 	/* @brief 이미지 획득 종료 함수 */
 	void StopAcquisition();
-	/*
-	@brief .stapiraw 확장자로 이미지 저장하는 wrapper 함수
-	@param pImageBuffer : 저장할 이미지 버퍼 포인터
-	@param savePath : 이미지 저장 경로
-	*/
-	void SaveStApiRawImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath);
-	/*
-	@brief .bitmap 확장자로 이미지 저장하는 wrapper 함수
-	@param pImageBuffer : 저장할 이미지 버퍼 포인터
-	@param savePath : 이미지 저장 경로
-	*/
-	void SaveBMPImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath);
-	/*
-	@brief .tiff 확장자로 이미지 저장하는 wrapper 함수
-	@param pImageBuffer : 저장할 이미지 버퍼 포인터
-	@param savePath : 이미지 저장 경로
-	*/
-	void SaveTiffImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath);
-	/*
-	@brief .png 확장자로 이미지 저장하는 wrapper 함수
-	@param pImageBuffer : 저장할 이미지 버퍼 포인터
-	@param savePath : 이미지 저장 경로
-	*/
-	void SavePNGImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath);
-	/*
-	@brief .jpg 확장자로 이미지 저장하는 wrapper 함수
-	@param pImageBuffer : 저장할 이미지 버퍼 포인터
-	@param savePath : 이미지 저장 경로
-	*/
-	void SaveJPEGImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath);
-	/*
-	@brief .csv 확장자로 이미지 저장하는 wrapper 함수
-	@param pImageBuffer : 저장할 이미지 버퍼 포인터
-	@param savePath : 이미지 저장 경로
-	*/
-	void SaveCSVImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath);
 
 	template<typename FORMAT>
 	void SaveImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath);
@@ -127,7 +91,7 @@ private:
 	@param savePath : 이미지 저장 경로
 	@param fileFormat : 저장할 이미지 파일 포맷
 	*/
-	void SaveImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath, EStStillImageFileFormat_t fileFormat);
+	//void SaveImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath, EStStillImageFileFormat_t fileFormat);
 	
 
 	bool m_initialized;

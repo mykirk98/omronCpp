@@ -2,7 +2,7 @@
 
 int main()
 {
-	CameraWorker cameraWorker(1);
+	CameraWorker cameraWorker(5);
 	
 	if (cameraWorker.initialize())
 	{
