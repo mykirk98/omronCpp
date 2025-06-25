@@ -1,4 +1,4 @@
-#include "CameraWorker_CB.h"
+#include "CameraWorkerCB.h"
 
 CameraWorkerCB::CameraWorkerCB()
 	: pICommandTriggerSoftware(nullptr)
