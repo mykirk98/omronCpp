@@ -1,36 +1,42 @@
 #include "CameraWorker_CB.h"
 
-CameraWorker_CB::CameraWorker_CB()
-	: m_initialized(false)
+CameraWorkerCB::CameraWorkerCB()
+	: pICommandTriggerSoftware(nullptr)
 {
-
 }
 
-CameraWorker_CB::~CameraWorker_CB()
+CameraWorkerCB::~CameraWorkerCB()
 {
 	stopAcquisition();
 }
 
-bool CameraWorker_CB::initialize()
+bool CameraWorkerCB::initialize()
 {
 	try
 	{
 		// 시스템 객체 생성 (장치 검색 및 연결)
 		m_pSystem = CreateIStSystem();
-
+		
 		// 첫 번쨰 장치 생성 및 연결
 		m_pDevice = m_pSystem->CreateFirstIStDevice();
 
 		// 장치 정보 출력
 		std::cout << "Device: " << m_pDevice->GetIStDeviceInfo()->GetDisplayName() << std::endl;
 
+		// 카메라 세팅을 위한 노드맵 가져오기
+		GenApi::CNodeMapPtr pINodeMap(m_pDevice->GetRemoteIStPort()->GetINodeMap());
+		// 트리거모드 설정
+		SetTriggerMode(pINodeMap, "TriggerSelectorFrameStart", "On", "Software");
+		pICommandTriggerSoftware = pINodeMap->GetNode("TriggerSoftware");
+		
 		// 이미지 스트림 데이터를 처리하기 위한 데이터스트림 객체 생성
 		m_pDataStream = m_pDevice->CreateIStDataStream(0);
 
 		// 데이터 스트림 콜백 설정 (this 포인터를 pvContext로 전달)
-		RegisterCallback(m_pDataStream, &CameraWorker_CB::OnStCallbackFunction, this);
+		RegisterCallback(m_pDataStream, &CameraWorkerCB::OnStCallbackMethod, this);
+		//RegisterCallback(m_pDataStream, &CameraWorker_CB::OnStCallbackFunction, nullptr);	// nullptr을 넘길 경우, 콜백 함수에서 this 포인터를 사용할 수 없음
 		// NOTE: this를 넘기는 목적 : 콜백이 발생했을 때, 어떤 객체의 멤버 함수로 처리를 위임할지 알려주기 위함
-		
+
 		m_initialized = true;
 		return true;
 	}
@@ -41,7 +47,7 @@ bool CameraWorker_CB::initialize()
 	}
 }
 
-void CameraWorker_CB::startAcquisition()
+void CameraWorkerCB::startAcquisition()
 {
 	if (m_initialized == false)
 	{
@@ -54,9 +60,28 @@ void CameraWorker_CB::startAcquisition()
 		{
 			// 호스트(PC) 측 이미지 획득 시작
 			m_pDataStream->StartAcquisition();
-
+			
 			// 카메라 측 이미지 획득 시작
 			m_pDevice->AcquisitionStart();
+
+			/*while (true)
+			{
+				std::cout << "0: Generate trigger" << std::endl;
+				std::cout << "Else: Exit" << std::endl;
+				std::cout << "Select: ";
+
+				size_t nindex;
+				std::cin >> nindex;
+				
+				if (nindex == 0)
+				{
+					pICommandTriggerSoftware->Execute();
+				}
+				else
+				{
+					break;
+				}
+			}*/
 		}
 		catch (const GenICam::GenericException& e)
 		{
@@ -65,13 +90,12 @@ void CameraWorker_CB::startAcquisition()
 	}
 }
 
-void CameraWorker_CB::stopAcquisition()
+void CameraWorkerCB::stopAcquisition()
 {
 	if (m_initialized == false)
 	{
 		return;
 	}
-
 	else
 	{
 		try
@@ -89,56 +113,92 @@ void CameraWorker_CB::stopAcquisition()
 	}
 }
 
-void __stdcall CameraWorker_CB::OnStCallbackFunction(IStCallbackParamBase* pIStCallbackParamBase, void* pvContext)
+void __stdcall CameraWorkerCB::OnStCallbackMethod(IStCallbackParamBase* pIStCallbackParamBase, void* pvContext)
 {
 	if (pvContext)
 	{
 		// pvContext로 넘긴 this 포인터를 다시 캐스팅하여 멤버 함수 호출
-		static_cast<CameraWorker_CB*>(pvContext)->handleCallback(pIStCallbackParamBase);
+		static_cast<CameraWorkerCB*>(pvContext)->OnCallback(pIStCallbackParamBase);
 		// static_cast : C++에서 형 변환을 할 때 사용하는 연산자, 컴파일 타임에 변환
 		// <> : 템플릿을 사용하여 타입을 지정
 	}
 }
 
 // 멤버 콜백 처리 함수
-void CameraWorker_CB::handleCallback(IStCallbackParamBase* pCallbackParam)
+void CameraWorkerCB::OnCallback(IStCallbackParamBase* pCallbackParam)
 {
-	// 콜백 파라미터의 타입 확인
-	if (pCallbackParam->GetCallbackType() == StCallbackType_GenTLEvent_DataStreamNewBuffer)
+	try
 	{
-		
-		IStCallbackParamGenTLEventNewBuffer* pNewBufferParam = dynamic_cast<IStCallbackParamGenTLEventNewBuffer*>(pCallbackParam);
-		// NOTE: dynamic_cast를 사용한 이유 : 다형성을 활용하여 IStCallbackParamBase에서 파생된 
-		//									IStCallbackParamGenTLEventNewBuffer 타입으로 안전하게 다운캐스팅하기 위함
-		// NOTE: static_cast와의 차이점 : dynamic_cast는 런타임에 타입 체크를 수행하여 실패할 경우 nullptr을 반환
-		// 
-
-		try
+		// 콜백 파라미터의 타입 확인
+		if (pCallbackParam->GetCallbackType() == StCallbackType_GenTLEvent_DataStreamNewBuffer)
 		{
+			IStCallbackParamGenTLEventNewBuffer* pNewBufferParam = dynamic_cast<IStCallbackParamGenTLEventNewBuffer*>(pCallbackParam);
+			// NOTE: dynamic_cast를 사용한 이유 : 다형성을 활용하여 IStCallbackParamBase에서 파생된 
+			//									IStCallbackParamGenTLEventNewBuffer 타입으로 안전하게 다운캐스팅하기 위함
+			// NOTE: static_cast와의 차이점 : dynamic_cast는 런타임에 타입 체크를 수행하여 실패할 경우 nullptr을 반환
+			
 			IStDataStream* pDataStream = pNewBufferParam->GetIStDataStream();
 			
-			CIStStreamBufferPtr pBuffer(pDataStream->RetrieveBuffer(0));
+			CIStStreamBufferPtr pStreamBuffer(pDataStream->RetrieveBuffer(0));
 			
-			if (pBuffer->GetIStStreamBufferInfo()->IsImagePresent())
+			if (pStreamBuffer->GetIStStreamBufferInfo()->IsImagePresent())
 			{
-				IStImage* pImage = pBuffer->GetIStImage();
-				std::cout << "Block ID: " << pBuffer->GetIStStreamBufferInfo()->GetFrameID()
-					<< "Size: " << pImage->GetImageWidth() << " x " << pImage->GetImageHeight()
-					<< "First byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pImage->GetImageBuffer())) << std::endl;
-				// reinterpret_cast : 서로 관련 없는 포인터 타입 간의 변환을 수행하는 연산자
-				// dynamic_cast가 아닌 static_cast를 사용한 이유 :
-				// dynamic_cast는 상속 관계가 있는 클래스 포인터/참조를 안전하게 변환할 때 사용되며,
-				// 여기에서는 단순히 기본 타입 간의 변환(uint8_t* -> uint32_t) 이므로 static_cast를 사용해도 안전
+				IStImage* pImage = pStreamBuffer->GetIStImage();
+				
+				PrintFrameInfo(pImage, pStreamBuffer);
+
+				CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
+				ConvertPixelFormat(pImage, true, pImageBuffer);
+				GenICam::gcstring savePath = SetSavePath(GenICam::gcstring(std::to_string(pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()).c_str()));
+				SaveImage<BMP>(pImageBuffer, savePath);
 			}
-			
+			else
 			{
 				std::cout << "No image present in the buffer." << std::endl;
 			}
+		
 		}
-		catch (const GenICam::GenericException& e)
-		{
-			std::cerr << "Callback Exception: " << e.GetDescription() << std::endl;
-		}
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "Callback Exception: " << e.GetDescription() << std::endl;
+	}
+}
+
+void CameraWorkerCB::SetEnumeration(GenApi::INodeMap* pInodeMap, const char* szEnumerationName, const char* szValueName)
+{
+	try
+	{
+		// IEnumeration 인터페이스 포인터 가져오기
+		GenApi::CEnumerationPtr pIEnumeration(pInodeMap->GetNode(szEnumerationName));
+
+		// 지정된 이름의 IEnumEntry 인터페이스 포인터 가져오기
+		GenApi::CEnumEntryPtr pIEnumEntry(pIEnumeration->GetEntryByName(szValueName));
+
+		// IEnumEntry 인터페이스 포인터를 사용하여 정수 값 가져오기
+		// IEnumeration 인터페이스 포인터를 사용하여 설정 업데이트
+		pIEnumeration->SetIntValue(pIEnumEntry->GetValue());
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "Setting enumeration failed: " << e.GetDescription() << std::endl;
+	}
+}
+
+void CameraWorkerCB::SetTriggerMode(GenApi::CNodeMapPtr& pINodeMap, const char* triggerSelector, const char* triggerMode, const char* triggerSource)
+{
+	try
+	{
+		// TriggerSelector 노드 설정
+		SetEnumeration(pINodeMap, "TriggerSelector", triggerSelector);
+		// TriggerMode 노드 설정
+		SetEnumeration(pINodeMap, "TriggerMode", triggerMode);
+		// TriggerSource 노드 설정
+		SetEnumeration(pINodeMap, "TriggerSource", triggerSource);
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "Setting trigger mode failed: " << e.GetDescription() << std::endl;
 	}
 }
 
@@ -146,17 +206,28 @@ void CameraWorker_CB::handleCallback(IStCallbackParamBase* pCallbackParam)
 /*
 int main()
 {
-	CameraWorker_CB cameraWorker;
+	CameraWorkerCB cameraWorker;
 	if (cameraWorker.initialize())
 	{
 		cameraWorker.startAcquisition();
-		
-		// ... 이미지 처리 로직 ...
-		
-		std::cout << "Press Enter to stop acquisition..." << std::endl;
-		std::cin.get(); // 사용자 입력 대기
 
-		cameraWorker.stopAcquisition();
+		while (true)
+		{
+			std::cout << "0: Generate trigger" << std::endl;
+			std::cout << "Else: Exit" << std::endl;
+			std::cout << "Select: ";
+
+			size_t nindex;
+			std::cin >> nindex;
+			if (nindex == 0)
+			{
+				cameraWorker.pICommandTriggerSoftware->Execute();
+			}
+			else
+			{
+				break;
+			}
+		}
 	}
 	else
 	{
@@ -164,5 +235,4 @@ int main()
 	}
 	return 0;
 }
-
 */
