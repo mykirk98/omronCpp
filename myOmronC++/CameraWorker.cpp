@@ -68,14 +68,14 @@ void CameraWorker::StartAcquisition()
 				//std::string strFrameID = std::to_string(pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID());
                 GenICam::gcstring frameID = GenICam::gcstring(std::to_string(pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()).c_str());
 				
-				PrintImageInfo(pImage, pStreamBuffer);
+				PrintFrameInfo(pImage, pStreamBuffer);
 				
 				// 이미지를 저장하기 위한 이미지 버퍼 생성
 				CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
-				ConvertToBGR8(pImage, StPFNC_BGR8, pImageBuffer);
+				ConvertPixelFormat(pImage, true, pImageBuffer);
 				
-				//GenICam::gcstring savePath = SetSavePath(frameID);
-				//SaveImage<BMP>(pImageBuffer, savePath);
+				GenICam::gcstring savePath = SetSavePath(frameID);
+				SaveImage<BMP>(pImageBuffer, savePath);
 			}
 			else
 			{
@@ -153,13 +153,20 @@ void CameraWorker::LoadSavedImage(CIStImageBufferPtr& pImageBuffer, const GenICa
 	}
 }
 
-void CameraWorker::ConvertToBGR8(IStImage* pSrcImage, EStPixelFormatNamingConvention_t dstFormat, CIStImageBufferPtr& pDstBuffer)
+void CameraWorker::ConvertPixelFormat(IStImage* pSrcImage, bool setColor, CIStImageBufferPtr& pDstBuffer)
 {
 	// 픽셀 포맷 변환을 위한 converter 객체 생성
 	CIStPixelFormatConverterPtr pPixelFormatConverter(CreateIStConverter(StConverterType_PixelFormat));
 
 	// BGR8 포맷으로 변환
-	pPixelFormatConverter->SetDestinationPixelFormat(dstFormat);
+	if (setColor)
+	{
+		pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_BGR8);
+	}
+	else
+	{
+		pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_Mono8);
+	}
 	pPixelFormatConverter->Convert(pSrcImage, pDstBuffer);
 }
 
@@ -186,8 +193,11 @@ void CameraWorker::SaveImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gc
 	}
 }
 
-void CameraWorker::PrintImageInfo(const IStImage* pImage, const CIStStreamBufferPtr& pStreamBuffer)
+void CameraWorker::PrintFrameInfo(const IStImage* pImage, const CIStStreamBufferPtr& pStreamBuffer)
 {
+	//NOTE: Frame과 Image의 차이점
+	// Frame: 버퍼에서 읽어온 데이터
+	// Image: 프레임을 이미지 객체로 변환하거나 이미지로 저장할 때 불림
 	std::cout << "Block ID: " << pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()
 		<< "\tSize: " << pImage->GetImageWidth() << " x " << pImage->GetImageHeight()
 		<< "\tFirst byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pImage->GetImageBuffer()))

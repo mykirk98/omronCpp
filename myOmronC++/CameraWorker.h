@@ -83,7 +83,7 @@ protected:
 	@param pImage : 출력할 이미지 포인터
 	@param pStreamBuffer : 이미지가 포함된 스트림 버퍼 포인터
 	*/
-	void PrintImageInfo(const IStImage* pImage, const CIStStreamBufferPtr& pStreamBuffer);
+	void PrintFrameInfo(const IStImage* pImage, const CIStStreamBufferPtr& pStreamBuffer);
 
 	bool m_initialized;
 
@@ -113,10 +113,10 @@ private:
 	/*
 	@brief 픽셀 포맷 변환 함수
 	@param pSrcImage : 변환할 원본 이미지 포인터
-	@param dstFormat : 변환할 대상 픽셀 포맷
+	@param isColor : 변환하고자 하는 포맷이 컬러인지 여부
 	@param pDstBuffer : 변환된 이미지를 저장할 이미지 버퍼 포인터
 	*/
-	void ConvertToBGR8(IStImage* pSrcImage, EStPixelFormatNamingConvention_t dstFormat, CIStImageBufferPtr& pDstBuffer);
+	void ConvertPixelFormat(IStImage* pSrcImage, bool setColor, CIStImageBufferPtr& pDstBuffer);
 
 	uint64_t m_imageCount;	// 획득할 이미지 수
 };
