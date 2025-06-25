@@ -26,7 +26,7 @@ bool CameraWorkerCB::initialize()
 		// 카메라 세팅을 위한 노드맵 가져오기
 		GenApi::CNodeMapPtr pINodeMap(m_pDevice->GetRemoteIStPort()->GetINodeMap());
 		// 트리거모드 설정
-		SetTriggerMode(pINodeMap, "TriggerSelectorFrameStart", "On", "Software");
+		SetTriggerMode(pINodeMap, "FrameStart", "On", "Software");
 		pICommandTriggerSoftware = pINodeMap->GetNode("TriggerSoftware");
 		
 		// 이미지 스트림 데이터를 처리하기 위한 데이터스트림 객체 생성
