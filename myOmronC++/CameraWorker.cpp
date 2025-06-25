@@ -56,7 +56,7 @@ void CameraWorker::StartAcquisition()
 		{
 			//TODO: LinearCapture 메소드로 리팩토링하기
 			// 버퍼 포인터를 5000ms의 타임아웃으로 검색
-			CIStStreamBufferPtr pStreamBuffer = m_pDataStream->RetrieveBuffer(5000);
+			CIStStreamBufferPtr pStreamBuffer(m_pDataStream->RetrieveBuffer(5000));
 
 			// 획득한 데이터에 이미지 데이터가 있는지 확인
 			if (pStreamBuffer->GetIStStreamBufferInfo()->IsImagePresent())
@@ -68,11 +68,7 @@ void CameraWorker::StartAcquisition()
 				//std::string strFrameID = std::to_string(pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID());
                 GenICam::gcstring frameID = GenICam::gcstring(std::to_string(pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()).c_str());
 				
-				// 이미지 정보 출력
-				std::cout << "BlockId=" << frameID
-					<< " Size: " << pImage->GetImageWidth() << " x " << pImage->GetImageHeight()
-					<< " First byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pImage->GetImageBuffer()))
-					<< std::endl;
+				PrintImageInfo(pImage, pStreamBuffer);
 				
 				// 이미지를 저장하기 위한 이미지 버퍼 생성
 				CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
@@ -190,7 +186,13 @@ void CameraWorker::SaveImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gc
 	}
 }
 
-
+void CameraWorker::PrintImageInfo(const IStImage* pImage, const CIStStreamBufferPtr& pStreamBuffer)
+{
+	std::cout << "Block ID: " << pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()
+		<< "\tSize: " << pImage->GetImageWidth() << " x " << pImage->GetImageHeight()
+		<< "\tFirst byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pImage->GetImageBuffer()))
+		<< std::endl;
+}
 
 // 사용 예시 (main.cpp에서 호출)
 /*

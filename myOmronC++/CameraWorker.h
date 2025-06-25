@@ -57,7 +57,6 @@ public:
 	void StartAcquisition();
 	/* @brief 이미지 획득 종료 함수 */
 	void StopAcquisition();
-
 	/*
 	@brief 이미지 저장 함수
 	@param pImageBuffer : 저장할 이미지 버퍼 포인터
@@ -79,7 +78,13 @@ protected:
 	@param filePath : 불러올 이미지 파일 경로
 	*/
 	void LoadSavedImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& filePath);
-	
+	/*
+	@brief 이미지 정보 출력 함수
+	@param pImage : 출력할 이미지 포인터
+	@param pStreamBuffer : 이미지가 포함된 스트림 버퍼 포인터
+	*/
+	void PrintImageInfo(const IStImage* pImage, const CIStStreamBufferPtr& pStreamBuffer);
+
 	bool m_initialized;
 
 	/*
