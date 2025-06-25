@@ -3,7 +3,6 @@
 CameraWorker::CameraWorker(uint64_t imageCount)
 	: m_imageCount(imageCount)
 	, m_initialized(false)
-	, m_isImageSaved(false)
 {
 }
 
@@ -55,6 +54,7 @@ void CameraWorker::StartAcquisition()
 		// 이미지 획득 및 상태 확인을 위한 루프
 		while (m_pDataStream->IsGrabbing())
 		{
+			//TODO: LinearCapture 메소드로 리팩토링하기
 			// 버퍼 포인터를 5000ms의 타임아웃으로 검색
 			CIStStreamBufferPtr pStreamBuffer = m_pDataStream->RetrieveBuffer(5000);
 
@@ -69,18 +69,17 @@ void CameraWorker::StartAcquisition()
                 GenICam::gcstring frameID = GenICam::gcstring(std::to_string(pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()).c_str());
 				
 				// 이미지 정보 출력
-				std::cout << "\r BlockId=" << frameID
+				std::cout << "BlockId=" << frameID
 					<< " Size: " << pImage->GetImageWidth() << " x " << pImage->GetImageHeight()
-					<< " First byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pImage->GetImageBuffer()));
-					//<< std::endl;
+					<< " First byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pImage->GetImageBuffer()))
+					<< std::endl;
 				
 				// 이미지를 저장하기 위한 이미지 버퍼 생성
 				CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
 				ConvertToBGR8(pImage, StPFNC_BGR8, pImageBuffer);
 				
-				GenICam::gcstring savePath = SetSavePath(frameID);
-				//SaveBMPImage(pImageBuffer, savePath);
-				SaveImage<BMP>(pImageBuffer, savePath);
+				//GenICam::gcstring savePath = SetSavePath(frameID);
+				//SaveImage<BMP>(pImageBuffer, savePath);
 			}
 			else
 			{
@@ -137,7 +136,7 @@ GenICam::gcstring CameraWorker::SetSavePath(const GenICam::gcstring frameID)
 	}
 }
 
-void CameraWorker::LoadImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& filePath)
+void CameraWorker::LoadSavedImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& filePath)
 {
 	try
 	{
@@ -167,77 +166,6 @@ void CameraWorker::ConvertToBGR8(IStImage* pSrcImage, EStPixelFormatNamingConven
 	pPixelFormatConverter->SetDestinationPixelFormat(dstFormat);
 	pPixelFormatConverter->Convert(pSrcImage, pDstBuffer);
 }
-
-//void CameraWorker::SaveImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath, EStStillImageFileFormat_t fileFormat)
-//{
-//	try
-//	{
-//		GenICam::gcstring strSaveDir = savePath;
-//
-//		switch (fileFormat)
-//		{
-//		case StStillImageFileFormat_Bitmap:
-//			strSaveDir.append(".bmp");
-//			break;
-//		case StStillImageFileFormat_TIFF:
-//			strSaveDir.append(".tif");
-//			break;
-//		case StStillImageFileFormat_PNG:
-//			strSaveDir.append(".png");
-//			break;
-//		case StStillImageFileFormat_JPEG:
-//			strSaveDir.append(".jpg");
-//			break;
-//		case StStillImageFileFormat_StApiRaw:
-//			strSaveDir.append(".StApiRaw");
-//			break;
-//		default:
-//			std::cerr << "Unsupported file format." << std::endl;
-//			return;
-//		}
-//
-//		// 이미지 저장을 위한 filer 객체 생성
-//		CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
-//
-//		// 이미지 저장
-//		std::wcout << std::endl << L"Saving " << strSaveDir.w_str().c_str() << L"... " << std::endl;
-//		pStillImageFiler->Save(pImageBuffer->GetIStImage(), fileFormat, strSaveDir);
-//		std::cout << "done." << std::endl;
-//	}
-//	catch (const GenICam::GenericException& e)
-//	{
-//		std::cerr << "Save image error: " << e.GetDescription() << std::endl;
-//	}
-//}
-//void CameraWorker::SaveStApiRawImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath)
-//{
-//	SaveImage(pImageBuffer, savePath, StStillImageFileFormat_StApiRaw);
-//}
-//
-//void CameraWorker::SaveBMPImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath)
-//{
-//	SaveImage(pImageBuffer, savePath, StStillImageFileFormat_Bitmap);
-//}
-//
-//void CameraWorker::SaveTiffImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath)
-//{
-//	SaveImage(pImageBuffer, savePath, StStillImageFileFormat_TIFF);
-//}
-//
-//void CameraWorker::SavePNGImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath)
-//{
-//	SaveImage(pImageBuffer, savePath, StStillImageFileFormat_PNG);
-//}
-//
-//void CameraWorker::SaveJPEGImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath)
-//{
-//	SaveImage(pImageBuffer, savePath, StStillImageFileFormat_JPEG);
-//}
-//
-//void CameraWorker::SaveCSVImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath)
-//{
-//	SaveImage(pImageBuffer, savePath, StStillImageFileFormat_CSV);
-//}
 
 template<typename FORMAT>
 void CameraWorker::SaveImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath)

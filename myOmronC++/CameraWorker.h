@@ -1,7 +1,6 @@
 #pragma once
 #include <StApi_TL.h>	// TL : Transport Layer
 #include <StApi_IP.h>	// IP : Image Processing
-#include <iostream>
 #include <ShlObj.h>
 
 using namespace StApi;
@@ -59,24 +58,53 @@ public:
 	/* @brief 이미지 획득 종료 함수 */
 	void StopAcquisition();
 
+	/*
+	@brief 이미지 저장 함수
+	@param pImageBuffer : 저장할 이미지 버퍼 포인터
+	@param savePath : 이미지 저장 경로
+	*/
 	template<typename FORMAT>
 	void SaveImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath);
 
 protected:
-	
-private:
 	/*
 	@brief 이미지 저장 경로 설정 함수
 	@return : 이미지 저장 경로 문자열
 	*/
 	GenICam::gcstring SetSavePath(GenICam::gcstring frameID);
+
 	/*
 	@brief 이미지 로드 함수
 	@param pImageBuffer : 로드한 이미지를 저장할 이미지 버퍼 포인터
 	@param filePath : 불러올 이미지 파일 경로
 	*/
-	void LoadImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& filePath);
+	void LoadSavedImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& filePath);
 	
+	bool m_initialized;
+
+	/*
+	@brief StApi 라이브러리 초기화 객체
+	@brief StApi 라이브러리를 초기화하고 종료 시 자동으로 정리합니다.
+	*/
+	CStApiAutoInit m_StApiAutoInit;
+	/*
+	@brief 카메라 시스템 객체
+	@brief 카메라 시스템은 카메라 디바이스를 관리하고, 디바이스와의 연결을 설정하는 역할을 합니다.
+	*/
+	CIStSystemPtr m_pSystem;
+	/*
+	@brief 카메라 디바이스 객체
+	@brief 카메라 디바이스는 카메라의 기능을 제어하고, 이미지 데이터를 획득하는 역할을 합니다.
+	*/
+	CIStDevicePtr m_pDevice;
+	/*
+	@brief 데이터 스트림 객체
+	@brief 카메라에서 획득한 이미지 데이터를 호스트(PC)로 전송하는 역할을 합니다.
+	@brief 데이터스트림 : 카메라에서 이미지를 연속적으로 받아오는 통로를 의미(파이프라인과 유사함)
+	*/
+	CIStDataStreamPtr m_pDataStream;
+	
+private:
 	/*
 	@brief 픽셀 포맷 변환 함수
 	@param pSrcImage : 변환할 원본 이미지 포인터
@@ -85,24 +113,5 @@ private:
 	*/
 	void ConvertToBGR8(IStImage* pSrcImage, EStPixelFormatNamingConvention_t dstFormat, CIStImageBufferPtr& pDstBuffer);
 
-	/*
-	@brief 이미지 저장 함수
-	@param pImageBuffer : 저장할 이미지 버퍼 포인터
-	@param savePath : 이미지 저장 경로
-	@param fileFormat : 저장할 이미지 파일 포맷
-	*/
-	//void SaveImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath, EStStillImageFileFormat_t fileFormat);
-	
-
-	bool m_initialized;
-	bool m_isImageSaved;
-
 	uint64_t m_imageCount;	// 획득할 이미지 수
-	
-	CStApiAutoInit m_StApiAutoInit;	// StApi 초기화 객체
-	// StApi 라이브러리의 자동 초기화를 위한 객체로,
-	// 프로그램 시작 시 자동으로 StApi 라이브러리를 초기화하고 종료 시 자동으로 정리합니다.
-	CIStSystemPtr m_pSystem;	// 시스템 객체
-	CIStDevicePtr m_pDevice;	// 디바이스 객체
-	CIStDataStreamPtr m_pDataStream;	// 데이터 스트림 객체
 };
