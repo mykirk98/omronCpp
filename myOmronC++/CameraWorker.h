@@ -57,33 +57,41 @@ public:
 	void StartAcquisition();
 	/* @brief 이미지 획득 종료 함수 */
 	void StopAcquisition();
+
+protected:
+	/*
+	@brief 이미지 정보 출력 함수
+	@param pImage : 출력할 이미지 포인터
+	@param pStreamBuffer : 이미지가 포함된 스트림 버퍼 포인터
+	*/
+	void PrintFrameInfo(const IStImage* pImage, const CIStStreamBufferPtr& pStreamBuffer);//TODO:
+	/*
+	@brief 이미지 로드 함수
+	@param pImageBuffer : 로드한 이미지를 저장할 이미지 버퍼 포인터
+	@param filePath : 불러올 이미지 파일 경로
+	*/
+	void LoadSavedImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& srcDir);
+	/*
+	@brief 이미지 저장 경로 설정 함수
+	@param savePath: 이미지 저장할 루트 경로
+	@param frameID : 이미지 프레임 ID
+	@return : 이미지 저장 경로 문자열
+	*/
+	GenICam::gcstring SetSavePath(std::string savePath, const uint64_t frameID);
+	/*
+	@brief 픽셀 포맷 변환 함수
+	@param pSrcImage : 변환할 원본 이미지 포인터
+	@param isColor : 변환하고자 하는 포맷이 컬러인지 여부
+	@param pDstBuffer : 변환된 이미지를 저장할 이미지 버퍼 포인터
+	*/
+	void ConvertPixelFormat(IStImage* pSrcImage, bool setColor, CIStImageBufferPtr& pDstBuffer);
 	/*
 	@brief 이미지 저장 함수
 	@param pImageBuffer : 저장할 이미지 버퍼 포인터
 	@param savePath : 이미지 저장 경로
 	*/
 	template<typename FORMAT>
-	void SaveImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath);
-
-protected:
-	/*
-	@brief 이미지 저장 경로 설정 함수
-	@return : 이미지 저장 경로 문자열
-	*/
-	GenICam::gcstring SetSavePath(GenICam::gcstring frameID);
-
-	/*
-	@brief 이미지 로드 함수
-	@param pImageBuffer : 로드한 이미지를 저장할 이미지 버퍼 포인터
-	@param filePath : 불러올 이미지 파일 경로
-	*/
-	void LoadSavedImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& filePath);
-	/*
-	@brief 이미지 정보 출력 함수
-	@param pImage : 출력할 이미지 포인터
-	@param pStreamBuffer : 이미지가 포함된 스트림 버퍼 포인터
-	*/
-	void PrintFrameInfo(const IStImage* pImage, const CIStStreamBufferPtr& pStreamBuffer);
+	void SaveImage(CIStImageBufferPtr& pImageBuffer, GenICam::gcstring& dstDir);
 
 	bool m_initialized;
 
@@ -110,13 +118,6 @@ protected:
 	CIStDataStreamPtr m_pDataStream;
 	
 private:
-	/*
-	@brief 픽셀 포맷 변환 함수
-	@param pSrcImage : 변환할 원본 이미지 포인터
-	@param isColor : 변환하고자 하는 포맷이 컬러인지 여부
-	@param pDstBuffer : 변환된 이미지를 저장할 이미지 버퍼 포인터
-	*/
-	void ConvertPixelFormat(IStImage* pSrcImage, bool setColor, CIStImageBufferPtr& pDstBuffer);
 
 	uint64_t m_imageCount;	// 획득할 이미지 수
 };
