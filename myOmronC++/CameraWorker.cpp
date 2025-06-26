@@ -74,7 +74,8 @@ void CameraWorker::StartAcquisition()
 				CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
 				ConvertPixelFormat(pImage, true, pImageBuffer);
 				
-				GenICam::gcstring savePath = SetSavePath(pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID());
+				//GenICam::gcstring savePath = SetSavePath(pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID());
+				GenICam::gcstring savePath = SetSavePath("C:\\Users\\mykir\\Work\\Experiments\\", pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID());
 				SaveImage<BMP>(pImageBuffer, savePath);
 			}
 			else

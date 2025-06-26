@@ -149,7 +149,9 @@ void CameraWorkerCB::OnCallback(IStCallbackParamBase* pCallbackParam)
 
 				CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
 				ConvertPixelFormat(pImage, true, pImageBuffer);
-				GenICam::gcstring savePath = SetSavePath(GenICam::gcstring(std::to_string(pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()).c_str()));
+				//GenICam::gcstring savePath = SetSavePath(GenICam::gcstring(std::to_string(pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()).c_str()));
+				GenICam::gcstring savePath = SetSavePath("C:\\Users\\mykir\\Work\\Experiments\\", pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID());
+
 				SaveImage<BMP>(pImageBuffer, savePath);
 			}
 			else
