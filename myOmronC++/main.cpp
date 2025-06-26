@@ -1,32 +1,13 @@
 #include "CameraWorkerCB.h"
 
-
-// 사용 예시 (main.cpp에서 호출)
-
 int main()
 {
-	CameraWorkerCB cameraWorker;
+	CameraWorker cameraWorker(5); // 10개의 이미지 획득
 	if (cameraWorker.initialize())
 	{
-		cameraWorker.startAcquisition();
+		cameraWorker.StartAcquisition();
 
-		while (true)
-		{
-			std::cout << "0: Generate trigger" << std::endl;
-			std::cout << "Else: Exit" << std::endl;
-			std::cout << "Select: ";
-
-			size_t nindex;
-			std::cin >> nindex;
-			if (nindex == 0)
-			{
-				cameraWorker.pICommandTriggerSoftware->Execute();
-			}
-			else
-			{
-				break;
-			}
-		}
+		// ... 이미지 처리 로직 ...
 	}
 	else
 	{

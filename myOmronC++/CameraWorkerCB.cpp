@@ -156,7 +156,6 @@ void CameraWorkerCB::OnCallback(IStCallbackParamBase* pCallbackParam)
 			{
 				std::cout << "No image present in the buffer." << std::endl;
 			}
-		
 		}
 	}
 	catch (const GenICam::GenericException& e)
