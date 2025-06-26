@@ -131,7 +131,7 @@
   <ItemGroup>
     <ClCompile Include="CameraEventWorker.cpp" />
     <ClCompile Include="CameraWorker.cpp" />
-    <ClCompile Include="CameraWorker_CB.cpp" />
+    <ClCompile Include="CameraWorkerCB.cpp" />
     <ClCompile Include="CameraWorker_Chunk.cpp" />
     <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
@@ -140,7 +140,7 @@
   <ItemGroup>
     <ClInclude Include="CameraEventWorker.h" />
     <ClInclude Include="CameraWorker.h" />
-    <ClInclude Include="CameraWorker_CB.h" />
+    <ClInclude Include="CameraWorkerCB.h" />
     <ClInclude Include="CameraWorker_Chunk.h" />
   </ItemGroup>
   <ItemGroup>

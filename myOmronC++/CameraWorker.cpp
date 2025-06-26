@@ -3,8 +3,6 @@
 CameraWorker::CameraWorker(uint64_t imageCount)
 	: m_imageCount(imageCount)
 	, m_initialized(false)
-	, m_isImageSaved(false)
-	, m_savePath(L"")
 {
 }
 
@@ -56,8 +54,9 @@ void CameraWorker::StartAcquisition()
 		// 이미지 획득 및 상태 확인을 위한 루프
 		while (m_pDataStream->IsGrabbing())
 		{
+			//TODO: LinearCapture 메소드로 리팩토링하기
 			// 버퍼 포인터를 5000ms의 타임아웃으로 검색
-			CIStStreamBufferPtr pStreamBuffer = m_pDataStream->RetrieveBuffer(5000);
+			CIStStreamBufferPtr pStreamBuffer(m_pDataStream->RetrieveBuffer(5000));
 
 			// 획득한 데이터에 이미지 데이터가 있는지 확인
 			if (pStreamBuffer->GetIStStreamBufferInfo()->IsImagePresent())
@@ -65,20 +64,18 @@ void CameraWorker::StartAcquisition()
 				// 이미지 데이터가 있는 경우 IStImage 객체 생성
 				IStImage* pImage = pStreamBuffer->GetIStImage();
 				
+				//OPTIMIZE: 간단하게 프레임 ID를 문자열로 변환할 수 있지 않을까? --> 아래 코드의 string 데이터 타입으로 변환하기
+				//std::string strFrameID = std::to_string(pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID());
                 GenICam::gcstring frameID = GenICam::gcstring(std::to_string(pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()).c_str());
 				
-				// 이미지 정보 출력
-				std::cout << "BlockId=" << frameID
-					<< " Size: " << pImage->GetImageWidth()
-					<< " x " << pImage->GetImageHeight()
-					<< " First byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pImage->GetImageBuffer()))
-					<< std::endl;
+				PrintFrameInfo(pImage, pStreamBuffer);
 				
+				// 이미지를 저장하기 위한 이미지 버퍼 생성
 				CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
-				ConvertToBGR8(pImage, StPFNC_BGR8, pImageBuffer);
+				ConvertPixelFormat(pImage, true, pImageBuffer);
 				
-				GenICam::gcstring savePath = SetSavePath(frameID);
-				SaveBMPImage(pImageBuffer, savePath);
+				GenICam::gcstring savePath = SetSavePath(pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID());
+				SaveImage<BMP>(pImageBuffer, savePath);
 			}
 			else
 			{
@@ -110,43 +107,33 @@ void CameraWorker::StopAcquisition()
 	}
 }
 
-GenICam::gcstring CameraWorker::SetSavePath(const GenICam::gcstring frameID)
+void CameraWorker::PrintFrameInfo(const IStImage* pImage, const CIStStreamBufferPtr& pStreamBuffer)
 {
-	try
-	{
-		// 사용자 문서 폴더 경로 가져오기
-		wchar_t szPath[MAX_PATH];
-		SHGetFolderPathW(NULL, CSIDL_MYPICTURES, NULL, 0, szPath);
-		
-		// 이미지 저장 경로 설정
-		GenICam::gcstring strFileNameHeader(szPath);
-		strFileNameHeader.append("\\");
-		strFileNameHeader.append(m_pDevice->GetIStDeviceInfo()->GetDisplayName());
-		//TODO: 프레임ID를 포함한 파일 이름 생성, 현재는 streamBuffer가 StartAcquisition메소드의 지역 변수로 선언되어 있어 접근 불가
-        strFileNameHeader.append(frameID);
-		
-		return strFileNameHeader;
-		//NOTE: StApiRaw: 카메라에서 획득한 원본 이미지 데이터와 관련 메타데이터를 그대로 저장
-	}
-	catch (const GenICam::GenericException& e)
-	{
-		std::cerr << "Set save path error: " << e.GetDescription() << std::endl;
-		return GenICam::gcstring();
-	}
+	//NOTE: Frame과 Image의 차이점
+	// Frame: 버퍼에서 읽어온 데이터
+	// Image: 프레임을 이미지 객체로 변환하거나 이미지로 저장할 때 불림
+	std::cout << "Block ID: " << pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()
+		<< "\tSize: " << pImage->GetImageWidth() << " x " << pImage->GetImageHeight()
+		<< "\tFirst byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pImage->GetImageBuffer()))
+		<< std::endl;
+		// reinterpret_cast : 서로 관련 없는 포인터 타입 간의 변환을 수행하는 연산자
+		// dynamic_cast가 아닌 static_cast를 사용한 이유 :
+		// dynamic_cast는 상속 관계가 있는 클래스 포인터/참조를 안전하게 변환할 때 사용되며,
+		// 여기에서는 단순히 기본 타입 간의 변환(uint8_t* -> uint32_t) 이므로 static_cast를 사용해도 안전
 }
 
-void CameraWorker::LoadImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& filePath)
+void CameraWorker::LoadSavedImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& srcDir)
 {
 	try
 	{
 		// 이미지 파일 입출력을 위한 filer 객체 생성
 		CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
 
-		std::wcout << std::endl << L"Loading " << filePath.w_str().c_str() << L"... ";
+		std::wcout << std::endl << L"Loading " << srcDir.w_str().c_str() << L"... ";
 		//NOTE: w_str(): wide string(wchar_t*) 포인터로 반환
 		//NOTE: c_str(): char* 포인터로 반환
 		//NOTE: L: wide string 리터럴을 의미, 각 문자가 2바이트로 표현됨
-		pStillImageFiler->Load(pImageBuffer, filePath);
+		pStillImageFiler->Load(pImageBuffer, srcDir);
 
 		std::cout << "done." << std::endl;
 	}
@@ -156,39 +143,65 @@ void CameraWorker::LoadImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gc
 	}
 }
 
-void CameraWorker::SaveBMPImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& savePath)
+GenICam::gcstring CameraWorker::SetSavePath(std::string savePath, const uint64_t frameID)
 {
 	try
-	{	
-		// 이미지 저장 경로에 확장자 추가
-		GenICam::gcstring strSaveDir = savePath;
-		strSaveDir.append(".bmp");
+	{
+		//std::string savePath = "C:\\Users\\mykir\\Work\\Experiments\\";
+		// frameID를 문자열로 변환
+		std::string strFrameID = std::to_string(frameID);
 
-		CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
+		// 사용자 지정 경로와 frameID를 결합하여 저장 경로 생성
+		std::string filePath = savePath + m_pDevice->GetIStDeviceInfo()->GetDisplayName().c_str() + strFrameID;
 
-		std::wcout << std::endl << L"Saving " << strSaveDir.w_str().c_str() << L"... " << std::endl;
-		//NOTE: w_str(): wide string(wchar_t*) 포인터로 반환
-		//NOTE: c_str(): char* 포인터로 반환
-		//NOTE: L: wide string 리터럴을 의미, 각 문자가 2바이트로 표현됨
-		pStillImageFiler->Save(pImageBuffer->GetIStImage(), StStillImageFileFormat_Bitmap, strSaveDir);
-		std::cout << "done." << std::endl;
+		return GenICam::gcstring(filePath.c_str());
 	}
 	catch (const GenICam::GenericException& e)
 	{
-		std::cerr << "Save BMP image error: " << e.GetDescription() << std::endl;
+		std::cerr << "Set save path error: " << e.GetDescription() << std::endl;
 	}
 }
 
-void CameraWorker::ConvertToBGR8(IStImage* pSrcImage, EStPixelFormatNamingConvention_t dstFormat, CIStImageBufferPtr& pDstBuffer)
+void CameraWorker::ConvertPixelFormat(IStImage* pSrcImage, bool setColor, CIStImageBufferPtr& pDstBuffer)
 {
 	// 픽셀 포맷 변환을 위한 converter 객체 생성
 	CIStPixelFormatConverterPtr pPixelFormatConverter(CreateIStConverter(StConverterType_PixelFormat));
-	
+
 	// BGR8 포맷으로 변환
-	pPixelFormatConverter->SetDestinationPixelFormat(dstFormat);
+	if (setColor)
+	{
+		pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_BGR8);
+	}
+	else
+	{
+		pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_Mono8);
+	}
 	pPixelFormatConverter->Convert(pSrcImage, pDstBuffer);
 }
 
+template<typename FORMAT>
+void CameraWorker::SaveImage(CIStImageBufferPtr& pImageBuffer, GenICam::gcstring& dstDir)
+{
+	try
+	{
+		// 이미지 저장 경로에 확장자 추가 by 템플릿
+		//GenICam::gcstring strSaveDir = dstDir;
+		dstDir.append(FORMAT::extension);
+		
+		// 이미지 저장을 위한 filer 객체 생성
+		CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
+
+		// 이미지 저장
+		//std::wcout << std::endl << L"Saving " << strSaveDir.w_str().c_str() << L"... ";
+		std::wcout << L"Saving " << dstDir.w_str().c_str() << L"... ";
+		pStillImageFiler->Save(pImageBuffer->GetIStImage(), FORMAT::fileFormat, dstDir);
+		std::cout << "done" << std::endl;
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "Save image error: " << e.GetDescription() << std::endl;
+	}
+}
 
 
 // 사용 예시 (main.cpp에서 호출)
