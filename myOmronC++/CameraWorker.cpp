@@ -88,6 +88,15 @@ void CameraWorker::ConvertAndSaveImage(IStImage* pSrcImage, bool isColor, std::s
 	}
 }
 
+// 템플릿 명시적 인스턴스화 (각 이미지 포맷에 대해 호출됨)
+template void CameraWorker::ConvertAndSaveImage<StApiRaw>(IStImage*, bool, std::string, uint64_t);
+template void CameraWorker::ConvertAndSaveImage<BMP>(IStImage*, bool, std::string, uint64_t);
+template void CameraWorker::ConvertAndSaveImage<TIFF>(IStImage*, bool, std::string, uint64_t);
+template void CameraWorker::ConvertAndSaveImage<PNG>(IStImage*, bool, std::string, uint64_t);
+template void CameraWorker::ConvertAndSaveImage<JPEG>(IStImage*, bool, std::string, uint64_t);
+template void CameraWorker::ConvertAndSaveImage<CSV>(IStImage*, bool, std::string, uint64_t);
+
+
 void CameraWorker::PrintFrameInfo(const IStImage* pImage, const uint64_t frameID)
 {
 	try
