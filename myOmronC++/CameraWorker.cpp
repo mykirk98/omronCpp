@@ -41,7 +41,8 @@ void CameraWorker::StartAcquisition()
 		m_pDevice->AcquisitionStart();
 		
 		std::string dstCfgDir = "C:\\Users\\USER\\Pictures\\Features.cfg";
-		SaveConfigFile(dstCfgDir);
+		//SaveConfigFile(dstCfgDir);
+		LoadConfigFile(dstCfgDir);
 		SequentialCapture();
 	}
 	catch (const GenICam::GenericException& e)
@@ -135,7 +136,7 @@ void CameraWorker::SaveConfigFile(std::string dstDir)
 	try
 	{
 		GenICam::gcstring filePath = GenICam::gcstring(dstDir.c_str());
-		// 노드 맵 가져오기
+		// 카메라 노드 맵 가져오기
 		GenApi::CNodeMapPtr pNodeMap(m_pDevice->GetRemoteIStPort()->GetINodeMap());
 		// 설정값을 저장하기 위한 FeatureBag 객체 생성
 		CIStFeatureBagPtr pFeatureBag(CreateIStFeatureBag());
@@ -150,6 +151,29 @@ void CameraWorker::SaveConfigFile(std::string dstDir)
 	catch (const GenICam::GenericException& e)
 	{
 		std::cerr << "Saving config file error: " << e.GetDescription() << std::endl;
+	}
+}
+
+void CameraWorker::LoadConfigFile(std::string srcDir)
+{
+	try
+	{
+		GenICam::gcstring filePath = GenICam::gcstring(srcDir.c_str());
+		// 카메라 노드 맵 가져오기
+		GenApi::CNodeMapPtr pNodeMap(m_pDevice->GetRemoteIStPort()->GetINodeMap());
+		// 설정값을 불러오기 위한 FeatureBag 객체 생성
+		CIStFeatureBagPtr pFeatureBag(CreateIStFeatureBag());
+		// 파일(.cfg)에서 설정값을 불러와 FeatureBag에 저장
+		pFeatureBag->StoreFileToBag(filePath);
+
+		// 노드 맵에 FeatureBag의 설정값을 적용
+		std::cout << std::endl << "Loading to the camera ... ";
+		pFeatureBag->Load(pNodeMap, true);
+		std::cout << "done" << std::endl;
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "Loading config file error: " << e.GetDescription() << std::endl;
 	}
 }
 

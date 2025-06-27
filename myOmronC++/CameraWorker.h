@@ -86,8 +86,11 @@ protected:
 	@param dstDir : 설정 파일을 저장할 디렉토리 경로
 	*/
 	void SaveConfigFile(std::string dstDir);
-
-	//void LoadConfigFile(GenICam::gcstring& srcDir);
+	/*
+	@brief 카메라 설정 파일 로드 함수
+	@param srcDir : 설정 파일이 저장된 디렉토리 경로
+	*/
+	void LoadConfigFile(std::string srcDir);
 	
 	/*
 	@brief StApi 라이브러리 초기화 객체
