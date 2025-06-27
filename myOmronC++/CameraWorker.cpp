@@ -18,7 +18,6 @@ bool CameraWorker::initialize()
 		m_pSystem = CreateIStSystem();
 		// 첫 번째 장치 생성 및 연결
 		m_pDevice = m_pSystem->CreateFirstIStDevice();
-		// 장치 정보 출력
 		std::cout << "Device=" << m_pDevice->GetIStDeviceInfo()->GetDisplayName() << std::endl;
 		// 이미지 스트림 데이터를 처리하기 위한 데이터스트림 객체 생성
 		m_pDataStream = m_pDevice->CreateIStDataStream(0);
@@ -40,26 +39,25 @@ void CameraWorker::StartAcquisition()
 		m_pDataStream->StartAcquisition(m_imageCount);
 		// 카메라 측의 이미지 획득 시작
 		m_pDevice->AcquisitionStart();
-		// 이미지 획득 및 상태 확인을 위한 루프
+		
+		//TODO: LinearCapture 메소드로 리팩토링하기
 		while (m_pDataStream->IsGrabbing())
 		{
-			//TODO: LinearCapture 메소드로 리팩토링하기
 			// 버퍼 포인터를 5000ms의 타임아웃으로 검색
 			CIStStreamBufferPtr pStreamBuffer(m_pDataStream->RetrieveBuffer(5000));
-
+			
 			// 획득한 데이터에 이미지 데이터가 있는지 확인
 			if (pStreamBuffer->GetIStStreamBufferInfo()->IsImagePresent())
 			{
-				// 이미지 데이터가 있는 경우 IStImage 객체 생성
+				// IStImage 객체 생성
 				IStImage* pImage = pStreamBuffer->GetIStImage();
-
-				//uint64_t frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
-				PrintFrameInfo(pImage, pStreamBuffer);
-
+				
+				const uint64_t frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
+				PrintFrameInfo(pImage, frameID);
+				
 				//std::string targetDir = "C:\\Users\\mykir\\Work\\Experiments\\";//NOTE: LAB PC DIRECTORY
 				std::string targetDir = "C:\\Users\\USER\\Pictures\\";//NOTE: HOME PC DIRECTORY
-				
-				ConvertAndSaveImage<BMP>(pImage, true, targetDir, pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID());
+				ConvertAndSaveImage<BMP>(pImage, true, targetDir, frameID);
 			}
 			else
 			{
@@ -91,19 +89,47 @@ void CameraWorker::StopAcquisition()
 	}
 }
 
-void CameraWorker::PrintFrameInfo(const IStImage* pImage, const CIStStreamBufferPtr& pStreamBuffer)
+template<typename FORMAT>
+void CameraWorker::ConvertAndSaveImage(IStImage* pSrcImage, bool isColor, std::string dstDir, const uint64_t frameID)
 {
-	//NOTE: Frame과 Image의 차이점
-	// Frame: 버퍼에서 읽어온 데이터
+	try
+	{
+		// 이미지를 저장하기 위한 이미지 버퍼 객체 생성 및 픽셀 포맷 변환
+		CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
+		ConvertPixelFormat(pSrcImage, isColor, pImageBuffer);
+		
+		// 이미지 경로 설정 및 저장
+		GenICam::gcstring savePath = SetSavePath(dstDir, frameID);
+		SaveImage<FORMAT>(pImageBuffer, savePath);
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "Converting and saving image error: " << e.GetDescription() << std::endl;
+	}
+}
+
+
+
+void CameraWorker::PrintFrameInfo(const IStImage* pImage, const uint64_t frameID)
+{
+	try
+	{
+		//NOTE: Frame과 Image의 차이점
+	// Frame: 버퍼에서 갓 읽어온 데이터
 	// Image: 프레임을 이미지 객체로 변환하거나 이미지로 저장할 때 불림
-	std::cout << "Block ID: " << pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()
-		<< "\tSize: " << pImage->GetImageWidth() << " x " << pImage->GetImageHeight()
-		<< "\tFirst byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pImage->GetImageBuffer()))
-		<< std::endl;
+		std::cout << "Block ID: " << frameID
+			<< "\tSize: " << pImage->GetImageWidth() << " x " << pImage->GetImageHeight()
+			<< "\tFirst byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pImage->GetImageBuffer()))
+			<< std::endl;
 		// reinterpret_cast : 서로 관련 없는 포인터 타입 간의 변환을 수행하는 연산자
 		// dynamic_cast가 아닌 static_cast를 사용한 이유 :
 		// dynamic_cast는 상속 관계가 있는 클래스 포인터/참조를 안전하게 변환할 때 사용되며,
 		// 여기에서는 단순히 기본 타입 간의 변환(uint8_t* -> uint32_t) 이므로 static_cast를 사용해도 안전
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "Printing frame info error: " << e.GetDescription() << std::endl;
+	}
 }
 
 void CameraWorker::LoadSavedImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& srcDir)
@@ -152,7 +178,6 @@ void CameraWorker::ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStIma
 		// 픽셀 포맷 변환을 위한 converter 객체 생성
 		CIStPixelFormatConverterPtr pPixelFormatConverter(CreateIStConverter(StConverterType_PixelFormat));
 
-		// BGR8 포맷으로 변환
 		if (isColor)
 		{
 			pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_BGR8);
@@ -170,36 +195,16 @@ void CameraWorker::ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStIma
 }
 
 template<typename FORMAT>
-void CameraWorker::ConvertAndSaveImage(IStImage* pSrcImage, bool isColor, std::string dstDir, uint64_t frameID)
-{
-	try
-	{
-		// 이미지를 저장하기 위한 이미지 버퍼 객체 생성 및 픽셀 포맷 변환
-		CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
-		ConvertPixelFormat(pSrcImage, true, pImageBuffer);
-
-		// 이미지 경로 설정 및 저장
-		GenICam::gcstring savePath = SetSavePath(dstDir, frameID);
-		SaveImage<FORMAT>(pImageBuffer, savePath);
-	}
-	catch (const GenICam::GenericException& e)
-	{
-		std::cerr << "Converting and saving image error: " << e.GetDescription() << std::endl;
-	}
-}
-
-template<typename FORMAT>
 void CameraWorker::SaveImage(CIStImageBufferPtr& pImageBuffer, GenICam::gcstring& dstDir)
 {
 	try
 	{
 		// 이미지 저장 경로에 확장자 추가 by 템플릿
-		//GenICam::gcstring strSaveDir = dstDir;
 		dstDir.append(FORMAT::extension);
 		
 		// 이미지 저장을 위한 filer 객체 생성
 		CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
-
+		
 		// 이미지 저장
 		std::wcout << L"Saving " << dstDir.w_str().c_str() << L"... ";
 		pStillImageFiler->Save(pImageBuffer->GetIStImage(), FORMAT::fileFormat, dstDir);

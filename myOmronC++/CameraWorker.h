@@ -57,45 +57,31 @@ public:
 	void StartAcquisition();
 	/* @brief 이미지 획득 종료 함수 */
 	void StopAcquisition();
-
+	/*
+	@brief 픽셀 포맷 변환 후 확장자 설정 후 이미지 저장 함수
+	@param pSrcImage : 변환할 원본 이미지 포인터
+	@param isColor : 변환하고자 하는 포맷이 컬러인지 여부
+	@param dstDir : 이미지 저장할 디렉토리 경로
+	@param frameID : 이미지 프레임 ID
+	@tparam FORMAT : 이미지 저장 포맷 (예: StApiRaw, BMP, TIFF, PNG, JPEG, CSV 등)
+	*/
 	template<typename FORMAT>
-	void ConvertAndSaveImage(IStImage* pSrcImage, bool isColor, std::string dstDir, uint64_t frameID);
+	void ConvertAndSaveImage(IStImage* pSrcImage, bool isColor, std::string dstDir, const uint64_t frameID);
 
 protected:
 	/*
 	@brief 이미지 정보 출력 함수
 	@param pImage : 출력할 이미지 포인터
-	@param pStreamBuffer : 이미지가 포함된 스트림 버퍼 포인터
+	@param frameID : 이미지 프레임 ID
 	*/
-	void PrintFrameInfo(const IStImage* pImage, const CIStStreamBufferPtr& pStreamBuffer);//TODO:
+	void PrintFrameInfo(const IStImage* pImage, const uint64_t frameID);
 	/*
 	@brief 이미지 로드 함수
 	@param pImageBuffer : 로드한 이미지를 저장할 이미지 버퍼 포인터
-	@param filePath : 불러올 이미지 파일 경로
+	@param srcDir : 이미지가 저장된 디렉토리 경로
 	*/
 	void LoadSavedImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& srcDir);
-	/*
-	@brief 이미지 저장 경로 설정 함수
-	@param savePath: 이미지 저장할 루트 경로
-	@param frameID : 이미지 프레임 ID
-	@return : 이미지 저장 경로 문자열
-	*/
-	GenICam::gcstring SetSavePath(std::string savePath, const uint64_t frameID);
-	/*
-	@brief 픽셀 포맷 변환 함수
-	@param pSrcImage : 변환할 원본 이미지 포인터
-	@param isColor : 변환하고자 하는 포맷이 컬러인지 여부
-	@param pDstBuffer : 변환된 이미지를 저장할 이미지 버퍼 포인터
-	*/
-	void ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStImageBufferPtr& pDstBuffer);
-	/*
-	@brief 이미지 저장 함수
-	@param pImageBuffer : 저장할 이미지 버퍼 포인터
-	@param savePath : 이미지 저장 경로
-	*/
-	template<typename FORMAT>
-	void SaveImage(CIStImageBufferPtr& pImageBuffer, GenICam::gcstring& dstDir);
-
+	
 	/*
 	@brief StApi 라이브러리 초기화 객체
 	@brief StApi 라이브러리를 초기화하고 종료 시 자동으로 정리합니다.
@@ -117,9 +103,30 @@ protected:
 	@brief 데이터스트림 : 카메라에서 이미지를 연속적으로 받아오는 통로를 의미(파이프라인과 유사함)
 	*/
 	CIStDataStreamPtr m_pDataStream;
-	CIStDataStreamPtr m_pDataStream2; // 두 번째 데이터 스트림 (예: 멀티 스트림 지원 카메라의 경우)
 	
 private:
+	/*
+	@brief 이미지 저장 경로 설정 함수
+	@param savePath: 이미지 저장할 루트 경로
+	@param frameID : 이미지 프레임 ID
+	@return : 이미지 저장 경로 문자열
+	*/
+	GenICam::gcstring SetSavePath(std::string savePath, const uint64_t frameID);
+	/*
+	@brief 픽셀 포맷 변환 함수
+	@param pSrcImage : 변환할 원본 이미지 포인터
+	@param isColor : 변환하고자 하는 포맷이 컬러인지 여부
+	@param pDstBuffer : 변환된 이미지를 저장할 이미지 버퍼 포인터
+	*/
+	void ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStImageBufferPtr& pDstBuffer);
+	/*
+	@brief 이미지 저장 함수
+	@param pImageBuffer : 저장할 이미지 버퍼 포인터
+	@param dstDir : 이미지 저장할 디렉토리 경로
+	@tparam FORMAT : 이미지 저장 포맷 (예: StApiRaw, BMP, TIFF, PNG, JPEG, CSV 등)
+	*/
+	template<typename FORMAT>
+	void SaveImage(CIStImageBufferPtr& pImageBuffer, GenICam::gcstring& dstDir);
 
 	uint64_t m_imageCount;	// 획득할 이미지 수
 };
