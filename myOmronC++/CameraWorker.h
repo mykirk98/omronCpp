@@ -58,6 +58,9 @@ public:
 	/* @brief 이미지 획득 종료 함수 */
 	void StopAcquisition();
 
+	template<typename FORMAT>
+	void ConvertAndSaveImage(IStImage* pSrcImage, bool isColor, std::string dstDir, uint64_t frameID);
+
 protected:
 	/*
 	@brief 이미지 정보 출력 함수
@@ -114,6 +117,7 @@ protected:
 	@brief 데이터스트림 : 카메라에서 이미지를 연속적으로 받아오는 통로를 의미(파이프라인과 유사함)
 	*/
 	CIStDataStreamPtr m_pDataStream;
+	CIStDataStreamPtr m_pDataStream2; // 두 번째 데이터 스트림 (예: 멀티 스트림 지원 카메라의 경우)
 	
 private:
 

@@ -52,17 +52,14 @@ void CameraWorker::StartAcquisition()
 			{
 				// 이미지 데이터가 있는 경우 IStImage 객체 생성
 				IStImage* pImage = pStreamBuffer->GetIStImage();
-				
+
+				//uint64_t frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
 				PrintFrameInfo(pImage, pStreamBuffer);
-				
-				// 이미지를 저장하기 위한 이미지 버퍼 생성
-				CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
-				ConvertPixelFormat(pImage, true, pImageBuffer);
-				
+
 				//std::string targetDir = "C:\\Users\\mykir\\Work\\Experiments\\";//NOTE: LAB PC DIRECTORY
 				std::string targetDir = "C:\\Users\\USER\\Pictures\\";//NOTE: HOME PC DIRECTORY
-				GenICam::gcstring savePath = SetSavePath(targetDir, pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID());
-				SaveImage<BMP>(pImageBuffer, savePath);
+				
+				ConvertAndSaveImage<BMP>(pImage, true, targetDir, pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID());
 			}
 			else
 			{
@@ -72,7 +69,7 @@ void CameraWorker::StartAcquisition()
 	}
 	catch (const GenICam::GenericException& e)
 	{
-		std::cerr << "Acquisition error: " << e.GetDescription() << std::endl;
+		std::cerr << "Start acquisition error: " << e.GetDescription() << std::endl;
 	}
 }
 
@@ -126,7 +123,7 @@ void CameraWorker::LoadSavedImage(CIStImageBufferPtr& pImageBuffer, const GenICa
 	}
 	catch (const GenICam::GenericException& e)
 	{
-		std::cerr << "Load image error: " << e.GetDescription() << std::endl;
+		std::cerr << "Loading image error: " << e.GetDescription() << std::endl;
 	}
 }
 
@@ -144,25 +141,51 @@ GenICam::gcstring CameraWorker::SetSavePath(std::string savePath, const uint64_t
 	}
 	catch (const GenICam::GenericException& e)
 	{
-		std::cerr << "Set save path error: " << e.GetDescription() << std::endl;
+		std::cerr << "Setting save path error: " << e.GetDescription() << std::endl;
 	}
 }
 
 void CameraWorker::ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStImageBufferPtr& pDstBuffer)
 {
-	// 픽셀 포맷 변환을 위한 converter 객체 생성
-	CIStPixelFormatConverterPtr pPixelFormatConverter(CreateIStConverter(StConverterType_PixelFormat));
-	
-	// BGR8 포맷으로 변환
-	if (isColor)
+	try
 	{
-		pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_BGR8);
+		// 픽셀 포맷 변환을 위한 converter 객체 생성
+		CIStPixelFormatConverterPtr pPixelFormatConverter(CreateIStConverter(StConverterType_PixelFormat));
+
+		// BGR8 포맷으로 변환
+		if (isColor)
+		{
+			pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_BGR8);
+		}
+		else
+		{
+			pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_Mono8);
+		}
+		pPixelFormatConverter->Convert(pSrcImage, pDstBuffer);
 	}
-	else
+	catch (const GenICam::GenericException& e)
 	{
-		pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_Mono8);
+		std::cerr << " Converting pixel format error: " << e.GetDescription() << std::endl;
 	}
-	pPixelFormatConverter->Convert(pSrcImage, pDstBuffer);
+}
+
+template<typename FORMAT>
+void CameraWorker::ConvertAndSaveImage(IStImage* pSrcImage, bool isColor, std::string dstDir, uint64_t frameID)
+{
+	try
+	{
+		// 이미지를 저장하기 위한 이미지 버퍼 객체 생성 및 픽셀 포맷 변환
+		CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
+		ConvertPixelFormat(pSrcImage, true, pImageBuffer);
+
+		// 이미지 경로 설정 및 저장
+		GenICam::gcstring savePath = SetSavePath(dstDir, frameID);
+		SaveImage<FORMAT>(pImageBuffer, savePath);
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "Converting and saving image error: " << e.GetDescription() << std::endl;
+	}
 }
 
 template<typename FORMAT>
@@ -178,14 +201,13 @@ void CameraWorker::SaveImage(CIStImageBufferPtr& pImageBuffer, GenICam::gcstring
 		CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
 
 		// 이미지 저장
-		//std::wcout << std::endl << L"Saving " << strSaveDir.w_str().c_str() << L"... ";
 		std::wcout << L"Saving " << dstDir.w_str().c_str() << L"... ";
 		pStillImageFiler->Save(pImageBuffer->GetIStImage(), FORMAT::fileFormat, dstDir);
 		std::cout << "done" << std::endl;
 	}
 	catch (const GenICam::GenericException& e)
 	{
-		std::cerr << "Save image error: " << e.GetDescription() << std::endl;
+		std::cerr << "Saving image error: " << e.GetDescription() << std::endl;
 	}
 }
 
