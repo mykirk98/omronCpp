@@ -105,7 +105,7 @@ protected:
 	CIStDataStreamPtr m_pDataStream;
 	
 private:
-	// 순차적으로 이미지를 획득하는 함수
+	/* 순차적으로 이미지를 획득하는 함수 */
 	void SequentialCapture();
 	/*
 	@brief 이미지 저장 경로 설정 함수

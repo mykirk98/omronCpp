@@ -170,6 +170,7 @@ GenICam::gcstring CameraWorker::SetSavePath(std::string savePath, const uint64_t
 	catch (const GenICam::GenericException& e)
 	{
 		std::cerr << "Setting save path error: " << e.GetDescription() << std::endl;
+		return GenICam::gcstring();
 	}
 }
 
