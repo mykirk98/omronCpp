@@ -213,7 +213,7 @@ void CameraWorker::SequentialCapture()
 	}
 }
 
-GenICam::gcstring CameraWorker::SetSavePath(std::string savePath, const uint64_t frameID)
+GenICam::gcstring CameraWorker::SetSavePath(const std::string& savePath, const uint64_t frameID)
 {
 	try
 	{
@@ -251,7 +251,7 @@ void CameraWorker::ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStIma
 	}
 	catch (const GenICam::GenericException& e)
 	{
-		std::cerr << " Converting pixel format error: " << e.GetDescription() << std::endl;
+		std::cerr << "Converting pixel format error: " << e.GetDescription() << std::endl;
 	}
 }
 

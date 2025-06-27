@@ -123,7 +123,7 @@ private:
 	@param frameID : 이미지 프레임 ID
 	@return : 이미지 저장 경로 문자열
 	*/
-	GenICam::gcstring SetSavePath(std::string savePath, const uint64_t frameID);
+	GenICam::gcstring SetSavePath(const std::string& savePath, const uint64_t frameID);
 	/*
 	@brief 픽셀 포맷 변환 함수
 	@param pSrcImage : 변환할 원본 이미지 포인터
