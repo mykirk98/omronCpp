@@ -37,7 +37,6 @@ bool CameraWorkerCB::initialize()
 		//RegisterCallback(m_pDataStream, &CameraWorker_CB::OnStCallbackFunction, nullptr);	// nullptr을 넘길 경우, 콜백 함수에서 this 포인터를 사용할 수 없음
 		// NOTE: this를 넘기는 목적 : 콜백이 발생했을 때, 어떤 객체의 멤버 함수로 처리를 위임할지 알려주기 위함
 
-		m_initialized = true;
 		return true;
 	}
 	catch (const GenICam::GenericException& e)
@@ -49,67 +48,33 @@ bool CameraWorkerCB::initialize()
 
 void CameraWorkerCB::startAcquisition()
 {
-	if (m_initialized == false)
+	try
 	{
-		std::cerr << "Camera not initialized. Call initialize() first." << std::endl;
-		return;
-	}
-	else
-	{
-		try
-		{
-			// 호스트(PC) 측 이미지 획득 시작
-			m_pDataStream->StartAcquisition();
+		// 호스트(PC) 측 이미지 획득 시작
+		m_pDataStream->StartAcquisition();
 			
-			// 카메라 측 이미지 획득 시작
-			m_pDevice->AcquisitionStart();
-
-			/*while (true)
-			{
-				std::cout << "0: Generate trigger" << std::endl;
-				std::cout << "Else: Exit" << std::endl;
-				std::cout << "Select: ";
-
-				size_t nindex;
-				std::cin >> nindex;
-				
-				if (nindex == 0)
-				{
-					pICommandTriggerSoftware->Execute();
-				}
-				else
-				{
-					break;
-				}
-			}*/
-		}
-		catch (const GenICam::GenericException& e)
-		{
-			std::cerr << "Start acquisition error: " << e.GetDescription() << std::endl;
-		}
+		// 카메라 측 이미지 획득 시작
+		m_pDevice->AcquisitionStart();
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "Start acquisition error: " << e.GetDescription() << std::endl;
 	}
 }
 
 void CameraWorkerCB::stopAcquisition()
 {
-	if (m_initialized == false)
+	try
 	{
-		return;
-	}
-	else
-	{
-		try
-		{
-			// 카메라 측 이미지 획득 중지
-			m_pDevice->AcquisitionStop();
+		// 카메라 측 이미지 획득 중지
+		m_pDevice->AcquisitionStop();
 
-			// 호스트(PC) 측 이미지 획득 중지
-			m_pDataStream->StopAcquisition();
-		}
-		catch (const GenICam::GenericException& e)
-		{
-			std::cerr << "Stop acquisition error: " << e.GetDescription() << std::endl;
-		}
+		// 호스트(PC) 측 이미지 획득 중지
+		m_pDataStream->StopAcquisition();
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "Stop acquisition error: " << e.GetDescription() << std::endl;
 	}
 }
 

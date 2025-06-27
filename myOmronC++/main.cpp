@@ -2,7 +2,7 @@
 
 int main()
 {
-	CameraWorker cameraWorker(5); // 10°³ÀÇ ÀÌ¹ÌÁö È¹µæ
+	CameraWorker cameraWorker(2); // 10°³ÀÇ ÀÌ¹ÌÁö È¹µæ
 	if (cameraWorker.initialize())
 	{
 		cameraWorker.StartAcquisition();

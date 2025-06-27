@@ -84,7 +84,7 @@ protected:
 	@param isColor : 변환하고자 하는 포맷이 컬러인지 여부
 	@param pDstBuffer : 변환된 이미지를 저장할 이미지 버퍼 포인터
 	*/
-	void ConvertPixelFormat(IStImage* pSrcImage, bool setColor, CIStImageBufferPtr& pDstBuffer);
+	void ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStImageBufferPtr& pDstBuffer);
 	/*
 	@brief 이미지 저장 함수
 	@param pImageBuffer : 저장할 이미지 버퍼 포인터
@@ -92,8 +92,6 @@ protected:
 	*/
 	template<typename FORMAT>
 	void SaveImage(CIStImageBufferPtr& pImageBuffer, GenICam::gcstring& dstDir);
-
-	bool m_initialized;
 
 	/*
 	@brief StApi 라이브러리 초기화 객체
