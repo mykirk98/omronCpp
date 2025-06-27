@@ -1,15 +1,17 @@
-#include "CameraEventWorker.h"
+#include "CameraWorkerCB.h"
 
 int main()
 {
-	std::cout << "2025/06/08 - Camera Event C++ Code" << std::endl;
-
-	CameraEventWorker camera(100);
-	if (camera.initialize())
+	CameraWorker cameraWorker(5); // 10개의 이미지 획득
+	if (cameraWorker.initialize())
 	{
-		camera.startAcquisition();
-	}
+		cameraWorker.StartAcquisition();
 
-	/*std::cout << "Press Enter to stop acquisition..." << std::endl;
-	std::cin.get();*/
+		// ... 이미지 처리 로직 ...
+	}
+	else
+	{
+		std::cerr << "Camera initialization failed." << std::endl;
+	}
+	return 0;
 }
