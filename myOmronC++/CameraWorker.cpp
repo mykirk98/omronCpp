@@ -40,6 +40,8 @@ void CameraWorker::StartAcquisition()
 		// 카메라 측의 이미지 획득 시작
 		m_pDevice->AcquisitionStart();
 		
+		std::string dstCfgDir = "C:\\Users\\USER\\Pictures\\Features.cfg";
+		SaveConfigFile(dstCfgDir);
 		SequentialCapture();
 	}
 	catch (const GenICam::GenericException& e)
@@ -128,6 +130,29 @@ void CameraWorker::LoadSavedImage(CIStImageBufferPtr& pImageBuffer, const GenICa
 	}
 }
 
+void CameraWorker::SaveConfigFile(std::string dstDir)
+{
+	try
+	{
+		GenICam::gcstring filePath = GenICam::gcstring(dstDir.c_str());
+		// 노드 맵 가져오기
+		GenApi::CNodeMapPtr pNodeMap(m_pDevice->GetRemoteIStPort()->GetINodeMap());
+		// 설정값을 저장하기 위한 FeatureBag 객체 생성
+		CIStFeatureBagPtr pFeatureBag(CreateIStFeatureBag());
+		// 노드 맵의 모든 설정값을 FeatureBag에 저장
+		pFeatureBag->StoreNodeMapToBag(pNodeMap);
+		
+		// 파일(.cfg)로 저장
+		std::wcout << std::endl << L"Saving " << filePath.w_str().c_str() << L"... ";
+		pFeatureBag->SaveToFile(filePath);
+		std::cout << "done" << std::endl;
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "Saving config file error: " << e.GetDescription() << std::endl;
+	}
+}
+
 void CameraWorker::SequentialCapture()
 {
 	while (m_pDataStream->IsGrabbing())
@@ -145,8 +170,8 @@ void CameraWorker::SequentialCapture()
 			PrintFrameInfo(pImage, frameID);
 
 			//std::string targetDir = "C:\\Users\\mykir\\Work\\Experiments\\";//NOTE: LAB PC DIRECTORY
-			std::string targetDir = "C:\\Users\\USER\\Pictures\\";//NOTE: HOME PC DIRECTORY
-			ConvertAndSaveImage<BMP>(pImage, true, targetDir, frameID);
+			//std::string targetDir = "C:\\Users\\USER\\Pictures\\";//NOTE: HOME PC DIRECTORY
+			//ConvertAndSaveImage<BMP>(pImage, true, targetDir, frameID);
 		}
 		else
 		{
