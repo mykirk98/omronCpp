@@ -40,30 +40,7 @@ void CameraWorker::StartAcquisition()
 		// 카메라 측의 이미지 획득 시작
 		m_pDevice->AcquisitionStart();
 		
-		//TODO: LinearCapture 메소드로 리팩토링하기
-		while (m_pDataStream->IsGrabbing())
-		{
-			// 버퍼 포인터를 5000ms의 타임아웃으로 검색
-			CIStStreamBufferPtr pStreamBuffer(m_pDataStream->RetrieveBuffer(5000));
-			
-			// 획득한 데이터에 이미지 데이터가 있는지 확인
-			if (pStreamBuffer->GetIStStreamBufferInfo()->IsImagePresent())
-			{
-				// IStImage 객체 생성
-				IStImage* pImage = pStreamBuffer->GetIStImage();
-				
-				const uint64_t frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
-				PrintFrameInfo(pImage, frameID);
-				
-				//std::string targetDir = "C:\\Users\\mykir\\Work\\Experiments\\";//NOTE: LAB PC DIRECTORY
-				std::string targetDir = "C:\\Users\\USER\\Pictures\\";//NOTE: HOME PC DIRECTORY
-				ConvertAndSaveImage<BMP>(pImage, true, targetDir, frameID);
-			}
-			else
-			{
-				std::cout << "No image data present in the buffer." << std::endl;
-			}
-		}
+		SequentialCapture();
 	}
 	catch (const GenICam::GenericException& e)
 	{
@@ -108,8 +85,6 @@ void CameraWorker::ConvertAndSaveImage(IStImage* pSrcImage, bool isColor, std::s
 	}
 }
 
-
-
 void CameraWorker::PrintFrameInfo(const IStImage* pImage, const uint64_t frameID)
 {
 	try
@@ -150,6 +125,33 @@ void CameraWorker::LoadSavedImage(CIStImageBufferPtr& pImageBuffer, const GenICa
 	catch (const GenICam::GenericException& e)
 	{
 		std::cerr << "Loading image error: " << e.GetDescription() << std::endl;
+	}
+}
+
+void CameraWorker::SequentialCapture()
+{
+	while (m_pDataStream->IsGrabbing())
+	{
+		// 버퍼 포인터를 5000ms의 타임아웃으로 검색
+		CIStStreamBufferPtr pStreamBuffer(m_pDataStream->RetrieveBuffer(5000));
+
+		// 획득한 데이터에 이미지 데이터가 있는지 확인
+		if (pStreamBuffer->GetIStStreamBufferInfo()->IsImagePresent())
+		{
+			// IStImage 객체 생성
+			IStImage* pImage = pStreamBuffer->GetIStImage();
+
+			const uint64_t frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
+			PrintFrameInfo(pImage, frameID);
+
+			//std::string targetDir = "C:\\Users\\mykir\\Work\\Experiments\\";//NOTE: LAB PC DIRECTORY
+			std::string targetDir = "C:\\Users\\USER\\Pictures\\";//NOTE: HOME PC DIRECTORY
+			ConvertAndSaveImage<BMP>(pImage, true, targetDir, frameID);
+		}
+		else
+		{
+			std::cout << "No image data present in the buffer." << std::endl;
+		}
 	}
 }
 
