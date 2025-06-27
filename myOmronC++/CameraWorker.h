@@ -1,7 +1,9 @@
 #pragma once
 #include <StApi_TL.h>	// TL : Transport Layer
 #include <StApi_IP.h>	// IP : Image Processing
-#include <ShlObj.h>
+//#include <ShlObj.h>//TODO: 없애기
+
+#include "CameraConfigurator.h"
 
 using namespace StApi;
 
@@ -81,16 +83,6 @@ protected:
 	@param srcDir : 이미지가 저장된 디렉토리 경로
 	*/
 	void LoadSavedImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& srcDir);
-	/*
-	@brief 카메라 설정 파일 저장 함수
-	@param dstDir : 설정 파일을 저장할 디렉토리 경로
-	*/
-	void SaveConfigFile(std::string dstDir);
-	/*
-	@brief 카메라 설정 파일 로드 함수
-	@param srcDir : 설정 파일이 저장된 디렉토리 경로
-	*/
-	void LoadConfigFile(std::string srcDir);
 	
 	/*
 	@brief StApi 라이브러리 초기화 객체
