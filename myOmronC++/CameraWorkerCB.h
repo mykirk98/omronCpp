@@ -1,8 +1,5 @@
 #pragma once
-#include <StApi_TL.h>
-#include <iostream>
 #include "CameraWorker.h"
-using namespace StApi;
 
 // 콜백 함수 : 특정 이벤트가 발생했을 때 자동으로 호출되어, 미리 정의된 동작을 수행하는 것
 // 이미지 데이터 스트림에서 새로운 이미지 버퍼가 도착할 때마다 호출된다.

@@ -15,6 +15,10 @@ using namespace GenApi;
 class CameraConfigurator
 {
 public:
+	/*
+	@brief 카메라 설정 노드를 출력하는 함수
+	@param pINode : 카메라 설정 노드 포인터
+	*/
 	static void DisplayNodes(GenApi::CNodePtr pINode);
 	/*
 	@brief 카메라 설정 파일 저장 함수
