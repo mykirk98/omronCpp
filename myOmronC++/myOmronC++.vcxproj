@@ -144,6 +144,7 @@
     <ClInclude Include="CameraWorker.h" />
     <ClInclude Include="CameraWorkerCB.h" />
     <ClInclude Include="CameraWorker_Chunk.h" />
+    <ClInclude Include="config.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="myOmronC++.rc" />

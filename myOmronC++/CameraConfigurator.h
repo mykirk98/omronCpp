@@ -1,7 +1,13 @@
 #pragma once
+#include "config.h"
+
 #include <StApi_TL.h>
+#ifdef ENABLED_ST_GUI
+#include <StApi_GUI.h>
+#endif // ENABLED_ST_GUI
 
 using namespace StApi;
+using namespace GenApi;
 
 /*
 @brief 카메라 설정 파일을 저장하고 불러오는 기능을 제공하는 클래스
@@ -9,6 +15,7 @@ using namespace StApi;
 class CameraConfigurator
 {
 public:
+	static void DisplayNodes(GenApi::CNodePtr pINode);
 	/*
 	@brief 카메라 설정 파일 저장 함수
 	@param dstDir : 설정 파일을 저장할 디렉토리 경로

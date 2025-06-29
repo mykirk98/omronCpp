@@ -43,7 +43,8 @@ void CameraWorker::StartAcquisition()
 		std::string dstCfgDir = "C:\\Users\\USER\\Pictures\\Features.cfg";
 		//SaveConfigFile(dstCfgDir);
 		//LoadConfigFile(dstCfgDir);
-		CameraConfigurator::Load(m_pDevice, dstCfgDir);
+		//CameraConfigurator::Load(m_pDevice, dstCfgDir);
+		CameraConfigurator::DisplayNodes(m_pDevice->GetRemoteIStPort()->GetINodeMap()->GetNode("Root"));
 		SequentialCapture();
 	}
 	catch (const GenICam::GenericException& e)

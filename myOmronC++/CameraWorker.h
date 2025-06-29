@@ -1,7 +1,6 @@
 #pragma once
 #include <StApi_TL.h>	// TL : Transport Layer
 #include <StApi_IP.h>	// IP : Image Processing
-//#include <ShlObj.h>//TODO: ¾ø¾Ö±â
 
 #include "CameraConfigurator.h"
 
