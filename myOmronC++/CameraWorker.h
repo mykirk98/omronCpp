@@ -53,7 +53,7 @@ public:
 	~CameraWorker();
 	
 	/* @brief 카메라 제어에 필요한 여러 객체 초기화 함수 */
-	bool initialize(const CIStSystemPtr& pSystem);
+	bool Initialize(const CIStSystemPtr& pSystem);
 	/* @brief 이미지 획득 시작 함수 */
 	void StartAcquisition();
 	/* @brief 이미지 획득 종료 함수 */

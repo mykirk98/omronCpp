@@ -10,16 +10,12 @@ CameraWorker::~CameraWorker()
 	StopAcquisition();
 }
 
-bool CameraWorker::initialize(const CIStSystemPtr& pSystem)
+bool CameraWorker::Initialize(const CIStSystemPtr& pSystem)
 {
 	try
 	{
-		// 시스템 객체 생성 (장치 검색 및 연결)
-		//m_pSystem = CreateIStSystem();
-		//m_pSystem = pSystem; // 외부에서 전달된 시스템 객체 사용
-		// 첫 번째 장치 생성 및 연결
-		//m_pDevice = m_pSystem->CreateFirstIStDevice();
-		m_pDevice = pSystem->CreateFirstIStDevice();
+		// 카메라 객체 생성
+		m_pDevice = pSystem->CreateFirstIStDevice();//TODO: CreateFirstIStDevice()말고 다른 방법으로 카메라를 선택할 수 있지 않을까?
 		std::cout << "Device=" << m_pDevice->GetIStDeviceInfo()->GetDisplayName() << std::endl;
 		// 이미지 스트림 데이터를 처리하기 위한 데이터스트림 객체 생성
 		m_pDataStream = m_pDevice->CreateIStDataStream(0);

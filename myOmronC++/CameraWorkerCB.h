@@ -18,15 +18,15 @@ public:
 	@brief 카메라에 필요한 객체들을 초기화하는 함수
 	@param pSystem : 카메라 시스템 객체
 	*/
-	bool initialize(const CIStSystemPtr& pSystem);
+	bool Initialize(const CIStSystemPtr& pSystem);
 	/*
 	@brief 이미지 획득 시작 함수
 	*/
-	void startAcquisition();
+	void StartAcquisition();
 	/*
 	@brief 이미지 획득 중지 함수
 	*/
-	void stopAcquisition();
+	void StopAcquisition();
 	/*
 	@brief 이미지 저장 함수
 	@param dstDir : 이미지 저장할 디렉토리 경로
