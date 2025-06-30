@@ -134,6 +134,7 @@
     <ClCompile Include="CameraWorker.cpp" />
     <ClCompile Include="CameraWorkerCB.cpp" />
     <ClCompile Include="CameraWorker_Chunk.cpp" />
+    <ClCompile Include="Experiment1.cpp" />
     <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
@@ -145,6 +146,7 @@
     <ClInclude Include="CameraWorkerCB.h" />
     <ClInclude Include="CameraWorker_Chunk.h" />
     <ClInclude Include="config.h" />
+    <ClInclude Include="Experiment1.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="myOmronC++.rc" />
