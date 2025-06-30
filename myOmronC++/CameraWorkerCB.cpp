@@ -26,8 +26,8 @@ bool CameraWorkerCB::initialize()
 		// 카메라 세팅을 위한 노드맵 가져오기
 		GenApi::CNodeMapPtr pINodeMap(m_pDevice->GetRemoteIStPort()->GetINodeMap());
 		// 트리거모드 설정
-		SetTriggerMode(pINodeMap, "FrameStart", "On", "Software");
-		pICommandTriggerSoftware = pINodeMap->GetNode("TriggerSoftware");
+		SetTriggerMode(pINodeMap, TRIGGER_SELECTOR_FRAME_START, TRIGGER_MODE_ON, TRIGGER_SOURCE_SOFTWARE);
+		pICommandTriggerSoftware = pINodeMap->GetNode(TRIGGER_SOFTWARE);
 		
 		// 이미지 스트림 데이터를 처리하기 위한 데이터스트림 객체 생성
 		m_pDataStream = m_pDevice->CreateIStDataStream(0);
@@ -113,7 +113,8 @@ void CameraWorkerCB::OnCallback(IStCallbackParamBase* pCallbackParam)
 				const uint64_t frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
 				PrintFrameInfo(pImage, pStreamBuffer);
 
-				std::string targetDir = "C:\\Users\\USER\\Pictures\\";//NOTE: HOME PC DIRECTORY
+				//std::string targetDir = "C:\\Users\\USER\\Pictures\\";//NOTE: HOME PC DIRECTORY
+				std::string targetDir = "C:\\Users\\mykir\\Work\\Experiments\\";	//NOTE: LAB PC DIRECTORY
 				ConvertAndSaveImage<BMP>(pImage, true, targetDir, frameID);
 			}
 			else
@@ -153,11 +154,11 @@ void CameraWorkerCB::SetTriggerMode(GenApi::CNodeMapPtr& pINodeMap, const char* 
 	try
 	{
 		// TriggerSelector 노드 설정
-		SetEnumeration(pINodeMap, "TriggerSelector", triggerSelector);
+		SetEnumeration(pINodeMap, TRIGGER_SELECTOR, triggerSelector);
 		// TriggerMode 노드 설정
-		SetEnumeration(pINodeMap, "TriggerMode", triggerMode);
+		SetEnumeration(pINodeMap, TRIGGER_MODE, triggerMode);
 		// TriggerSource 노드 설정
-		SetEnumeration(pINodeMap, "TriggerSource", triggerSource);
+		SetEnumeration(pINodeMap, TRIGGER_SOURCE, triggerSource);
 	}
 	catch (const GenICam::GenericException& e)
 	{

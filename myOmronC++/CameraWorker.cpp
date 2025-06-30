@@ -158,7 +158,7 @@ void CameraWorker::SequentialCapture()
 			const uint64_t frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
 			PrintFrameInfo(pImage, frameID);
 
-			//std::string targetDir = "C:\\Users\\mykir\\Work\\Experiments\\";//NOTE: LAB PC DIRECTORY
+			//std::string targetDir = "C:\\Users\\mykir\\Work\\Experiments\\";	//NOTE: LAB PC DIRECTORY
 			//std::string targetDir = "C:\\Users\\USER\\Pictures\\";//NOTE: HOME PC DIRECTORY
 			//ConvertAndSaveImage<BMP>(pImage, true, targetDir, frameID);
 		}
