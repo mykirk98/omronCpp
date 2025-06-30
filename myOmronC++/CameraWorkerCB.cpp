@@ -12,15 +12,17 @@ CameraWorkerCB::~CameraWorkerCB()
 	stopAcquisition();
 }
 
-bool CameraWorkerCB::initialize()
+bool CameraWorkerCB::initialize(const CIStSystemPtr& pSystem)
 {
 	try
 	{
 		// 시스템 객체 생성 (장치 검색 및 연결)
-		m_pSystem = CreateIStSystem();
+		//m_pSystem = CreateIStSystem();
+		//m_pSystem = pSystem; // 외부에서 전달된 시스템 객체 사용
 		
 		// 첫 번쨰 장치 생성 및 연결
-		m_pDevice = m_pSystem->CreateFirstIStDevice();
+		//m_pDevice = m_pSystem->CreateFirstIStDevice();
+		m_pDevice = pSystem->CreateFirstIStDevice();
 
 		// 장치 정보 출력
 		std::cout << "Device: " << m_pDevice->GetIStDeviceInfo()->GetDisplayName() << std::endl;

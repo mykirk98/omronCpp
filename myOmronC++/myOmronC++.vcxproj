@@ -131,6 +131,7 @@
   <ItemGroup>
     <ClCompile Include="CameraConfigurator.cpp" />
     <ClCompile Include="CameraEventWorker.cpp" />
+    <ClCompile Include="CameraManager.cpp" />
     <ClCompile Include="CameraWorker.cpp" />
     <ClCompile Include="CameraWorkerCB.cpp" />
     <ClCompile Include="CameraWorker_Chunk.cpp" />
@@ -142,6 +143,7 @@
   <ItemGroup>
     <ClInclude Include="CameraConfigurator.h" />
     <ClInclude Include="CameraEventWorker.h" />
+    <ClInclude Include="CameraManager.h" />
     <ClInclude Include="CameraWorker.h" />
     <ClInclude Include="CameraWorkerCB.h" />
     <ClInclude Include="CameraWorker_Chunk.h" />

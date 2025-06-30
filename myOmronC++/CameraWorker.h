@@ -53,7 +53,7 @@ public:
 	~CameraWorker();
 	
 	/* @brief 카메라 제어에 필요한 여러 객체 초기화 함수 */
-	bool initialize();
+	bool initialize(const CIStSystemPtr& pSystem);
 	/* @brief 이미지 획득 시작 함수 */
 	void StartAcquisition();
 	/* @brief 이미지 획득 종료 함수 */
@@ -83,11 +83,6 @@ protected:
 	*/
 	void LoadSavedImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& srcDir);
 	
-	/*
-	@brief StApi 라이브러리 초기화 객체
-	@brief StApi 라이브러리를 초기화하고 종료 시 자동으로 정리합니다.
-	*/
-	CStApiAutoInit m_StApiAutoInit;
 	/*
 	@brief 카메라 시스템 객체
 	@brief 카메라 시스템은 카메라 디바이스를 관리하고, 디바이스와의 연결을 설정하는 역할을 합니다.

@@ -1,4 +1,68 @@
 #include "CameraManager.h"
+
+CameraManager::CameraManager()
+{
+}
+
+CameraManager::~CameraManager()
+{
+	StopAcquisitionAll(); // 안전한 종료
+}
+
+bool CameraManager::InitializeAll(size_t cameraCount)
+{
+	m_pSystem = CreateIStSystem();
+	for (size_t i = 0; i < cameraCount; ++i)
+	{
+		auto worker = std::make_unique<CameraWorkerCB>();
+		if (worker->initialize(m_pSystem))  // 수정된 initialize 함수 사용
+		{
+			m_workers.push_back(std::move(worker));
+		}
+		else
+		{
+			std::cerr << "Camera " << i << " initialization failed.\n";
+			return false;
+		}
+	}
+	return true;
+}
+
+void CameraManager::StartAcquisitionAll()
+{
+	for (auto& worker : m_workers)
+	{
+		worker->startAcquisition();
+	}
+}
+
+void CameraManager::StopAcquisitionAll()
+{
+	for (auto& worker : m_workers)
+	{
+		worker->stopAcquisition();
+	}
+}
+
+void CameraManager::TriggerAll()
+{
+	for (auto& worker : m_workers)
+	{
+		if (worker->pICommandTriggerSoftware)
+			worker->pICommandTriggerSoftware->Execute();
+	}
+}
+
+void CameraManager::SaveImageAll(const std::string& dstDir)
+{
+	for (auto& worker : m_workers)
+	{
+		worker->SaveImageToFile(dstDir);
+	}
+}
+
+/*
+#include "CameraManager.h"
 #include <iostream>
 #include <string>
 
@@ -51,3 +115,4 @@ int main()
 
     return 0;
 }
+*/
