@@ -11,53 +11,64 @@ CameraManager::~CameraManager()
 
 bool CameraManager::InitializeAll(size_t cameraCount)
 {
-	m_pSystem = CreateIStSystem();
-	for (size_t i = 0; i < cameraCount; ++i)
-	{
-		auto worker = std::make_unique<CameraWorkerCB>();
-		if (worker->initialize(m_pSystem))  // 수정된 initialize 함수 사용
-		{
-			m_workers.push_back(std::move(worker));
-		}
-		else
-		{
-			std::cerr << "Camera " << i << " initialization failed.\n";
-			return false;
-		}
-	}
-	return true;
+    try
+    {
+        // 시스템 객체 생성 (장치 검색 및 연결)
+        m_pSystem = CreateIStSystem();
+        for (size_t i = 0; i < cameraCount; ++i)
+        {
+            // 각 카메라에 대한 CameraWorkerCB 객체 생성 및 초기화
+            std::unique_ptr<CameraWorkerCB> worker(new CameraWorkerCB());
+            if (worker->Initialize(m_pSystem))
+            {
+                // 카메라 초기화 성공 시, 작업자를 이동(move)하여 벡터에 추가, 소유권 이전
+                m_workers.push_back(std::move(worker));
+            }
+            else
+            {
+                std::cerr << "[Manager] Camera " << i << " initialization failed." << std::endl;    //TODO: 에러 로그에 카메라 일련 번호 추가하기
+				return false; // 초기화 실패 시 false 반환
+            }
+        }
+    }
+    catch (const GenICam::GenericException& e)
+    {
+		std::cerr << "[Manager] initialization ALL error: " << e.GetDescription() << std::endl;
+		return false;
+    }
 }
 
 void CameraManager::StartAcquisitionAll()
 {
-	for (auto& worker : m_workers)
+	// 모든 카메라에 대해 이미지 획득 시작
+	for (std::vector<std::unique_ptr<CameraWorkerCB>>::iterator it = m_workers.begin(); it != m_workers.end(); ++it)
 	{
-		worker->startAcquisition();
+        (*it)->StartAcquisition();
 	}
 }
 
 void CameraManager::StopAcquisitionAll()
 {
-	for (auto& worker : m_workers)
-	{
-		worker->stopAcquisition();
-	}
+    for (std::vector<std::unique_ptr<CameraWorkerCB>>::iterator it = m_workers.begin(); it != m_workers.end(); ++it)
+    {
+        (*it)->StopAcquisition();
+    }
 }
 
 void CameraManager::TriggerAll()
 {
-	for (auto& worker : m_workers)
+	for (std::vector<std::unique_ptr<CameraWorkerCB>>::iterator it = m_workers.begin(); it != m_workers.end(); ++it)
 	{
-		if (worker->pICommandTriggerSoftware)
-			worker->pICommandTriggerSoftware->Execute();
+		if ((*it)->pICommandTriggerSoftware)
+            (*it)->pICommandTriggerSoftware->Execute();
 	}
 }
 
 void CameraManager::SaveImageAll(const std::string& dstDir)
 {
-	for (auto& worker : m_workers)
+	for (std::vector<std::unique_ptr<CameraWorkerCB>>::iterator it = m_workers.begin(); it != m_workers.end(); ++it)
 	{
-		worker->SaveImageToFile(dstDir);
+		(*it)->SaveImageToFile(dstDir);
 	}
 }
 
