@@ -18,6 +18,10 @@
 
 int main()
 {
+	std::string directory = "C:\\Users\\mykir\\Work\\Experiments\\";	//NOTE: LAB PC DIRECTORY
+	//std::string directory = "C:\\Users\\USER\\Pictures\\";//NOTE: HOME PC DIRECTORY
+
+
 	CameraWorkerCB cameraWorker;
 	if (cameraWorker.initialize())
 	{
@@ -34,6 +38,11 @@ int main()
 			if (nindex == 0)
 			{
 				cameraWorker.pICommandTriggerSoftware->Execute();
+				std::cout << "captured image and waiting for saving image..." << std::endl;
+				Sleep(3000);
+				cameraWorker.SaveImageToFile(directory);
+				std::cout << "Image saved to " << directory << std::endl;
+
 			}
 			else
 			{

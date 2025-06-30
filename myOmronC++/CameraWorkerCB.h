@@ -15,6 +15,7 @@ public:
 	bool initialize();
 	void startAcquisition();	// 이미지 획득 시작 함수
 	void stopAcquisition();	// 이미지 획득 중지 함수
+	void SaveImageToFile(const std::string& dstDir);
 
 	GenApi::CCommandPtr pICommandTriggerSoftware;
 	
@@ -24,5 +25,8 @@ private:
 	void SetEnumeration(GenApi::INodeMap* pInodeMap, const char* szEnumerationName, const char* szValueName);
 	// 트리거 모드 설정 메소드
 	void SetTriggerMode(GenApi::CNodeMapPtr& pINodeMap, const char* triggerSelector, const char* triggerMode, const char* triggerSource);
+
+	IStImage* m_pImage;
+	uint64_t m_frameID;
 };
 

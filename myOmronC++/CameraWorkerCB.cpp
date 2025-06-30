@@ -2,6 +2,8 @@
 
 CameraWorkerCB::CameraWorkerCB()
 	: pICommandTriggerSoftware(nullptr)
+	, m_pImage(nullptr)
+	, m_frameID(0)
 {
 }
 
@@ -78,6 +80,11 @@ void CameraWorkerCB::stopAcquisition()
 	}
 }
 
+void CameraWorkerCB::SaveImageToFile(const std::string& dstDir)
+{
+	ConvertAndSaveImage<BMP>(m_pImage, true, dstDir, m_frameID);
+}
+
 void __stdcall CameraWorkerCB::OnStCallbackMethod(IStCallbackParamBase* pIStCallbackParamBase, void* pvContext)
 {
 	if (pvContext)
@@ -108,14 +115,10 @@ void CameraWorkerCB::OnCallback(IStCallbackParamBase* pCallbackParam)
 			
 			if (pStreamBuffer->GetIStStreamBufferInfo()->IsImagePresent())
 			{
-				IStImage* pImage = pStreamBuffer->GetIStImage();
+				m_pImage = pStreamBuffer->GetIStImage();
 				
-				const uint64_t frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
-				PrintFrameInfo(pImage, pStreamBuffer);
-
-				//std::string targetDir = "C:\\Users\\USER\\Pictures\\";//NOTE: HOME PC DIRECTORY
-				std::string targetDir = "C:\\Users\\mykir\\Work\\Experiments\\";	//NOTE: LAB PC DIRECTORY
-				ConvertAndSaveImage<BMP>(pImage, true, targetDir, frameID);
+				m_frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
+				PrintFrameInfo(m_pImage, pStreamBuffer);
 			}
 			else
 			{
@@ -170,6 +173,10 @@ void CameraWorkerCB::SetTriggerMode(GenApi::CNodeMapPtr& pINodeMap, const char* 
 /*
 int main()
 {
+	std::string directory = "C:\\Users\\mykir\\Work\\Experiments\\";	//NOTE: LAB PC DIRECTORY
+	//std::string directory = "C:\\Users\\USER\\Pictures\\";//NOTE: HOME PC DIRECTORY
+
+
 	CameraWorkerCB cameraWorker;
 	if (cameraWorker.initialize())
 	{
@@ -186,6 +193,11 @@ int main()
 			if (nindex == 0)
 			{
 				cameraWorker.pICommandTriggerSoftware->Execute();
+				std::cout << "captured image and waiting for saving image..." << std::endl;
+				Sleep(3000);
+				cameraWorker.SaveImageToFile(directory);
+				std::cout << "Image saved to " << directory << std::endl;
+
 			}
 			else
 			{
