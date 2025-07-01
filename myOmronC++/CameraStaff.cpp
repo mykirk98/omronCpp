@@ -3,7 +3,7 @@
 #include <iostream>
 
 CameraStaff::CameraStaff()
-    : m_worker(std::make_unique<CameraWorkerCB>())
+    : m_worker(std::make_unique<TriggerCamera>())
     , m_running(false)
     , m_triggerRequested(false)
 {

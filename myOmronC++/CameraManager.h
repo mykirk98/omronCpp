@@ -1,5 +1,5 @@
 #pragma once
-#include "CameraWorkerCB.h"
+#include "TriggerCamera.h"
 #include <vector>
 #include <memory>
 
@@ -50,5 +50,5 @@ private:
 	@brief 카메라 작업자 객체들의 벡터
 	@brief 각 카메라에 대한 작업을 수행하는 CameraWorkerCB 객체들의 벡터입니다.
 	*/
-	std::vector<std::unique_ptr<CameraWorkerCB>> m_workers;
+	std::vector<std::unique_ptr<TriggerCamera>> m_workers;
 };

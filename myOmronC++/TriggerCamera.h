@@ -6,13 +6,13 @@
 @brief camera worker with callback class
 @brief This class handles camera operations using callbacks for image acquisition and processing.
 */
-class CameraWorkerCB : public BasicCamera
+class TriggerCamera : public BasicCamera
 {
 public:
 	/* @brief class constructor */
-	CameraWorkerCB();
+	TriggerCamera();
 	/* @brief class destructor */
-	~CameraWorkerCB();
+	~TriggerCamera();
 
 	/*
 	@brief camera initialization method

@@ -17,8 +17,8 @@ bool CameraManager::InitializeAll(size_t cameraCount)
         m_pSystem = CreateIStSystem();
         for (size_t i = 0; i < cameraCount; ++i)
         {
-			// Create CameraWorkerCB unique pointer object for each camera
-            std::unique_ptr<CameraWorkerCB> worker(new CameraWorkerCB());
+			// Create TriggerCamera unique pointer object for each camera
+            std::unique_ptr<TriggerCamera> worker(new TriggerCamera());
             if (worker->Initialize(m_pSystem))
             {
 				// If initialization is successful, add the worker to the vector
@@ -42,7 +42,7 @@ bool CameraManager::InitializeAll(size_t cameraCount)
 void CameraManager::StartAcquisitionAll()
 {
 	// Start acquisition for all cameras
-	for (std::vector<std::unique_ptr<CameraWorkerCB>>::iterator it = m_workers.begin(); it != m_workers.end(); ++it)
+	for (std::vector<std::unique_ptr<TriggerCamera>>::iterator it = m_workers.begin(); it != m_workers.end(); ++it)
 	{
         (*it)->StartAcquisition();
 	}
@@ -51,7 +51,7 @@ void CameraManager::StartAcquisitionAll()
 void CameraManager::StopAcquisitionAll()
 {
 	// Stop acquisition for all cameras
-    for (std::vector<std::unique_ptr<CameraWorkerCB>>::iterator it = m_workers.begin(); it != m_workers.end(); ++it)
+    for (std::vector<std::unique_ptr<TriggerCamera>>::iterator it = m_workers.begin(); it != m_workers.end(); ++it)
     {
         (*it)->StopAcquisition();
     }
@@ -60,7 +60,7 @@ void CameraManager::StopAcquisitionAll()
 void CameraManager::TriggerAll()
 {
 	// Send trigger signal to all cameras
-	for (std::vector<std::unique_ptr<CameraWorkerCB>>::iterator it = m_workers.begin(); it != m_workers.end(); ++it)
+	for (std::vector<std::unique_ptr<TriggerCamera>>::iterator it = m_workers.begin(); it != m_workers.end(); ++it)
 	{
 		if ((*it)->pICommandTriggerSoftware)
             (*it)->pICommandTriggerSoftware->Execute();
@@ -70,7 +70,7 @@ void CameraManager::TriggerAll()
 void CameraManager::SaveImageAll(const std::string& dstDir)
 {
 	// Save images from all cameras to the specified directory
-	for (std::vector<std::unique_ptr<CameraWorkerCB>>::iterator it = m_workers.begin(); it != m_workers.end(); ++it)
+	for (std::vector<std::unique_ptr<TriggerCamera>>::iterator it = m_workers.begin(); it != m_workers.end(); ++it)
 	{
 		(*it)->SaveImageToFile(dstDir);
 	}
@@ -83,8 +83,8 @@ void CameraManager::SaveImageAll(const std::string& dstDir)
 
 int main()
 {
-    std::string saveDirectory = "C:\\Users\\mykir\\Work\\Experiments\\";  // �̹��� ���� ���丮
-    size_t cameraCount = 2;  // ������ ī�޶� �� (��: 2��)
+	std::string saveDirectory = "C:\\Users\\mykir\\Work\\Experiments\\";    //NOTE: LAB PC DIRECTORY
+    size_t cameraCount = 2;
 
     CameraManager cameraManager;
 

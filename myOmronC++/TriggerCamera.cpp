@@ -1,16 +1,16 @@
-#include "CameraWorkerCB.h"
+#include "TriggerCamera.h"
 
-CameraWorkerCB::CameraWorkerCB()
+TriggerCamera::TriggerCamera()
 	: pICommandTriggerSoftware(nullptr)
 {
 }
 
-CameraWorkerCB::~CameraWorkerCB()
+TriggerCamera::~TriggerCamera()
 {
 	StopAcquisition();
 }
 
-bool CameraWorkerCB::Initialize(const CIStSystemPtr& pSystem)
+bool TriggerCamera::Initialize(const CIStSystemPtr& pSystem)
 {
 	try
 	{
@@ -29,8 +29,8 @@ bool CameraWorkerCB::Initialize(const CIStSystemPtr& pSystem)
 		m_pDataStream = m_pDevice->CreateIStDataStream(0);
 
 		// Register a callback function. When a Data stream event is triggered, the registered function will be called.
-		RegisterCallback(m_pDataStream, &CameraWorkerCB::OnStCallbackMethod, this);
-		//NOTE: this : means the current instance of CameraWorkerCB, allowing the callback to access instance variables and methods.
+		RegisterCallback(m_pDataStream, &TriggerCamera::OnStCallbackMethod, this);
+		//NOTE: this : means the current instance of TriggerCamera, allowing the callback to access instance variables and methods.
 
 		return true;
 	}
@@ -41,7 +41,7 @@ bool CameraWorkerCB::Initialize(const CIStSystemPtr& pSystem)
 	}
 }
 
-void CameraWorkerCB::StartAcquisition()
+void TriggerCamera::StartAcquisition()
 {
 	try
 	{
@@ -57,7 +57,7 @@ void CameraWorkerCB::StartAcquisition()
 	}
 }
 
-void CameraWorkerCB::StopAcquisition()
+void TriggerCamera::StopAcquisition()
 {
 	try
 	{
@@ -73,22 +73,22 @@ void CameraWorkerCB::StopAcquisition()
 	}
 }
 
-void CameraWorkerCB::SaveImageToFile(const std::string& dstDir)
+void TriggerCamera::SaveImageToFile(const std::string& dstDir)
 {
 	ConvertAndSaveImage<BMP>(m_pImage, true, dstDir, m_frameID);
 }
 
-void CameraWorkerCB::OnStCallbackMethod(IStCallbackParamBase* pIStCallbackParamBase, void* pvContext)
+void TriggerCamera::OnStCallbackMethod(IStCallbackParamBase* pIStCallbackParamBase, void* pvContext)
 {
 	if (pvContext)
 	{
-		// pvContext is a pointer to the CameraWorkerCB instance
-		static_cast<CameraWorkerCB*>(pvContext)->OnCallback(pIStCallbackParamBase);
-		//NOTE: static_cast is used here to convert the void pointer back to CameraWorkerCB pointer
+		// pvContext is a pointer to the TriggerCamera instance
+		static_cast<TriggerCamera*>(pvContext)->OnCallback(pIStCallbackParamBase);
+		//NOTE: static_cast is used here to convert the void pointer back to TriggerCamera pointer
 	}
 }
 
-void CameraWorkerCB::OnCallback(IStCallbackParamBase* pCallbackParam)
+void TriggerCamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 {
 	try
 	{
@@ -126,7 +126,7 @@ void CameraWorkerCB::OnCallback(IStCallbackParamBase* pCallbackParam)
 	}
 }
 
-void CameraWorkerCB::SetEnumeration(GenApi::INodeMap* pInodeMap, const char* szEnumerationName, const char* szValueName)
+void TriggerCamera::SetEnumeration(GenApi::INodeMap* pInodeMap, const char* szEnumerationName, const char* szValueName)
 {
 	try
 	{
@@ -146,7 +146,7 @@ void CameraWorkerCB::SetEnumeration(GenApi::INodeMap* pInodeMap, const char* szE
 	}
 }
 
-void CameraWorkerCB::SetTriggerMode(GenApi::CNodeMapPtr& pINodeMap, const char* triggerSelector, const char* triggerMode, const char* triggerSource)
+void TriggerCamera::SetTriggerMode(GenApi::CNodeMapPtr& pINodeMap, const char* triggerSelector, const char* triggerMode, const char* triggerSource)
 {
 	try
 	{
@@ -163,9 +163,9 @@ void CameraWorkerCB::SetTriggerMode(GenApi::CNodeMapPtr& pINodeMap, const char* 
 	}
 }
 
-// Example usage of CameraWorkerCB class
+// Example usage of TriggerCamera class
 /*
-#include "CameraWorkerCB.h"
+#include "TriggerCamera.h"
 
 int main()
 {
@@ -175,7 +175,7 @@ int main()
 	CStApiAutoInit objStApiAutoInit;
 	CIStSystemPtr pSystem(CreateIStSystem());
 
-	CameraWorkerCB cameraWorker;
+	TriggerCamera cameraWorker;
 	if (cameraWorker.Initialize(pSystem))
 	{
 		cameraWorker.StartAcquisition();

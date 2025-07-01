@@ -4,7 +4,7 @@
 #include <atomic>
 #include <memory>
 #include <string>
-#include "CameraWorkerCB.h"
+#include "TriggerCamera.h"
 
 class CameraStaff
 {
@@ -20,7 +20,7 @@ public:
 private:
     void Run();
 
-    std::unique_ptr<CameraWorkerCB> m_worker;
+    std::unique_ptr<TriggerCamera> m_worker;
     std::thread m_thread;
     std::atomic<bool> m_running;
     std::atomic<bool> m_triggerRequested;

@@ -134,7 +134,7 @@
     <ClCompile Include="CameraManager.cpp" />
     <ClCompile Include="CameraStaff.cpp" />
     <ClCompile Include="BasicCamera.cpp" />
-    <ClCompile Include="CameraWorkerCB.cpp" />
+    <ClCompile Include="TriggerCamera.cpp" />
     <ClCompile Include="CameraWorker_Chunk.cpp" />
     <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
@@ -146,7 +146,7 @@
     <ClInclude Include="CameraManager.h" />
     <ClInclude Include="CameraStaff.h" />
     <ClInclude Include="BasicCamera.h" />
-    <ClInclude Include="CameraWorkerCB.h" />
+    <ClInclude Include="TriggerCamera.h" />
     <ClInclude Include="CameraWorker_Chunk.h" />
     <ClInclude Include="config.h" />
   </ItemGroup>

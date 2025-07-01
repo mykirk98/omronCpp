@@ -21,7 +21,7 @@
     <ClCompile Include="BasicCamera.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="CameraWorkerCB.cpp">
+    <ClCompile Include="TriggerCamera.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="CameraEventWorker.cpp">
@@ -47,7 +47,7 @@
     <ClInclude Include="BasicCamera.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="CameraWorkerCB.h">
+    <ClInclude Include="TriggerCamera.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="CameraEventWorker.h">
