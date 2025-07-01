@@ -1,9 +1,9 @@
 #pragma once
-#include "CameraWorker.h"
+#include "BasicCamera.h"
 #include "config.h"
 
 
-class Experiment1 : public CameraWorker
+class Experiment1 : public BasicCamera
 {
 public:
 	Experiment1();

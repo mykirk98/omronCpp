@@ -1,12 +1,12 @@
 #pragma once
-#include "CameraWorker.h"
+#include "BasicCamera.h"
 #include "config.h"
 
 /*
 @brief camera worker with callback class
 @brief This class handles camera operations using callbacks for image acquisition and processing.
 */
-class CameraWorkerCB : public CameraWorker
+class CameraWorkerCB : public BasicCamera
 {
 public:
 	/* @brief class constructor */

@@ -41,16 +41,16 @@ struct CSV
 @brief Basic Camera Worker Class
 @brief This class is responsible for managing camera operations such as initialization, image acquisition, and saving images in various formats.
 */
-class CameraWorker
+class BasicCamera
 {
 public:
 	/*
 	@brief Class constructor
 	@param imageCount : Number of images to capture
 	*/
-	explicit CameraWorker(uint64_t imageCount = 100);
+	explicit BasicCamera(uint64_t imageCount = 100);
 	/* @brief Class destructor */
-	~CameraWorker();
+	~BasicCamera();
 	
 	/* @brief Initialize camera settings */
 	bool Initialize(const CIStSystemPtr& pSystem);

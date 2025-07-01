@@ -1,18 +1,18 @@
-#include "CameraWorker.h"
+#include "BasicCamera.h"
 
-CameraWorker::CameraWorker(uint64_t imageCount)
+BasicCamera::BasicCamera(uint64_t imageCount)
 	: m_imageCount(imageCount)
 	, m_pImage(nullptr)
 	, m_frameID(0)
 {
 }
 
-CameraWorker::~CameraWorker()
+BasicCamera::~BasicCamera()
 {
 	StopAcquisition();
 }
 
-bool CameraWorker::Initialize(const CIStSystemPtr& pSystem)
+bool BasicCamera::Initialize(const CIStSystemPtr& pSystem)
 {
 	try
 	{
@@ -31,7 +31,7 @@ bool CameraWorker::Initialize(const CIStSystemPtr& pSystem)
 	}
 }
 
-void CameraWorker::StartAcquisition()
+void BasicCamera::StartAcquisition()
 {
 	try
 	{
@@ -53,7 +53,7 @@ void CameraWorker::StartAcquisition()
 	}
 }
 
-void CameraWorker::StopAcquisition()
+void BasicCamera::StopAcquisition()
 {
 	try
 	{
@@ -71,13 +71,13 @@ void CameraWorker::StopAcquisition()
 	}
 }
 
-void CameraWorker::SaveImageToFile(const std::string& dstDir)
+void BasicCamera::SaveImageToFile(const std::string& dstDir)
 {
 	ConvertAndSaveImage<BMP>(m_pImage, true, dstDir, m_frameID);
 }
 
 template<typename FORMAT>
-void CameraWorker::ConvertAndSaveImage(IStImage* pSrcImage, bool isColor, std::string dstDir, const uint64_t frameID)
+void BasicCamera::ConvertAndSaveImage(IStImage* pSrcImage, bool isColor, std::string dstDir, const uint64_t frameID)
 {
 	try
 	{
@@ -96,14 +96,14 @@ void CameraWorker::ConvertAndSaveImage(IStImage* pSrcImage, bool isColor, std::s
 }
 
 // Explicit template instantiation for different image formats
-template void CameraWorker::ConvertAndSaveImage<StApiRaw>(IStImage*, bool, std::string, uint64_t);
-template void CameraWorker::ConvertAndSaveImage<BMP>(IStImage*, bool, std::string, uint64_t);
-template void CameraWorker::ConvertAndSaveImage<TIFF>(IStImage*, bool, std::string, uint64_t);
-template void CameraWorker::ConvertAndSaveImage<PNG>(IStImage*, bool, std::string, uint64_t);
-template void CameraWorker::ConvertAndSaveImage<JPEG>(IStImage*, bool, std::string, uint64_t);
-template void CameraWorker::ConvertAndSaveImage<CSV>(IStImage*, bool, std::string, uint64_t);
+template void BasicCamera::ConvertAndSaveImage<StApiRaw>(IStImage*, bool, std::string, uint64_t);
+template void BasicCamera::ConvertAndSaveImage<BMP>(IStImage*, bool, std::string, uint64_t);
+template void BasicCamera::ConvertAndSaveImage<TIFF>(IStImage*, bool, std::string, uint64_t);
+template void BasicCamera::ConvertAndSaveImage<PNG>(IStImage*, bool, std::string, uint64_t);
+template void BasicCamera::ConvertAndSaveImage<JPEG>(IStImage*, bool, std::string, uint64_t);
+template void BasicCamera::ConvertAndSaveImage<CSV>(IStImage*, bool, std::string, uint64_t);
 
-void CameraWorker::PrintFrameInfo(const IStImage* pImage, CIStStreamBufferPtr& pStreamBuffer)
+void BasicCamera::PrintFrameInfo(const IStImage* pImage, CIStStreamBufferPtr& pStreamBuffer)
 {
 	try
 	{
@@ -124,7 +124,7 @@ void CameraWorker::PrintFrameInfo(const IStImage* pImage, CIStStreamBufferPtr& p
 	}
 }
 
-void CameraWorker::PrintFrameInfo(const IStImage* pImage, const uint64_t frameID)
+void BasicCamera::PrintFrameInfo(const IStImage* pImage, const uint64_t frameID)
 {
 	try
 	{
@@ -139,7 +139,7 @@ void CameraWorker::PrintFrameInfo(const IStImage* pImage, const uint64_t frameID
 	}
 }
 
-void CameraWorker::LoadSavedImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& srcDir)
+void BasicCamera::LoadSavedImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& srcDir)
 {
 	try
 	{
@@ -157,7 +157,7 @@ void CameraWorker::LoadSavedImage(CIStImageBufferPtr& pImageBuffer, const GenICa
 	}
 }
 
-void CameraWorker::SequentialCapture()
+void BasicCamera::SequentialCapture()
 {
 	while (m_pDataStream->IsGrabbing())
 	{
@@ -185,7 +185,7 @@ void CameraWorker::SequentialCapture()
 	}
 }
 
-GenICam::gcstring CameraWorker::SetSavePath(const std::string& savePath, const uint64_t frameID)
+GenICam::gcstring BasicCamera::SetSavePath(const std::string& savePath, const uint64_t frameID)
 {
 	try
 	{
@@ -204,7 +204,7 @@ GenICam::gcstring CameraWorker::SetSavePath(const std::string& savePath, const u
 	}
 }
 
-void CameraWorker::ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStImageBufferPtr& pDstBuffer)
+void BasicCamera::ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStImageBufferPtr& pDstBuffer)
 {
 	try
 	{
@@ -228,7 +228,7 @@ void CameraWorker::ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStIma
 }
 
 template<typename FORMAT>
-void CameraWorker::SaveImage(CIStImageBufferPtr& pImageBuffer, GenICam::gcstring& dstDir)
+void BasicCamera::SaveImage(CIStImageBufferPtr& pImageBuffer, GenICam::gcstring& dstDir)
 {
 	try
 	{

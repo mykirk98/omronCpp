@@ -133,7 +133,7 @@
     <ClCompile Include="CameraEventWorker.cpp" />
     <ClCompile Include="CameraManager.cpp" />
     <ClCompile Include="CameraStaff.cpp" />
-    <ClCompile Include="CameraWorker.cpp" />
+    <ClCompile Include="BasicCamera.cpp" />
     <ClCompile Include="CameraWorkerCB.cpp" />
     <ClCompile Include="CameraWorker_Chunk.cpp" />
     <ClCompile Include="Experiment1.cpp" />
@@ -146,7 +146,7 @@
     <ClInclude Include="CameraEventWorker.h" />
     <ClInclude Include="CameraManager.h" />
     <ClInclude Include="CameraStaff.h" />
-    <ClInclude Include="CameraWorker.h" />
+    <ClInclude Include="BasicCamera.h" />
     <ClInclude Include="CameraWorkerCB.h" />
     <ClInclude Include="CameraWorker_Chunk.h" />
     <ClInclude Include="config.h" />
