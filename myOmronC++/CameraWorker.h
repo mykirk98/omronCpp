@@ -70,6 +70,7 @@ public:
 	void ConvertAndSaveImage(IStImage* pSrcImage, bool isColor, std::string dstDir, const uint64_t frameID);
 
 protected:
+	void PrintFrameInfo(const IStImage* pImage, CIStStreamBufferPtr& pStreamBuffer);
 	/*
 	@brief 이미지 정보 출력 함수
 	@param pImage : 출력할 이미지 포인터

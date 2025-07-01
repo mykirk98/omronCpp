@@ -96,6 +96,28 @@ template void CameraWorker::ConvertAndSaveImage<PNG>(IStImage*, bool, std::strin
 template void CameraWorker::ConvertAndSaveImage<JPEG>(IStImage*, bool, std::string, uint64_t);
 template void CameraWorker::ConvertAndSaveImage<CSV>(IStImage*, bool, std::string, uint64_t);
 
+void CameraWorker::PrintFrameInfo(const IStImage* pImage, CIStStreamBufferPtr& pStreamBuffer)
+{
+	try
+	{
+		//NOTE: Frame과 Image의 차이점
+	// Frame: 버퍼에서 갓 읽어온 데이터
+	// Image: 프레임을 이미지 객체로 변환하거나 이미지로 저장할 때 불림
+		std::cout << "Block ID: " << pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()
+			<< "\tSize: " << pImage->GetImageWidth() << " x " << pImage->GetImageHeight()
+			<< "\tFirst byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pImage->GetImageBuffer()))
+			<< "\ttimestamp: " << pStreamBuffer->GetIStStreamBufferInfo()->GetTimestamp()
+			<< std::endl;
+		// reinterpret_cast : 서로 관련 없는 포인터 타입 간의 변환을 수행하는 연산자
+		// dynamic_cast가 아닌 static_cast를 사용한 이유 :
+		// dynamic_cast는 상속 관계가 있는 클래스 포인터/참조를 안전하게 변환할 때 사용되며,
+		// 여기에서는 단순히 기본 타입 간의 변환(uint8_t* -> uint32_t) 이므로 static_cast를 사용해도 안전
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "Printing frame info error: " << e.GetDescription() << std::endl;
+	}
+}
 
 void CameraWorker::PrintFrameInfo(const IStImage* pImage, const uint64_t frameID)
 {
