@@ -130,7 +130,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CameraConfigurator.cpp" />
-    <ClCompile Include="CameraEventWorker.cpp" />
+    <ClCompile Include="EventCamera.cpp" />
     <ClCompile Include="CameraManager.cpp" />
     <ClCompile Include="CameraStaff.cpp" />
     <ClCompile Include="BasicCamera.cpp" />
@@ -142,7 +142,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CameraConfigurator.h" />
-    <ClInclude Include="CameraEventWorker.h" />
+    <ClInclude Include="EventCamera.h" />
     <ClInclude Include="CameraManager.h" />
     <ClInclude Include="CameraStaff.h" />
     <ClInclude Include="BasicCamera.h" />
