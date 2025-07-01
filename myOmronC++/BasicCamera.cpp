@@ -256,7 +256,7 @@ void BasicCamera::SaveImage(CIStImageBufferPtr& pImageBuffer, GenICam::gcstring&
 
 int main()
 {
-	std::cout << "Basic Camera Worker Example" << std::endl;
+	std::cout << "Basic Camera Example" << std::endl;
 	CStApiAutoInit objStApiAutoInit; // Initialize StApi
 	CIStSystemPtr pSystem(CreateIStSystem()); // Create a system object for device scan and connection
 

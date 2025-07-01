@@ -7,17 +7,39 @@
 
 int main()
 {
-	std::cout << "Basic Camera Worker Example" << std::endl;
-	CStApiAutoInit objStApiAutoInit; // Initialize StApi
-	CIStSystemPtr pSystem(CreateIStSystem()); // Create a system object for device scan and connection
+	std::cout << "Trigger Camera Example" << std::endl;
+	std::string directory = "C:\\Users\\mykir\\Work\\Experiments\\";	//NOTE: LAB PC DIRECTORY
+	//std::string directory = "C:\\Users\\USER\\Pictures\\";//NOTE: HOME PC DIRECTORY
+	CStApiAutoInit objStApiAutoInit;
+	CIStSystemPtr pSystem(CreateIStSystem());
 
-	std::string targetDir = "C:\\Users\\mykir\\Work\\Experiments\\";	//NOTE: LAB PC DIRECTORY
-	BasicCamera cameraWorker(10);
+	CameraWorkerCB cameraWorker;
 	if (cameraWorker.Initialize(pSystem))
 	{
 		cameraWorker.StartAcquisition();
 
-		// image processing and saving logic can be added here...
+		while (true)
+		{
+			std::cout << "0: Generate trigger" << std::endl;
+			std::cout << "Else: Exit" << std::endl;
+			std::cout << "Select: ";
+
+			size_t nindex;
+			std::cin >> nindex;
+			if (nindex == 0)
+			{
+				cameraWorker.pICommandTriggerSoftware->Execute();
+				std::cout << "captured image and waiting for saving image..." << std::endl;
+				Sleep(3000);
+				cameraWorker.SaveImageToFile(directory);
+				std::cout << "Image saved to " << directory << std::endl;
+
+			}
+			else
+			{
+				break;
+			}
+		}
 	}
 	else
 	{

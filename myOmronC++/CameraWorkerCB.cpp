@@ -169,6 +169,7 @@ void CameraWorkerCB::SetTriggerMode(GenApi::CNodeMapPtr& pINodeMap, const char* 
 
 int main()
 {
+	std::cout << "Trigger Camera Example" << std::endl;
 	std::string directory = "C:\\Users\\mykir\\Work\\Experiments\\";	//NOTE: LAB PC DIRECTORY
 	//std::string directory = "C:\\Users\\USER\\Pictures\\";//NOTE: HOME PC DIRECTORY
 	CStApiAutoInit objStApiAutoInit;
