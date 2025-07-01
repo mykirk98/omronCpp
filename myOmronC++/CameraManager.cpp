@@ -6,31 +6,31 @@ CameraManager::CameraManager()
 
 CameraManager::~CameraManager()
 {
-	StopAcquisitionAll(); // ������ ����
+	StopAcquisitionAll();
 }
 
 bool CameraManager::InitializeAll(size_t cameraCount)
 {
     try
     {
-        // �ý��� ��ü ���� (��ġ �˻� �� ����)
+		// Create StApi system object
         m_pSystem = CreateIStSystem();
         for (size_t i = 0; i < cameraCount; ++i)
         {
-            // �� ī�޶� ���� CameraWorkerCB ��ü ���� �� �ʱ�ȭ
+			// Create CameraWorkerCB unique pointer object for each camera
             std::unique_ptr<CameraWorkerCB> worker(new CameraWorkerCB());
             if (worker->Initialize(m_pSystem))
             {
-                // ī�޶� �ʱ�ȭ ���� ��, �۾��ڸ� �̵�(move)�Ͽ� ���Ϳ� �߰�, ������ ����
+				// If initialization is successful, add the worker to the vector
                 m_workers.push_back(std::move(worker));
             }
             else
             {
-                std::cerr << "[Manager] Camera " << i << " initialization failed." << std::endl;    //TODO: ���� �α׿� ī�޶� �Ϸ� ��ȣ �߰��ϱ�
-				return false; // �ʱ�ȭ ���� �� false ��ȯ
+                std::cerr << "[Manager] Camera " << i << " initialization failed." << std::endl;    //TODO: instead of i, show camera serial number
+				return false; // If any camera fails to initialize, return false
             }
         }
-        return true;  // 또는 적절한 return 값
+        return true;
     }
     catch (const GenICam::GenericException& e)
     {
@@ -41,7 +41,7 @@ bool CameraManager::InitializeAll(size_t cameraCount)
 
 void CameraManager::StartAcquisitionAll()
 {
-	// ��� ī�޶� ���� �̹��� ȹ�� ����
+	// Start acquisition for all cameras
 	for (std::vector<std::unique_ptr<CameraWorkerCB>>::iterator it = m_workers.begin(); it != m_workers.end(); ++it)
 	{
         (*it)->StartAcquisition();
@@ -50,6 +50,7 @@ void CameraManager::StartAcquisitionAll()
 
 void CameraManager::StopAcquisitionAll()
 {
+	// Stop acquisition for all cameras
     for (std::vector<std::unique_ptr<CameraWorkerCB>>::iterator it = m_workers.begin(); it != m_workers.end(); ++it)
     {
         (*it)->StopAcquisition();
@@ -58,6 +59,7 @@ void CameraManager::StopAcquisitionAll()
 
 void CameraManager::TriggerAll()
 {
+	// Send trigger signal to all cameras
 	for (std::vector<std::unique_ptr<CameraWorkerCB>>::iterator it = m_workers.begin(); it != m_workers.end(); ++it)
 	{
 		if ((*it)->pICommandTriggerSoftware)
@@ -67,6 +69,7 @@ void CameraManager::TriggerAll()
 
 void CameraManager::SaveImageAll(const std::string& dstDir)
 {
+	// Save images from all cameras to the specified directory
 	for (std::vector<std::unique_ptr<CameraWorkerCB>>::iterator it = m_workers.begin(); it != m_workers.end(); ++it)
 	{
 		(*it)->SaveImageToFile(dstDir);
@@ -87,7 +90,7 @@ int main()
 
     if (!cameraManager.InitializeAll(cameraCount))
     {
-        std::cerr << "ī�޶� �ʱ�ȭ�� �����߽��ϴ�." << std::endl;
+        std::cerr << "Failed to initialize manager" << std::endl;
         return -1;
     }
 
@@ -95,10 +98,10 @@ int main()
 
     while (true)
     {
-        std::cout << "\n0: Ʈ���� �߻�" << std::endl;
-        std::cout << "1: �̹��� ����" << std::endl;
-        std::cout << "2: ����" << std::endl;
-        std::cout << "�Է�: ";
+        std::cout << "\n0: Send trigger" << std::endl;
+        std::cout << "1: Save image" << std::endl;
+        std::cout << "2: Terminate" << std::endl;
+        std::cout << "Input: ";
 
         int choice;
         std::cin >> choice;
@@ -106,12 +109,12 @@ int main()
         if (choice == 0)
         {
             cameraManager.TriggerAll();
-            std::cout << "Ʈ���� ���� �Ϸ�" << std::endl;
+            std::cout << "Sending trigger completed." << std::endl;
         }
         else if (choice == 1)
         {
             cameraManager.SaveImageAll(saveDirectory);
-            std::cout << "�̹��� ���� �Ϸ�: " << saveDirectory << std::endl;
+            std::cout << "Saving image completed: " << saveDirectory << std::endl;
         }
         else if (choice == 2)
         {
@@ -119,7 +122,7 @@ int main()
         }
         else
         {
-            std::cout << "�ùٸ��� ���� �Է��Դϴ�." << std::endl;
+            std::cout << "Wrong input." << std::endl;
         }
     }
 

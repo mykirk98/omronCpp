@@ -2,6 +2,8 @@
 
 CameraWorker::CameraWorker(uint64_t imageCount)
 	: m_imageCount(imageCount)
+	, m_pImage(nullptr)
+	, m_frameID(0)
 {
 }
 
@@ -14,10 +16,10 @@ bool CameraWorker::Initialize(const CIStSystemPtr& pSystem)
 {
 	try
 	{
-		// ī�޶� ��ü ����
-		m_pDevice = pSystem->CreateFirstIStDevice();//TODO: CreateFirstIStDevice()���� �ٸ� ������� ī�޶� ������ �� ���� ������?
+		// Create a camrea device object and connect to the first detected device.
+		m_pDevice = pSystem->CreateFirstIStDevice();//TODO: find another way to connect to a specific camera
 		std::cout << "Device=" << m_pDevice->GetIStDeviceInfo()->GetDisplayName() << std::endl;
-		// �̹��� ��Ʈ�� �����͸� ó���ϱ� ���� �����ͽ�Ʈ�� ��ü ����
+		// Create a DataStream object for handling image stream data.
 		m_pDataStream = m_pDevice->CreateIStDataStream(0);
 		
 		return true;
@@ -33,16 +35,16 @@ void CameraWorker::StartAcquisition()
 {
 	try
 	{
-		// ȣ��Ʈ(PC) ���� �̹��� ȹ�� ����
+		// Start the image acquisition of the host(PC) side.
 		m_pDataStream->StartAcquisition(m_imageCount);
-		// ī�޶� ���� �̹��� ȹ�� ����
+		// Start the image acquisition of the camera side.
 		m_pDevice->AcquisitionStart();
 		
 		std::string dstCfgDir = "C:\\Users\\USER\\Pictures\\Features.cfg";
 		//SaveConfigFile(dstCfgDir);
 		//LoadConfigFile(dstCfgDir);
 		//CameraConfigurator::Load(m_pDevice, dstCfgDir);
-		// CameraConfigurator::DisplayNodes(m_pDevice->GetRemoteIStPort()->GetINodeMap()->GetNode("Root"));
+		//CameraConfigurator::DisplayNodes(m_pDevice->GetRemoteIStPort()->GetINodeMap()->GetNode("Root"));
 		SequentialCapture();
 	}
 	catch (const GenICam::GenericException& e)
@@ -57,9 +59,9 @@ void CameraWorker::StopAcquisition()
 	{
 		if (m_pDevice)
 		{
-			// ī�޶� �� �̹��� ȹ�� ����
+			// Stop the image acquisition of the camera side.
 			m_pDevice->AcquisitionStop();
-			// ȣ��Ʈ(PC) �� �̹��� ȹ�� ����
+			// Stop the image acquisition of the host(PC) side.
 			m_pDataStream->StopAcquisition();
 		}
 	}
@@ -69,16 +71,21 @@ void CameraWorker::StopAcquisition()
 	}
 }
 
+void CameraWorker::SaveImageToFile(const std::string& dstDir)
+{
+	ConvertAndSaveImage<BMP>(m_pImage, true, dstDir, m_frameID);
+}
+
 template<typename FORMAT>
 void CameraWorker::ConvertAndSaveImage(IStImage* pSrcImage, bool isColor, std::string dstDir, const uint64_t frameID)
 {
 	try
 	{
-		// �̹����� �����ϱ� ���� �̹��� ���� ��ü ���� �� �ȼ� ���� ��ȯ
+		// Create an image buffer to hold the converted image data.
 		CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
 		ConvertPixelFormat(pSrcImage, isColor, pImageBuffer);
 		
-		// �̹��� ��� ���� �� ����
+		// Convert the image data to the specified extension format and save it.
 		GenICam::gcstring savePath = SetSavePath(dstDir, frameID);
 		SaveImage<FORMAT>(pImageBuffer, savePath);
 	}
@@ -88,7 +95,7 @@ void CameraWorker::ConvertAndSaveImage(IStImage* pSrcImage, bool isColor, std::s
 	}
 }
 
-// ���ø� ������ �ν��Ͻ�ȭ (�� �̹��� ���˿� ���� ȣ���)
+// Explicit template instantiation for different image formats
 template void CameraWorker::ConvertAndSaveImage<StApiRaw>(IStImage*, bool, std::string, uint64_t);
 template void CameraWorker::ConvertAndSaveImage<BMP>(IStImage*, bool, std::string, uint64_t);
 template void CameraWorker::ConvertAndSaveImage<TIFF>(IStImage*, bool, std::string, uint64_t);
@@ -100,18 +107,16 @@ void CameraWorker::PrintFrameInfo(const IStImage* pImage, CIStStreamBufferPtr& p
 {
 	try
 	{
-		//NOTE: Frame�� Image�� ������
-	// Frame: ���ۿ��� �� �о�� ������
-	// Image: �������� �̹��� ��ü�� ��ȯ�ϰų� �̹����� ������ �� �Ҹ�
+		//NOTE: Difference between Frame and Image:
+		// Frame: Frame is a logical grouping of image data that may contain multiple images or metadata. 
+		// Image: Image is a single image data that is part of a frame.
 		std::cout << "Block ID: " << pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()
 			<< "\tSize: " << pImage->GetImageWidth() << " x " << pImage->GetImageHeight()
 			<< "\tFirst byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pImage->GetImageBuffer()))
 			<< "\ttimestamp: " << pStreamBuffer->GetIStStreamBufferInfo()->GetTimestamp()
 			<< std::endl;
-		// reinterpret_cast : ���� ���� ���� ������ Ÿ�� ���� ��ȯ�� �����ϴ� ������
-		// dynamic_cast�� �ƴ� static_cast�� ����� ���� :
-		// dynamic_cast�� ��� ���谡 �ִ� Ŭ���� ������/������ �����ϰ� ��ȯ�� �� ���Ǹ�,
-		// ���⿡���� �ܼ��� �⺻ Ÿ�� ���� ��ȯ(uint8_t* -> uint32_t) �̹Ƿ� static_cast�� ����ص� ����
+		// reinterpret_cast : This is used to convert the pointer type without changing the underlying data.
+		// dynamic_cast : This is used to safely cast pointers or references to classes in a class hierarchy.
 	}
 	catch (const GenICam::GenericException& e)
 	{
@@ -123,17 +128,10 @@ void CameraWorker::PrintFrameInfo(const IStImage* pImage, const uint64_t frameID
 {
 	try
 	{
-		//NOTE: Frame�� Image�� ������
-	// Frame: ���ۿ��� �� �о�� ������
-	// Image: �������� �̹��� ��ü�� ��ȯ�ϰų� �̹����� ������ �� �Ҹ�
 		std::cout << "Block ID: " << frameID
 			<< "\tSize: " << pImage->GetImageWidth() << " x " << pImage->GetImageHeight()
 			<< "\tFirst byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pImage->GetImageBuffer()))
 			<< std::endl;
-		// reinterpret_cast : ���� ���� ���� ������ Ÿ�� ���� ��ȯ�� �����ϴ� ������
-		// dynamic_cast�� �ƴ� static_cast�� ����� ���� :
-		// dynamic_cast�� ��� ���谡 �ִ� Ŭ���� ������/������ �����ϰ� ��ȯ�� �� ���Ǹ�,
-		// ���⿡���� �ܼ��� �⺻ Ÿ�� ���� ��ȯ(uint8_t* -> uint32_t) �̹Ƿ� static_cast�� ����ص� ����
 	}
 	catch (const GenICam::GenericException& e)
 	{
@@ -145,13 +143,10 @@ void CameraWorker::LoadSavedImage(CIStImageBufferPtr& pImageBuffer, const GenICa
 {
 	try
 	{
-		// �̹��� ���� ������� ���� filer ��ü ����
+		// Create a still image file handling class object (filer) for still image processing.
 		CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
 		
-		//NOTE: w_str(): wide string(wchar_t*) �����ͷ� ��ȯ
-		//NOTE: c_str(): char* �����ͷ� ��ȯ
-		//NOTE: L: wide string ���ͷ��� �ǹ�, �� ���ڰ� 2����Ʈ�� ǥ����
-		std::wcout << std::endl << L"Loading " << srcDir.c_str() << L"... ";
+		std::wcout << std::endl << "Loading " << srcDir.c_str() << L"... ";
 		pStillImageFiler->Load(pImageBuffer, srcDir);
 		
 		std::cout << "done." << std::endl;
@@ -166,22 +161,22 @@ void CameraWorker::SequentialCapture()
 {
 	while (m_pDataStream->IsGrabbing())
 	{
-		// ���� �����͸� 5000ms�� Ÿ�Ӿƿ����� �˻�
+		// Retrieve the buffer pointer of image data with a timeout of 5000ms.
 		CIStStreamBufferPtr pStreamBuffer(m_pDataStream->RetrieveBuffer(5000));
 
-		// ȹ���� �����Ϳ� �̹��� �����Ͱ� �ִ��� Ȯ��
+		// Check if the acquired data contains image data.
 		if (pStreamBuffer->GetIStStreamBufferInfo()->IsImagePresent())
 		{
-			// IStImage ��ü ����
-			IStImage* pImage = pStreamBuffer->GetIStImage();
+			// If yes, we create a IStImage object for further image handling.
+			m_pImage = pStreamBuffer->GetIStImage();
 
-			const uint64_t frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
-			PrintFrameInfo(pImage, frameID);
+			m_frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
+			PrintFrameInfo(m_pImage, m_frameID);
 
-			//std::string targetDir = "C:\\Users\\mykir\\Work\\Experiments\\";	//NOTE: LAB PC DIRECTORY
+			std::string targetDir = "C:\\Users\\mykir\\Work\\Experiments\\";	//NOTE: LAB PC DIRECTORY
 			// std::string targetDir = "C:\\Users\\USER\\Pictures\\";//NOTE: HOME PC DIRECTORY
 			// std::string targetDir = "/home/msis/Pictures/SentechExperiments/Experiments1/";	//NOTE: LAB LINUX DIRECTORY
-			// ConvertAndSaveImage<BMP>(pImage, true, targetDir, frameID);
+			SaveImageToFile(targetDir);
 		}
 		else
 		{
@@ -194,10 +189,10 @@ GenICam::gcstring CameraWorker::SetSavePath(const std::string& savePath, const u
 {
 	try
 	{
-		// frameID�� ���ڿ��� ��ȯ
+		// change frameID to string
 		std::string strFrameID = std::to_string(frameID);
 
-		// ����� ���� ��ο� frameID�� �����Ͽ� ���� ��� ����
+		// Ensure the save path ends with a separator
 		std::string filePath = savePath + m_pDevice->GetIStDeviceInfo()->GetDisplayName().c_str() + strFrameID;
 
 		return GenICam::gcstring(filePath.c_str());
@@ -213,7 +208,7 @@ void CameraWorker::ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStIma
 {
 	try
 	{
-		// �ȼ� ���� ��ȯ�� ���� converter ��ü ����
+		// Create a data converter object for pixel format conversion.
 		CIStPixelFormatConverterPtr pPixelFormatConverter(CreateIStConverter(StConverterType_PixelFormat));
 
 		if (isColor)
@@ -237,13 +232,13 @@ void CameraWorker::SaveImage(CIStImageBufferPtr& pImageBuffer, GenICam::gcstring
 {
 	try
 	{
-		// �̹��� ���� ��ο� Ȯ���� �߰� by ���ø�
+		// Ensure the destination directory has the correct format
 		dstDir.append(FORMAT::extension);
 		
-		// �̹��� ������ ���� filer ��ü ����
+		// Create a still image file handling class object (filer) for still image processing.
 		CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
 		
-		// �̹��� ����
+		// Save the image file in the specified format using the filer we created.
 		std::wcout << L"Saving " << dstDir.c_str() << L"... ";
 		pStillImageFiler->Save(pImageBuffer->GetIStImage(), FORMAT::fileFormat, dstDir);
 		std::cout << "done" << std::endl;
@@ -255,16 +250,23 @@ void CameraWorker::SaveImage(CIStImageBufferPtr& pImageBuffer, GenICam::gcstring
 }
 
 
-// ��� ���� (main.cpp���� ȣ��)
+// Example usage of CameraWorker class
 /*
+#include "CameraWorker.h"
+
 int main()
 {
-	CameraWorker cameraWorker(10); // 10���� �̹��� ȹ��
-	if (cameraWorker.initialize())
+	std::cout << "Basic Camera Worker Example" << std::endl;
+	CStApiAutoInit objStApiAutoInit; // Initialize StApi
+	CIStSystemPtr pSystem(CreateIStSystem()); // Create a system object for device scan and connection
+
+	std::string targetDir = "C:\\Users\\mykir\\Work\\Experiments\\";	//NOTE: LAB PC DIRECTORY
+	CameraWorker cameraWorker(10);
+	if (cameraWorker.Initialize(pSystem))
 	{
 		cameraWorker.StartAcquisition();
 
-		// ... �̹��� ó�� ���� ...
+		// image processing and saving logic can be added here...
 	}
 	else
 	{

@@ -14,28 +14,22 @@ bool Experiment1::initialize()
 {
 	try
 	{
-		// �ý��� ��ü ���� (��ġ �˻� �� ����)
+		// Create a camera device object and connect to the first detected device.
 		m_pSystem = CreateIStSystem();
 
-		// ù ���� ��ġ ���� �� ����
 		m_pDevice = m_pSystem->CreateFirstIStDevice();
 
-		// ��ġ ���� ���
 		std::cout << "Device: " << m_pDevice->GetIStDeviceInfo()->GetDisplayName() << std::endl;
 
-		// ī�޶� ������ ���� ���� ��������
 		GenApi::CNodeMapPtr pINodeMap(m_pDevice->GetRemoteIStPort()->GetINodeMap());
-		// Ʈ���Ÿ�� ����
+
 		SetTriggerMode(pINodeMap, TRIGGER_SELECTOR_FRAME_START, TRIGGER_MODE_ON, TRIGGER_SOURCE_SOFTWARE);
 		pICommandTriggerSoftware = pINodeMap->GetNode(TRIGGER_SOFTWARE);
 
-		// �̹��� ��Ʈ�� �����͸� ó���ϱ� ���� �����ͽ�Ʈ�� ��ü ����
 		m_pDataStream = m_pDevice->CreateIStDataStream(0);
 
-		// ������ ��Ʈ�� �ݹ� ���� (this �����͸� pvContext�� ����)
+
 		RegisterCallback(m_pDataStream, &Experiment1::OnStCallbackMethod, this);
-		//RegisterCallback(m_pDataStream, &CameraWorker_CB::OnStCallbackFunction, nullptr);	// nullptr�� �ѱ� ���, �ݹ� �Լ����� this �����͸� ����� �� ����
-		// NOTE: this�� �ѱ�� ���� : �ݹ��� �߻����� ��, � ��ü�� ��� �Լ��� ó���� �������� �˷��ֱ� ����
 
 		return true;
 	}
@@ -50,10 +44,8 @@ void Experiment1::startAcquisition()
 {
 	try
 	{
-		// ȣ��Ʈ(PC) �� �̹��� ȹ�� ����
 		m_pDataStream->StartAcquisition();
 
-		// ī�޶� �� �̹��� ȹ�� ����
 		m_pDevice->AcquisitionStart();
 	}
 	catch (const GenICam::GenericException& e)
@@ -66,10 +58,8 @@ void Experiment1::stopAcquisition()
 {
 	try
 	{
-		// ī�޶� �� �̹��� ȹ�� ����
 		m_pDevice->AcquisitionStop();
 
-		// ȣ��Ʈ(PC) �� �̹��� ȹ�� ����
 		m_pDataStream->StopAcquisition();
 	}
 	catch (const GenICam::GenericException& e)
@@ -82,26 +72,18 @@ void Experiment1::OnStCallbackMethod(IStCallbackParamBase* pIStCallbackParamBase
 {
 	if (pvContext)
 	{
-		// pvContext�� �ѱ� this �����͸� �ٽ� ĳ�����Ͽ� ��� �Լ� ȣ��
 		static_cast<Experiment1*>(pvContext)->OnCallback(pIStCallbackParamBase);
-		// static_cast : C++���� �� ��ȯ�� �� �� ����ϴ� ������, ������ Ÿ�ӿ� ��ȯ
-		// <> : ���ø��� ����Ͽ� Ÿ���� ����
 	}
 }
 
-// ��� �ݹ� ó�� �Լ�
 void Experiment1::OnCallback(IStCallbackParamBase* pCallbackParam)
 {
 	try
 	{
-		// �ݹ� �Ķ������ Ÿ�� Ȯ��
 		if (pCallbackParam->GetCallbackType() == StCallbackType_GenTLEvent_DataStreamNewBuffer)
 		{
 			IStCallbackParamGenTLEventNewBuffer* pNewBufferParam = dynamic_cast<IStCallbackParamGenTLEventNewBuffer*>(pCallbackParam);
-			// NOTE: dynamic_cast�� ����� ���� : �������� Ȱ���Ͽ� IStCallbackParamBase���� �Ļ��� 
-			//									IStCallbackParamGenTLEventNewBuffer Ÿ������ �����ϰ� �ٿ�ĳ�����ϱ� ����
-			// NOTE: static_cast���� ������ : dynamic_cast�� ��Ÿ�ӿ� Ÿ�� üũ�� �����Ͽ� ������ ��� nullptr�� ��ȯ
-
+			
 			IStDataStream* pDataStream = pNewBufferParam->GetIStDataStream();
 
 			CIStStreamBufferPtr pStreamBuffer(pDataStream->RetrieveBuffer(0));
@@ -134,14 +116,10 @@ void Experiment1::SetEnumeration(GenApi::INodeMap* pInodeMap, const char* szEnum
 {
 	try
 	{
-		// IEnumeration �������̽� ������ ��������
 		GenApi::CEnumerationPtr pIEnumeration(pInodeMap->GetNode(szEnumerationName));
 
-		// ������ �̸��� IEnumEntry �������̽� ������ ��������
 		GenApi::CEnumEntryPtr pIEnumEntry(pIEnumeration->GetEntryByName(szValueName));
 
-		// IEnumEntry �������̽� �����͸� ����Ͽ� ���� �� ��������
-		// IEnumeration �������̽� �����͸� ����Ͽ� ���� ������Ʈ
 		pIEnumeration->SetIntValue(pIEnumEntry->GetValue());
 	}
 	catch (const GenICam::GenericException& e)
@@ -154,11 +132,8 @@ void Experiment1::SetTriggerMode(GenApi::CNodeMapPtr& pINodeMap, const char* tri
 {
 	try
 	{
-		// TriggerSelector ��� ����
 		SetEnumeration(pINodeMap, TRIGGER_SELECTOR, triggerSelector);
-		// TriggerMode ��� ����
 		SetEnumeration(pINodeMap, TRIGGER_MODE, triggerMode);
-		// TriggerSource ��� ����
 		SetEnumeration(pINodeMap, TRIGGER_SOURCE, triggerSource);
 	}
 	catch (const GenICam::GenericException& e)
@@ -167,7 +142,6 @@ void Experiment1::SetTriggerMode(GenApi::CNodeMapPtr& pINodeMap, const char* tri
 	}
 }
 
-// ��� ���� (main.cpp���� ȣ��)
 /*
 int main()
 {

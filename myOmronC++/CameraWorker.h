@@ -38,33 +38,39 @@ struct CSV
 };
 
 /*
-@brief 기본적인 카메라 작업을 수행하는 클래스.
-@brief 단순한 이미지 획득 및 저장 기능을 제공하며, 카메라 초기화, 이미지 획득 시작 및 종료 기능을 포함합니다.
+@brief Basic Camera Worker Class
+@brief This class is responsible for managing camera operations such as initialization, image acquisition, and saving images in various formats.
 */
 class CameraWorker
 {
 public:
 	/*
-	@brief 클래스 생성자
-	@param imageCount : 수집할 이미지 수
+	@brief Class constructor
+	@param imageCount : Number of images to capture
 	*/
 	explicit CameraWorker(uint64_t imageCount = 100);
-	/* @brief 클래스 소멸자 */
+	/* @brief Class destructor */
 	~CameraWorker();
 	
-	/* @brief 카메라 제어에 필요한 여러 객체 초기화 함수 */
+	/* @brief Initialize camera settings */
 	bool Initialize(const CIStSystemPtr& pSystem);
-	/* @brief 이미지 획득 시작 함수 */
+	/* @brief Start image acquisition method */
 	void StartAcquisition();
-	/* @brief 이미지 획득 종료 함수 */
+	/* @brief Stop image acquisition method */
 	void StopAcquisition();
 	/*
-	@brief 픽셀 포맷 변환 후 확장자 설정 후 이미지 저장 함수
-	@param pSrcImage : 변환할 원본 이미지 포인터
-	@param isColor : 변환하고자 하는 포맷이 컬러인지 여부
-	@param dstDir : 이미지 저장할 디렉토리 경로
-	@param frameID : 이미지 프레임 ID
-	@tparam FORMAT : 이미지 저장 포맷 (예: StApiRaw, BMP, TIFF, PNG, JPEG, CSV 등)
+	@brief Save image to file wrapper
+	@param dstDir : Directory path where the image will be saved
+	*/
+	void SaveImageToFile(const std::string& dstDir);
+
+	/*
+	@brief Convert and save image
+	@param pSrcImage : Source image pointer to be converted and saved
+	@param isColor : Whether the image is in color format
+	@param dstDir : Directory path where the image will be saved
+	@param frameID : Frame ID of the image to be saved
+	@tparam FORMAT : Image format type for saving (e.g., StApiRaw, BMP, TIFF, PNG, JPEG, CSV)
 	*/
 	template<typename FORMAT>
 	void ConvertAndSaveImage(IStImage* pSrcImage, bool isColor, std::string dstDir, const uint64_t frameID);
@@ -72,60 +78,62 @@ public:
 protected:
 	void PrintFrameInfo(const IStImage* pImage, CIStStreamBufferPtr& pStreamBuffer);
 	/*
-	@brief 이미지 정보 출력 함수
-	@param pImage : 출력할 이미지 포인터
-	@param frameID : 이미지 프레임 ID
+	@brief Display frame information
+	@param pImage : Image pointer containing frame data
+	@param frameID : Frame ID of the image
 	*/
 	void PrintFrameInfo(const IStImage* pImage, const uint64_t frameID);
 	/*
-	@brief 이미지 로드 함수
-	@param pImageBuffer : 로드한 이미지를 저장할 이미지 버퍼 포인터
-	@param srcDir : 이미지가 저장된 디렉토리 경로
+	@brief Load saved image from a directory
+	@param pImageBuffer : Image buffer pointer to load the image into
+	@param srcDir : Directory path from which image comes
 	*/
 	void LoadSavedImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& srcDir);
 	
 	/*
-	@brief 카메라 시스템 객체
-	@brief 카메라 시스템은 카메라 디바이스를 관리하고, 디바이스와의 연결을 설정하는 역할을 합니다.
+	@brief system object
+	@brief CIStSystemPtr is a pointer to the system object that manages the camera and its resources.
 	*/
 	CIStSystemPtr m_pSystem;
 	/*
-	@brief 카메라 디바이스 객체
-	@brief 카메라 디바이스는 카메라의 기능을 제어하고, 이미지 데이터를 획득하는 역할을 합니다.
+	@brief camera device object
+	@brief CIStDevicePtr is a pointer to the camera device object that represents the physical camera.
 	*/
 	CIStDevicePtr m_pDevice;
 	/*
-	@brief 데이터 스트림 객체
-	@brief 카메라에서 획득한 이미지 데이터를 호스트(PC)로 전송하는 역할을 합니다.
-	@brief 데이터스트림 : 카메라에서 이미지를 연속적으로 받아오는 통로를 의미(파이프라인과 유사함)
+	@brief datastream object
+	@brief CIStDataStreamPtr is a pointer to the data stream object that handles the image data flow from the camera.
+	@brief datastream is used to retrieve image buffers from the camera.
 	*/
 	CIStDataStreamPtr m_pDataStream;
-	
+	IStImage* m_pImage;	// Pointer to the current image being processed
+	uint64_t m_frameID;	// Frame ID of the current image
+
 private:
-	/* 순차적으로 이미지를 획득하는 함수 */
+	/* @brief Sequential image capture function */
 	void SequentialCapture();
 	/*
-	@brief 이미지 저장 경로 설정 함수
-	@param savePath: 이미지 저장할 루트 경로
-	@param frameID : 이미지 프레임 ID
-	@return : 이미지 저장 경로 문자열
+	@brief Set save path for images
+	@param savePath: directory path where images will be saved
+	@param frameID : frame ID of the image to be saved
+	@return : absolute path where the image will be saved
 	*/
 	GenICam::gcstring SetSavePath(const std::string& savePath, const uint64_t frameID);
 	/*
-	@brief 픽셀 포맷 변환 함수
-	@param pSrcImage : 변환할 원본 이미지 포인터
-	@param isColor : 변환하고자 하는 포맷이 컬러인지 여부
-	@param pDstBuffer : 변환된 이미지를 저장할 이미지 버퍼 포인터
+	@brief pixel format conversion function
+	@param pSrcImage : source image pointer to be converted
+	@param isColor : whether the image is in color format
+	@param pDstBuffer : destination image buffer pointer to hold the converted image
 	*/
 	void ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStImageBufferPtr& pDstBuffer);
 	/*
-	@brief 이미지 저장 함수
-	@param pImageBuffer : 저장할 이미지 버퍼 포인터
-	@param dstDir : 이미지 저장할 디렉토리 경로
-	@tparam FORMAT : 이미지 저장 포맷 (예: StApiRaw, BMP, TIFF, PNG, JPEG, CSV 등)
+	@brief save image function
+	@param pImageBuffer : image buffer pointer containing the image to be saved
+	@param dstDir : directory path where the image will be saved
+	@tparam FORMAT : image format type for saving (e.g., StApiRaw, BMP, TIFF, PNG, JPEG, CSV)
 	*/
 	template<typename FORMAT>
 	void SaveImage(CIStImageBufferPtr& pImageBuffer, GenICam::gcstring& dstDir);
 
-	uint64_t m_imageCount;	// 획득할 이미지 수
+	uint64_t m_imageCount;	// Number of images to capture
 };

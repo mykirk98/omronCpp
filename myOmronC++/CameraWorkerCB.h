@@ -2,73 +2,58 @@
 #include "CameraWorker.h"
 #include "config.h"
 
-// �ݹ� �Լ� : Ư�� �̺�Ʈ�� �߻����� �� �ڵ����� ȣ��Ǿ�, �̸� ���ǵ� ������ �����ϴ� ��
-// �̹��� ������ ��Ʈ������ ���ο� �̹��� ���۰� ������ ������ ȣ��ȴ�.
-// ī�޶󿡼� ���ο� �̹����� ���ŵǸ�, �� �ݹ� �Լ��� �ڵ����� ȣ��Ǿ� �ش� �̹����� ó���� �� �ִ�.
-
+/*
+@brief camera worker with callback class
+@brief This class handles camera operations using callbacks for image acquisition and processing.
+*/
 class CameraWorkerCB : public CameraWorker
 {
 public:
-	/* @brief Ŭ���� ������ */
+	/* @brief class constructor */
 	CameraWorkerCB();
-	/* @brief Ŭ���� �Ҹ��� */
+	/* @brief class destructor */
 	~CameraWorkerCB();
 
 	/*
-	@brief ī�޶� �ʿ��� ��ü���� �ʱ�ȭ�ϴ� �Լ�
-	@param pSystem : ī�޶� �ý��� ��ü
+	@brief camera initialization method
+	@param pSystem : CIStSystemPtr object representing the camera system
 	*/
 	bool Initialize(const CIStSystemPtr& pSystem);
-	/*
-	@brief �̹��� ȹ�� ���� �Լ�
-	*/
+	/* @brief Start image acquisition method */
 	void StartAcquisition();
-	/*
-	@brief �̹��� ȹ�� ���� �Լ�
-	*/
+	/* @brief Stop image acquisition method */
 	void StopAcquisition();
-	/*
-	@brief �̹��� ���� �Լ�
-	@param dstDir : �̹��� ������ ���丮 ���
-	*/
+	/**/
 	void SaveImageToFile(const std::string& dstDir);
 
-	/*
-	@brief ����Ʈ���� Ʈ���� ������ ���� ICommand �������̽� ������
-	*/
+	/* @brief Command interface pointer for software trigger */
 	GenApi::CCommandPtr pICommandTriggerSoftware;
 	
 private:
 	/*
-	@brief StApi �ݹ� �޼ҵ�
-	@param pIStCallbackParamBase : �ݹ� �Ķ����
-	@param pvContext : �ݹ� ���ؽ�Ʈ (this �����͸� �����Ͽ� ��� �Լ� ȣ��)
+	@brief Callback method for handling StApi events, static method to be used with RegisterCallback
+	@param pIStCallbackParamBase : Pointer to the callback parameter base
+	@param pvContext : User-defined context pointer
 	*/
 	static void OnStCallbackMethod(IStCallbackParamBase* pIStCallbackParamBase, void* pvContext);
 	/*
-	@brief �ݹ� ó�� �Լ�
-	@param pCallbackParam : �ݹ� �Ķ����
+	@brief Callback method for handling StApi events
+	@param pCallbackParam : Pointer to the callback parameter base
 	*/
 	void OnCallback(IStCallbackParamBase* pCallbackParam);
 	/*
-	@brief IEnumeration ����� ���� �����ϴ� �Լ�
-	@param pInodeMap : INodeMap �������̽� ������
-	@param szEnumerationName : ������ IEnumeration ����� �̸�
-	@param szValueName : ������ IEnumEntry�� �̸�
+	@brief Set enumeration value in the INodeMap
+	@param pInodeMap : INodeMap pointer to the camera settings
+	@param szEnumerationName : Name of the enumeration to set
+	@param szValueName : Name of the value to set in the enumeration
 	*/
 	void SetEnumeration(GenApi::INodeMap* pInodeMap, const char* szEnumerationName, const char* szValueName);
 	/*
-	@brief Ʈ���� ��带 �����ϴ� �Լ�
-	@param pINodeMap : INodeMap �������̽� ������
-	@param triggerSelector : Ʈ���� ������ ��� ���� ��
-	@param triggerMode : Ʈ���� ��� ��� ���� ��
-	@param triggerSource : Ʈ���� �ҽ� ��� ���� ��
+	@brief Set trigger mode in the INodeMap
+	@param pINodeMap : INodeMap pointer to the camera settings
+	@param triggerSelector : Trigger selector to set
+	@param triggerMode : Trigger mode to set
+	@param triggerSource : Trigger source to set
 	*/
 	void SetTriggerMode(GenApi::CNodeMapPtr& pINodeMap, const char* triggerSelector, const char* triggerMode, const char* triggerSource);
-
-	/* @brief �̹��� ��ü ������ */
-	IStImage* m_pImage;
-	/* @brief �̹��� ������ ID */
-	uint64_t m_frameID;
 };
-

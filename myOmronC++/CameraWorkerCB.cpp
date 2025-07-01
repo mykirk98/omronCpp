@@ -2,8 +2,6 @@
 
 CameraWorkerCB::CameraWorkerCB()
 	: pICommandTriggerSoftware(nullptr)
-	, m_pImage(nullptr)
-	, m_frameID(0)
 {
 }
 
@@ -16,23 +14,23 @@ bool CameraWorkerCB::Initialize(const CIStSystemPtr& pSystem)
 {
 	try
 	{
-		// ī�޶� ��ü ����
+		// Create a camera device object and connect to the first detected device.
 		m_pDevice = pSystem->CreateFirstIStDevice();
 		std::cout << "Device: " << m_pDevice->GetIStDeviceInfo()->GetDisplayName() << std::endl;
 
-		// ī�޶� ������ ���� ���� ��������
+		// Get the INodeMap interface pointer for the camera settings.
 		GenApi::CNodeMapPtr pINodeMap(m_pDevice->GetRemoteIStPort()->GetINodeMap());
-		// Ʈ���Ÿ�� ����
+		// Set the TriggerSelector to FrameStart.
 		SetTriggerMode(pINodeMap, TRIGGER_SELECTOR_FRAME_START, TRIGGER_MODE_ON, TRIGGER_SOURCE_SOFTWARE);
+		// Set the ICommand interface pointer for the TriggerSoftware node.
 		pICommandTriggerSoftware = pINodeMap->GetNode(TRIGGER_SOFTWARE);
 		
-		// �̹��� ��Ʈ�� �����͸� ó���ϱ� ���� �����ͽ�Ʈ�� ��ü ����
+		// Create a DataStream object for handling image stream data.
 		m_pDataStream = m_pDevice->CreateIStDataStream(0);
 
-		// ������ ��Ʈ�� �ݹ� ���� (this �����͸� pvContext�� ����)
+		// Register a callback function. When a Data stream event is triggered, the registered function will be called.
 		RegisterCallback(m_pDataStream, &CameraWorkerCB::OnStCallbackMethod, this);
-		//RegisterCallback(m_pDataStream, &CameraWorker_CB::OnStCallbackFunction, nullptr);	// nullptr�� �ѱ� ���, �ݹ� �Լ����� this �����͸� ����� �� ����
-		// NOTE: this�� �ѱ�� ���� : �ݹ��� �߻����� ��, � ��ü�� ��� �Լ��� ó���� �������� �˷��ֱ� ����
+		//NOTE: this : means the current instance of CameraWorkerCB, allowing the callback to access instance variables and methods.
 
 		return true;
 	}
@@ -47,10 +45,10 @@ void CameraWorkerCB::StartAcquisition()
 {
 	try
 	{
-		// ȣ��Ʈ(PC) �� �̹��� ȹ�� ����
+		// Start the image acquisition of the host(PC) side.
 		m_pDataStream->StartAcquisition();
-			
-		// ī�޶� �� �̹��� ȹ�� ����
+		
+		// Start the image acquisition of the camera side.
 		m_pDevice->AcquisitionStart();
 	}
 	catch (const GenICam::GenericException& e)
@@ -63,10 +61,10 @@ void CameraWorkerCB::StopAcquisition()
 {
 	try
 	{
-		// ī�޶� �� �̹��� ȹ�� ����
+		// Stop the image acquisition of the camera side.
 		m_pDevice->AcquisitionStop();
 
-		// ȣ��Ʈ(PC) �� �̹��� ȹ�� ����
+		// Stop the image acquisition of the host(PC) side.
 		m_pDataStream->StopAcquisition();
 	}
 	catch (const GenICam::GenericException& e)
@@ -84,32 +82,33 @@ void CameraWorkerCB::OnStCallbackMethod(IStCallbackParamBase* pIStCallbackParamB
 {
 	if (pvContext)
 	{
-		// pvContext�� �ѱ� this �����͸� �ٽ� ĳ�����Ͽ� ��� �Լ� ȣ��
+		// pvContext is a pointer to the CameraWorkerCB instance
 		static_cast<CameraWorkerCB*>(pvContext)->OnCallback(pIStCallbackParamBase);
-		// static_cast : C++���� �� ��ȯ�� �� �� ����ϴ� ������, ������ Ÿ�ӿ� ��ȯ
-		// <> : ���ø��� ����Ͽ� Ÿ���� ����
+		//NOTE: static_cast is used here to convert the void pointer back to CameraWorkerCB pointer
 	}
 }
 
-// ��� �ݹ� ó�� �Լ�
 void CameraWorkerCB::OnCallback(IStCallbackParamBase* pCallbackParam)
 {
 	try
 	{
-		// �ݹ� �Ķ������ Ÿ�� Ȯ��
+		// Check callback type. Only NewBuffer event is handled in here
 		if (pCallbackParam->GetCallbackType() == StCallbackType_GenTLEvent_DataStreamNewBuffer)
 		{
 			IStCallbackParamGenTLEventNewBuffer* pNewBufferParam = dynamic_cast<IStCallbackParamGenTLEventNewBuffer*>(pCallbackParam);
-			// NOTE: dynamic_cast�� ����� ���� : �������� Ȱ���Ͽ� IStCallbackParamBase���� �Ļ��� 
-			//									IStCallbackParamGenTLEventNewBuffer Ÿ������ �����ϰ� �ٿ�ĳ�����ϱ� ����
-			// NOTE: static_cast���� ������ : dynamic_cast�� ��Ÿ�ӿ� Ÿ�� üũ�� �����Ͽ� ������ ��� nullptr�� ��ȯ
+			//NOTE: dynamic_cast is used to safely cast the base class pointer to the derived class pointer.
+			//NOTE: static_cast is used when you are sure about the type of the object, while dynamic_cast is used for safe downcasting in class hierarchies.
 			
+			// Get the IStDataStream interface pointer from the received callback parameter.
 			IStDataStream* pDataStream = pNewBufferParam->GetIStDataStream();
 			
+			// Retrieve the buffer pointer of image data for that callback indicated there is a buffer received.
 			CIStStreamBufferPtr pStreamBuffer(pDataStream->RetrieveBuffer(0));
 			
+			// Check if the acquired data contains image data.
 			if (pStreamBuffer->GetIStStreamBufferInfo()->IsImagePresent())
 			{
+				// If yes, we create a IStImage object for further image handling.
 				m_pImage = pStreamBuffer->GetIStImage();
 				
 				m_frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
@@ -131,14 +130,14 @@ void CameraWorkerCB::SetEnumeration(GenApi::INodeMap* pInodeMap, const char* szE
 {
 	try
 	{
-		// IEnumeration �������̽� ������ ��������
+		// Get the IEnumeration interface pointer for the specified enumeration name.
 		GenApi::CEnumerationPtr pIEnumeration(pInodeMap->GetNode(szEnumerationName));
 
-		// ������ �̸��� IEnumEntry �������̽� ������ ��������
+		// Get the IEnumEntry interface pointer for the specified value name.
 		GenApi::CEnumEntryPtr pIEnumEntry(pIEnumeration->GetEntryByName(szValueName));
 
-		// IEnumEntry �������̽� �����͸� ����Ͽ� ���� �� ��������
-		// IEnumeration �������̽� �����͸� ����Ͽ� ���� ������Ʈ
+		// Get the integer value corresponding to the set value name using the IEnumEntry interface pointer.
+		// Update the settings using the IEnumeration interface pointer.
 		pIEnumeration->SetIntValue(pIEnumEntry->GetValue());
 	}
 	catch (const GenICam::GenericException& e)
@@ -151,11 +150,11 @@ void CameraWorkerCB::SetTriggerMode(GenApi::CNodeMapPtr& pINodeMap, const char* 
 {
 	try
 	{
-		// TriggerSelector ��� ����
+		// Set the TriggerSelector to FrameStart.
 		SetEnumeration(pINodeMap, TRIGGER_SELECTOR, triggerSelector);
-		// TriggerMode ��� ����
+		// Set the TriggerMode to On.
 		SetEnumeration(pINodeMap, TRIGGER_MODE, triggerMode);
-		// TriggerSource ��� ����
+		// Set the TriggerSource to Software.
 		SetEnumeration(pINodeMap, TRIGGER_SOURCE, triggerSource);
 	}
 	catch (const GenICam::GenericException& e)
@@ -164,18 +163,21 @@ void CameraWorkerCB::SetTriggerMode(GenApi::CNodeMapPtr& pINodeMap, const char* 
 	}
 }
 
-// ��� ���� (main.cpp���� ȣ��)
+// Example usage of CameraWorkerCB class
 /*
+#include "CameraWorkerCB.h"
+
 int main()
 {
 	std::string directory = "C:\\Users\\mykir\\Work\\Experiments\\";	//NOTE: LAB PC DIRECTORY
 	//std::string directory = "C:\\Users\\USER\\Pictures\\";//NOTE: HOME PC DIRECTORY
-
+	CStApiAutoInit objStApiAutoInit;
+	CIStSystemPtr pSystem(CreateIStSystem());
 
 	CameraWorkerCB cameraWorker;
-	if (cameraWorker.initialize())
+	if (cameraWorker.Initialize(pSystem))
 	{
-		cameraWorker.startAcquisition();
+		cameraWorker.StartAcquisition();
 
 		while (true)
 		{
