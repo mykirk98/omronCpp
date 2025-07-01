@@ -1,53 +1,35 @@
 #include "CameraManager.h"
 #include <iostream>
 #include <string>
+#include "CameraStaff.h"
 
 int main()
 {
-    std::string saveDirectory = "C:\\Users\\mykir\\Work\\Experiments\\";  // 이미지 저장 디렉토리
-    size_t cameraCount = 2;  // 연결할 카메라 수 (예: 2개)
+    using namespace StApi;
+	CStApiAutoInit objStApiAutoInit; // Initialize StApi
+	CIStSystemPtr system(CreateIStSystem()); // Create a system object for device scan and connection
 
-    CameraManager cameraManager;
+    //CIStSystemPtr system = CreateIStSystem();
+    std::string saveDir = "C:\\Captured\\";
 
-    if (!cameraManager.InitializeAll(cameraCount))
+    CameraStaff staff;
+    if (staff.Initialize(system, saveDir))
     {
-        std::cerr << "카메라 초기화에 실패했습니다." << std::endl;
-        return -1;
+        staff.Start();
+
+        while (true)
+        {
+            std::cout << "0: Trigger image, Else: Quit\n> ";
+            int cmd;
+            std::cin >> cmd;
+
+            if (cmd == 0)
+                staff.Trigger();
+            else
+                break;
+        }
+
+        staff.Stop();
     }
 
-    cameraManager.StartAcquisitionAll();
-
-    while (true)
-    {
-        std::cout << "\n0: 트리거 발생" << std::endl;
-        std::cout << "1: 이미지 저장" << std::endl;
-        std::cout << "2: 종료" << std::endl;
-        std::cout << "입력: ";
-
-        int choice;
-        std::cin >> choice;
-
-        if (choice == 0)
-        {
-            cameraManager.TriggerAll();
-            std::cout << "트리거 전송 완료" << std::endl;
-        }
-        else if (choice == 1)
-        {
-            cameraManager.SaveImageAll(saveDirectory);
-            std::cout << "이미지 저장 완료: " << saveDirectory << std::endl;
-        }
-        else if (choice == 2)
-        {
-            break;
-        }
-        else
-        {
-            std::cout << "올바르지 않은 입력입니다." << std::endl;
-        }
-    }
-
-    cameraManager.StopAcquisitionAll();
-
-    return 0;
 }
