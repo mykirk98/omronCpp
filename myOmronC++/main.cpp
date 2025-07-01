@@ -1,35 +1,37 @@
 #include "CameraManager.h"
 #include <iostream>
 #include <string>
+#include <chrono>
 #include "CameraStaff.h"
 
+std::string saveDir = "/home/msis/Pictures/SentechExperiments/Experiments1/";
 int main()
 {
-    using namespace StApi;
-	CStApiAutoInit objStApiAutoInit; // Initialize StApi
-	CIStSystemPtr system(CreateIStSystem()); // Create a system object for device scan and connection
+    int totalFrames = 1000; // 10���� 1000��� ȹ��
+    CStApiAutoInit m_stApiAutoInit;
+    CIStSystemPtr m_pSystem(CreateIStSystem());
 
-    //CIStSystemPtr system = CreateIStSystem();
-    std::string saveDir = "C:\\Captured\\";
+	CameraWorker cameraWorker(totalFrames); // 10���� �̹��� ȹ��
+	if (cameraWorker.Initialize(m_pSystem))
+	{
+        auto start = std::chrono::high_resolution_clock::now();
 
-    CameraStaff staff;
-    if (staff.Initialize(system, saveDir))
-    {
-        staff.Start();
+		cameraWorker.StartAcquisition();
 
-        while (true)
-        {
-            std::cout << "0: Trigger image, Else: Quit\n> ";
-            int cmd;
-            std::cin >> cmd;
+        auto end = std::chrono::high_resolution_clock::now();
 
-            if (cmd == 0)
-                staff.Trigger();
-            else
-                break;
-        }
+        std::chrono::duration<double> elapsed = end - start;
+        double fps = totalFrames / elapsed.count();
 
-        staff.Stop();
-    }
+        std::cout << "총 " << totalFrames << "장을 "
+                  << elapsed.count() << "초 동안 캡처함. 평균 FPS = "
+                  << fps << std::endl;
 
+		// ... �̹��� ó�� ���� ...
+	}
+	else
+	{
+		std::cerr << "Camera initialization failed." << std::endl;
+	}
+	return 0;
 }
