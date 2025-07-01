@@ -134,6 +134,7 @@
     <ClCompile Include="CameraManager.cpp" />
     <ClCompile Include="CameraStaff.cpp" />
     <ClCompile Include="BasicCamera.cpp" />
+    <ClCompile Include="ImageSaveQueue.cpp" />
     <ClCompile Include="TriggerCamera.cpp" />
     <ClCompile Include="CameraWorker_Chunk.cpp" />
     <ClCompile Include="main.cpp">
@@ -146,6 +147,7 @@
     <ClInclude Include="CameraManager.h" />
     <ClInclude Include="CameraStaff.h" />
     <ClInclude Include="BasicCamera.h" />
+    <ClInclude Include="ImageSaveQueue.h" />
     <ClInclude Include="TriggerCamera.h" />
     <ClInclude Include="CameraWorker_Chunk.h" />
     <ClInclude Include="config.h" />
