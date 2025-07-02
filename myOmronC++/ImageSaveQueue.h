@@ -7,6 +7,10 @@
 
 using namespace StApi;
 
+/*
+@brief Structure to hold frame data and metadata
+@brief FrameData structure contains an image pointer, serial number, frame ID, and timestamp.
+*/
 struct FrameData
 {
 	IStImage* pImage;
@@ -16,30 +20,47 @@ struct FrameData
 	std::chrono::steady_clock::time_point timestamp;
 };
 
-
+/*
+@brief ImageSaveQueue class
+@brief This class implements a thread-safe queue for storing image frames.
+*/
 class ImageSaveQueue
 {
 public:
 	ImageSaveQueue();
+	~ImageSaveQueue();
 
-	// Producer: Push an image frame into the queue
+	/*
+	@brief Producer(Camera thread) push an image frame into the queue
+	@param frame : FrameData object containing image data and metadata
+	*/
 	void Push(const FrameData& frame);
-	// Consumer: Pop an image frame from the queue
+	/*
+	@brief Consumer(ImageSaveThreadPool) pop an image frame from the queue
+	@param frame : FrameData object to take from the ImageSaveThreadPool
+	*/
 	bool Pop(FrameData& frame);
-	// Consumer: Pop an image frame from the queue with a timeout
+	/*
+	@brief Consumer(ImageSaveThreadPool) pop an image frame from the queue with a timeout
+	@param frame : FrameData object to take from the ImageSaveThreadPool
+	@param timeout : Duration to wait for a frame to be available in the queue
+	*/
 	bool PopWithTimeOut(FrameData& frame, std::chrono::milliseconds timeout);
 
-	// Check if the queue is empty
+	/* @brief Check if the queue is empty */
 	bool isEmpty() const;
-	// Get the size of the queue
+	/* @brief Get the size of the queue */
 	size_t Size() const;
-	// Clear the queue
+	/* @brief Clear the queue */
 	void Clear();
 
 
 private:
+	/* @brief Queue to hold FrameData objects */
 	std::queue<FrameData> m_queue;
+	/* @brief Mutex for thread safety */
 	mutable std::mutex m_mutex;
+	/* @brief Condition variable for notifying consumers when a new frame is available */
 	std::condition_variable m_cv;
 };
 
