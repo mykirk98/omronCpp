@@ -73,11 +73,6 @@ void TriggerCamera::StopAcquisition()
 	}
 }
 
-void TriggerCamera::SaveImageToFile(const std::string& dstDir)
-{
-	ConvertAndSaveImage<BMP>(m_pImage, true, dstDir, m_frameID);
-}
-
 void TriggerCamera::OnStCallbackMethod(IStCallbackParamBase* pIStCallbackParamBase, void* pvContext)
 {
 	if (pvContext)
@@ -109,10 +104,10 @@ void TriggerCamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 			if (pStreamBuffer->GetIStStreamBufferInfo()->IsImagePresent())
 			{
 				// If yes, we create a IStImage object for further image handling.
-				m_pImage = pStreamBuffer->GetIStImage();
+				IStImage* pImage = pStreamBuffer->GetIStImage();
 				
-				m_frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
-				PrintFrameInfo(m_pImage, pStreamBuffer);
+				uint64_t frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
+				PrintFrameInfo(pImage, pStreamBuffer);
 			}
 			else
 			{

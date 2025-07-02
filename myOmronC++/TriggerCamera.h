@@ -9,9 +9,9 @@
 class TriggerCamera : public BasicCamera
 {
 public:
-	/* @brief class constructor */
+	/* @brief TriggerCamera constructor */
 	TriggerCamera();
-	/* @brief class destructor */
+	/* @brief TriggerCamera destructor */
 	~TriggerCamera();
 
 	/*
@@ -23,8 +23,6 @@ public:
 	void StartAcquisition();
 	/* @brief Stop image acquisition method */
 	void StopAcquisition();
-	/**/
-	void SaveImageToFile(const std::string& dstDir);
 
 	/* @brief Command interface pointer for software trigger */
 	GenApi::CCommandPtr pICommandTriggerSoftware;

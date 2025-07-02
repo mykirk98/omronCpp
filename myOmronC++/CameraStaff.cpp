@@ -56,8 +56,7 @@ void CameraStaff::Run()
             {
                 m_worker->pICommandTriggerSoftware->Execute();
                 std::this_thread::sleep_for(std::chrono::milliseconds(200)); // 이미지 저장 대기
-                m_worker->SaveImageToFile(m_saveDir);
-                std::cout << "[CameraStaff] Image saved to " << m_saveDir << std::endl;
+				std::cout << "[CameraStaff] Trigger executed." << std::endl;
             }
             catch (const std::exception& e)
             {

@@ -1,27 +1,22 @@
-#include "CameraStaff.h"
+#include "BasicCamera.h"
+
 int main()
 {
-    CStApiAutoInit objStApiAutoInit;
-    CIStSystemPtr system = CreateIStSystem();
-    std::string saveDir = "C:\\Users\\mykir\\Work\\Experiments\\";	//NOTE: LAB PC DIRECTORY
+	std::cout << "==========Basic Camera Example==========" << std::endl;
+	CStApiAutoInit objStApiAutoInit; // Initialize StApi
+	CIStSystemPtr pSystem(CreateIStSystem()); // Create a system object for device scan and connection
 
-    CameraStaff staff;
-    if (staff.Initialize(system, saveDir))
-    {
-        staff.Start();
+	//std::string targetDir = "C:\\Users\\mykir\\Work\\Experiments\\";	//NOTE: LAB PC DIRECTORY
+	BasicCamera basicCamera(10);
+	if (basicCamera.Initialize(pSystem))
+	{
+		basicCamera.StartAcquisition();
 
-        while (true)
-        {
-            std::cout << "0: Trigger image, Else: Quit\n> ";
-            int cmd;
-            std::cin >> cmd;
-
-            if (cmd == 0)
-                staff.Trigger();
-            else
-                break;
-        }
-
-        staff.Stop();
-    }
+		// image processing and saving logic can be added here...
+	}
+	else
+	{
+		std::cerr << "Camera initialization failed." << std::endl;
+	}
+	return 0;
 }

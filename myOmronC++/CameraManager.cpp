@@ -67,15 +67,6 @@ void CameraManager::TriggerAll()
 	}
 }
 
-void CameraManager::SaveImageAll(const std::string& dstDir)
-{
-	// Save images from all cameras to the specified directory
-	for (std::vector<std::unique_ptr<TriggerCamera>>::iterator it = m_workers.begin(); it != m_workers.end(); ++it)
-	{
-		(*it)->SaveImageToFile(dstDir);
-	}
-}
-
 /*
 #include "CameraManager.h"
 #include <iostream>

@@ -2,8 +2,9 @@
 
 BasicCamera::BasicCamera(uint64_t imageCount)
 	: m_imageCount(imageCount)
-	, m_pImage(nullptr)
-	, m_frameID(0)
+	, m_saveRootDir("C:\\Users\\mykir\\Work\\Experiments\\") //NOTE: LAB WINDOWS PC DIRECTORY
+	//, m_saveRootDir("C:\\Users\\USER\\Pictures\\")	//NOTE: HOME PC DIRECTORY
+	//, m_saveRootDir("/home/msis/Pictures/SentechExperiments/Experiments1/";)	//NOTE: LAB LINUX PC DIRECTORY
 {
 }
 
@@ -22,6 +23,9 @@ bool BasicCamera::Initialize(const CIStSystemPtr& pSystem)
 		// Create a DataStream object for handling image stream data.
 		m_pDataStream = m_pDevice->CreateIStDataStream(0);
 		
+		std::cout << "[BasicCamera] " << m_pDevice->GetIStDeviceInfo()->GetDisplayName() << ": connected." << std::endl;
+		std::cout << "[BasicCamera] serial number: " << m_pDevice->GetIStDeviceInfo()->GetSerialNumber() << std::endl;
+		std::cout << "[BasicCamera] # of available data stream" << m_pDevice->GetDataStreamCount() << std::endl;
 		return true;
 	}
 	catch (const GenICam::GenericException& e)
@@ -40,7 +44,7 @@ void BasicCamera::StartAcquisition()
 		// Start the image acquisition of the camera side.
 		m_pDevice->AcquisitionStart();
 		
-		std::string dstCfgDir = "C:\\Users\\USER\\Pictures\\Features.cfg";
+		//std::string dstCfgDir = "C:\\Users\\USER\\Pictures\\Features.cfg";
 		//SaveConfigFile(dstCfgDir);
 		//LoadConfigFile(dstCfgDir);
 		//CameraConfigurator::Load(m_pDevice, dstCfgDir);
@@ -70,38 +74,6 @@ void BasicCamera::StopAcquisition()
 		std::cerr << "Stop acqiusition error: " << e.GetDescription() << std::endl;
 	}
 }
-
-void BasicCamera::SaveImageToFile(const std::string& dstDir)
-{
-	ConvertAndSaveImage<BMP>(m_pImage, true, dstDir, m_frameID);
-}
-
-template<typename FORMAT>
-void BasicCamera::ConvertAndSaveImage(IStImage* pSrcImage, bool isColor, std::string dstDir, const uint64_t frameID)
-{
-	try
-	{
-		// Create an image buffer to hold the converted image data.
-		CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
-		ConvertPixelFormat(pSrcImage, isColor, pImageBuffer);
-		
-		// Convert the image data to the specified extension format and save it.
-		GenICam::gcstring savePath = SetSavePath(dstDir, frameID);
-		SaveImage<FORMAT>(pImageBuffer, savePath);
-	}
-	catch (const GenICam::GenericException& e)
-	{
-		std::cerr << "Converting and saving image error: " << e.GetDescription() << std::endl;
-	}
-}
-
-// Explicit template instantiation for different image formats
-template void BasicCamera::ConvertAndSaveImage<StApiRaw>(IStImage*, bool, std::string, uint64_t);
-template void BasicCamera::ConvertAndSaveImage<BMP>(IStImage*, bool, std::string, uint64_t);
-template void BasicCamera::ConvertAndSaveImage<TIFF>(IStImage*, bool, std::string, uint64_t);
-template void BasicCamera::ConvertAndSaveImage<PNG>(IStImage*, bool, std::string, uint64_t);
-template void BasicCamera::ConvertAndSaveImage<JPEG>(IStImage*, bool, std::string, uint64_t);
-template void BasicCamera::ConvertAndSaveImage<CSV>(IStImage*, bool, std::string, uint64_t);
 
 void BasicCamera::PrintFrameInfo(const IStImage* pImage, CIStStreamBufferPtr& pStreamBuffer)
 {
@@ -159,6 +131,12 @@ void BasicCamera::LoadSavedImage(CIStImageBufferPtr& pImageBuffer, const GenICam
 
 void BasicCamera::SequentialCapture()
 {
+	size_t numThreads = 1;
+	bool convertToColor = true;
+
+	ImageSaverThreadPool saverThreadPool(numThreads, m_saveRootDir, convertToColor);
+	saverThreadPool.Start();
+
 	while (m_pDataStream->IsGrabbing())
 	{
 		// Retrieve the buffer pointer of image data with a timeout of 5000ms.
@@ -168,91 +146,30 @@ void BasicCamera::SequentialCapture()
 		if (pStreamBuffer->GetIStStreamBufferInfo()->IsImagePresent())
 		{
 			// If yes, we create a IStImage object for further image handling.
-			m_pImage = pStreamBuffer->GetIStImage();
+			IStImage* pImage = pStreamBuffer->GetIStImage();
+			uint64_t frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
+			PrintFrameInfo(pImage, frameID);
 
-			m_frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
-			PrintFrameInfo(m_pImage, m_frameID);
+			FrameData frame;
+			frame.pImage = pImage;
+			frame.frameID = frameID;
+			frame.serialNumber = m_pDevice->GetIStDeviceInfo()->GetDisplayName().c_str();
+			frame.timestamp = std::chrono::steady_clock::now();
 
-			std::string targetDir = "C:\\Users\\mykir\\Work\\Experiments\\";	//NOTE: LAB PC DIRECTORY
-			// std::string targetDir = "C:\\Users\\USER\\Pictures\\";//NOTE: HOME PC DIRECTORY
-			// std::string targetDir = "/home/msis/Pictures/SentechExperiments/Experiments1/";	//NOTE: LAB LINUX DIRECTORY
-			SaveImageToFile(targetDir);
+			saverThreadPool.Enqueue(frame);
 		}
 		else
 		{
 			std::cout << "No image data present in the buffer." << std::endl;
 		}
 	}
-}
-
-GenICam::gcstring BasicCamera::SetSavePath(const std::string& savePath, const uint64_t frameID)
-{
-	try
-	{
-		// change frameID to string
-		std::string strFrameID = std::to_string(frameID);
-
-		// Ensure the save path ends with a separator
-		std::string filePath = savePath + m_pDevice->GetIStDeviceInfo()->GetDisplayName().c_str() + strFrameID;
-
-		return GenICam::gcstring(filePath.c_str());
-	}
-	catch (const GenICam::GenericException& e)
-	{
-		std::cerr << "Setting save path error: " << e.GetDescription() << std::endl;
-		return GenICam::gcstring();
-	}
-}
-
-void BasicCamera::ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStImageBufferPtr& pDstBuffer)
-{
-	try
-	{
-		// Create a data converter object for pixel format conversion.
-		CIStPixelFormatConverterPtr pPixelFormatConverter(CreateIStConverter(StConverterType_PixelFormat));
-
-		if (isColor)
-		{
-			pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_BGR8);
-		}
-		else
-		{
-			pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_Mono8);
-		}
-		pPixelFormatConverter->Convert(pSrcImage, pDstBuffer);
-	}
-	catch (const GenICam::GenericException& e)
-	{
-		std::cerr << "Converting pixel format error: " << e.GetDescription() << std::endl;
-	}
-}
-
-template<typename FORMAT>
-void BasicCamera::SaveImage(CIStImageBufferPtr& pImageBuffer, GenICam::gcstring& dstDir)
-{
-	try
-	{
-		// Ensure the destination directory has the correct format
-		dstDir.append(FORMAT::extension);
-		
-		// Create a still image file handling class object (filer) for still image processing.
-		CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
-		
-		// Save the image file in the specified format using the filer we created.
-		std::wcout << L"Saving " << dstDir.c_str() << L"... ";
-		pStillImageFiler->Save(pImageBuffer->GetIStImage(), FORMAT::fileFormat, dstDir);
-		std::cout << "done" << std::endl;
-	}
-	catch (const GenICam::GenericException& e)
-	{
-		std::cerr << "Saving image error: " << e.GetDescription() << std::endl;
-	}
+	saverThreadPool.Stop();
 }
 
 
 // Example usage of CameraWorker class
 /*
-#include "CameraWorker.h"
+#include "BasicCamera.h"
 
 int main()
 {
@@ -261,10 +178,10 @@ int main()
 	CIStSystemPtr pSystem(CreateIStSystem()); // Create a system object for device scan and connection
 
 	std::string targetDir = "C:\\Users\\mykir\\Work\\Experiments\\";	//NOTE: LAB PC DIRECTORY
-	CameraWorker cameraWorker(10);
-	if (cameraWorker.Initialize(pSystem))
+	BasicCamera basicCamera(10);
+	if (basicCamera.Initialize(pSystem))
 	{
-		cameraWorker.StartAcquisition();
+		basicCamera.StartAcquisition();
 
 		// image processing and saving logic can be added here...
 	}

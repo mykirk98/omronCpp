@@ -32,7 +32,7 @@ public:
 	@brief 모든 카메라의 이미지를 지정된 디렉토리에 저장하는 함수
 	@param dstDir : 이미지 저장할 디렉토리 경로
 	*/
-	void SaveImageAll(const std::string& dstDir);
+	//void SaveImageAll(const std::string& dstDir);
 
 private:
 	/*
