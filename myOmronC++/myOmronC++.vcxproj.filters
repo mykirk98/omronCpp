@@ -30,9 +30,6 @@
     <ClCompile Include="CameraWorker_Chunk.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="CameraEventWorker.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="CameraConfigurator.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
