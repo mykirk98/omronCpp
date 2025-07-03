@@ -1,13 +1,20 @@
 #include "TriggerCamera.h"
 
+#define LOGGING
+
 TriggerCamera::TriggerCamera()
 	: pICommandTriggerSoftware(nullptr)
 {
+#ifdef LOGGING
+	std::cout << "[TriggerCamera] constructed" << std::endl;
+#endif // LOGGING
 }
 
 TriggerCamera::~TriggerCamera()
 {
-	StopAcquisition();
+#ifdef LOGGING
+	std::cout << "[TriggerCamera] destructed" << std::endl;
+#endif // LOGGING
 }
 
 bool TriggerCamera::Initialize(const CIStSystemPtr& pSystem)
@@ -16,8 +23,7 @@ bool TriggerCamera::Initialize(const CIStSystemPtr& pSystem)
 	{
 		// Create a camera device object and connect to the first detected device.
 		m_pDevice = pSystem->CreateFirstIStDevice();
-		std::cout << "Device: " << m_pDevice->GetIStDeviceInfo()->GetDisplayName() << std::endl;
-
+		std::cout << "[TriggerCamera] " << m_pDevice->GetIStDeviceInfo()->GetDisplayName() << " : connected" << std::endl;
 		// Get the INodeMap interface pointer for the camera settings.
 		GenApi::CNodeMapPtr pINodeMap(m_pDevice->GetRemoteIStPort()->GetINodeMap());
 		// Set the TriggerSelector to FrameStart.
@@ -27,16 +33,21 @@ bool TriggerCamera::Initialize(const CIStSystemPtr& pSystem)
 		
 		// Create a DataStream object for handling image stream data.
 		m_pDataStream = m_pDevice->CreateIStDataStream(0);
+		std::cout << "[TriggerCamera] # of available data stream : " << m_pDevice->GetDataStreamCount() << std::endl;
 
 		// Register a callback function. When a Data stream event is triggered, the registered function will be called.
 		RegisterCallback(m_pDataStream, &TriggerCamera::OnStCallbackMethod, this);
 		//NOTE: this : means the current instance of TriggerCamera, allowing the callback to access instance variables and methods.
 
+#ifdef LOGGING
+		std::cout << "[TriggerCamera] Initialized" << std::endl;
+#endif // LOGGING
+
 		return true;
 	}
 	catch (const GenICam::GenericException& e)
 	{
-		std::cerr << "Initialization error: " << e.GetDescription() << std::endl;
+		std::cerr << "[TriggerCamera] Initialization error: " << e.GetDescription() << std::endl;
 		return false;
 	}
 }
@@ -75,17 +86,19 @@ void TriggerCamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 				IStImage* pImage = pStreamBuffer->GetIStImage();
 				
 				uint64_t frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
+#ifdef LOGGING
 				PrintFrameInfo(pImage, pStreamBuffer);
+#endif // LOGGING
 			}
 			else
 			{
-				std::cout << "No image present in the buffer." << std::endl;
+				std::cout << "[TriggerCamera] No image present in the buffer." << std::endl;
 			}
 		}
 	}
 	catch (const GenICam::GenericException& e)
 	{
-		std::cerr << "Callback Exception: " << e.GetDescription() << std::endl;
+		std::cerr << "[TriggerCamera] Callback Exception: " << e.GetDescription() << std::endl;
 	}
 }
 
@@ -102,10 +115,13 @@ void TriggerCamera::SetEnumeration(GenApi::INodeMap* pInodeMap, const char* szEn
 		// Get the integer value corresponding to the set value name using the IEnumEntry interface pointer.
 		// Update the settings using the IEnumeration interface pointer.
 		pIEnumeration->SetIntValue(pIEnumEntry->GetValue());
+#ifdef LOGGING
+		std::cout << "[TriggerCamera] Set " << szEnumerationName << " to " << szValueName << std::endl;
+#endif // LOGGING
 	}
 	catch (const GenICam::GenericException& e)
 	{
-		std::cerr << "Setting enumeration failed: " << e.GetDescription() << std::endl;
+		std::cerr << "[TriggerCamera] Setting enumeration failed: " << e.GetDescription() << std::endl;
 	}
 }
 
@@ -119,10 +135,13 @@ void TriggerCamera::SetTriggerMode(GenApi::CNodeMapPtr& pINodeMap, const char* t
 		SetEnumeration(pINodeMap, TRIGGER_MODE, triggerMode);
 		// Set the TriggerSource to Software.
 		SetEnumeration(pINodeMap, TRIGGER_SOURCE, triggerSource);
+#ifdef LOGGING
+		std::cout << "[TriggerCamera] Trigger mode set to " << triggerMode << " with source " << triggerSource << std::endl;
+#endif // LOGGING
 	}
 	catch (const GenICam::GenericException& e)
 	{
-		std::cerr << "Setting trigger mode failed: " << e.GetDescription() << std::endl;
+		std::cerr << "[TriggerCamera] Setting trigger mode failed: " << e.GetDescription() << std::endl;
 	}
 }
 
@@ -158,6 +177,7 @@ int main()
 				break;
 			}
 		}
+		cameraWorker.StopAcquisition();
 	}
 	else
 	{
