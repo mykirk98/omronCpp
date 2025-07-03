@@ -89,6 +89,7 @@ void CameraStaff::Run()
 
 int main()
 {
+    std::cout << "==========Camera Staff Example==========" << std::endl;
     CStApiAutoInit objStApiAutoInit;
     CIStSystemPtr system = CreateIStSystem();
     std::string saveDir = "C:\\Users\\mykir\\Work\\Experiments\\";	//NOTE: LAB PC DIRECTORY
