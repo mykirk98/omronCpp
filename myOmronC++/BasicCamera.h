@@ -6,10 +6,7 @@
 
 using namespace StApi;
 
-/*
-@brief Basic Camera Worker Class
-@brief This class is responsible for managing camera operations such as initialization, image acquisition, and saving images in various formats.
-*/
+/* @brief This class is responsible for managing camera operations such as initialization, image acquisition, and sequential capture. */
 class BasicCamera
 {
 public:
@@ -25,14 +22,12 @@ public:
 	bool Initialize(const CIStSystemPtr& pSystem);
 	/* @brief Start image acquisition method */
 	void StartAcquisition();
+	/* @brief Stop image acquisition method */
+	void StopAcquisition();
 	/* @brief Sequential image capture function */
 	void SequentialCapture();
 
 protected:
-	/* @brief Stop image acquisition method */
-	void StopAcquisition();
-
-	void PrintFrameInfo(const IStImage* pImage, CIStStreamBufferPtr& pStreamBuffer);
 	/*
 	@brief Display frame information
 	@param pImage : Image pointer containing frame data
@@ -46,27 +41,14 @@ protected:
 	*/
 	void LoadSavedImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& srcDir);
 	
-	/*
-	@brief system object
-	@brief CIStSystemPtr is a pointer to the system object that manages the camera and its resources.
-	*/
+	/* @brief system object */
 	CIStSystemPtr m_pSystem;
-	/*
-	@brief camera device object
-	@brief CIStDevicePtr is a pointer to the camera device object that represents the physical camera.
-	*/
+	/* @brief camera device object */
 	CIStDevicePtr m_pDevice;
-	/*
-	@brief datastream object
-	@brief CIStDataStreamPtr is a pointer to the data stream object that handles the image data flow from the camera.
-	@brief datastream is used to retrieve image buffers from the camera.
-	*/
+	/* @brief datastream object */
 	CIStDataStreamPtr m_pDataStream;
 
 private:
-
-
 	uint64_t m_imageCount;	// Number of images to capture
-
 	std::string m_saveRootDir;
 };

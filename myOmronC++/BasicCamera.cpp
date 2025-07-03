@@ -70,27 +70,6 @@ void BasicCamera::StopAcquisition()
 	}
 }
 
-void BasicCamera::PrintFrameInfo(const IStImage* pImage, CIStStreamBufferPtr& pStreamBuffer)
-{
-	try
-	{
-		//NOTE: Difference between Frame and Image:
-		// Frame: Frame is a logical grouping of image data that may contain multiple images or metadata. 
-		// Image: Image is a single image data that is part of a frame.
-		std::cout << "Block ID: " << pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()
-			<< "\tSize: " << pImage->GetImageWidth() << " x " << pImage->GetImageHeight()
-			<< "\tFirst byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pImage->GetImageBuffer()))
-			<< "\ttimestamp: " << pStreamBuffer->GetIStStreamBufferInfo()->GetTimestamp()
-			<< std::endl;
-		// reinterpret_cast : This is used to convert the pointer type without changing the underlying data.
-		// dynamic_cast : This is used to safely cast pointers or references to classes in a class hierarchy.
-	}
-	catch (const GenICam::GenericException& e)
-	{
-		std::cerr << "Printing frame info error: " << e.GetDescription() << std::endl;
-	}
-}
-
 void BasicCamera::PrintFrameInfo(const IStImage* pImage, const uint64_t frameID)
 {
 	try
@@ -148,7 +127,6 @@ void BasicCamera::SequentialCapture()
 			FrameData frame;
 			frame.pImage = pImage;
 			frame.frameID = frameID;
-			//frame.serialNumber = m_pDevice->GetIStDeviceInfo()->GetDisplayName().c_str();
 			frame.serialNumber = m_pDevice->GetIStDeviceInfo()->GetSerialNumber().c_str();
 			frame.timestamp = std::chrono::steady_clock::now();
 
@@ -177,6 +155,8 @@ int main()
 	if (basicCamera.Initialize(pSystem))
 	{
 		basicCamera.StartAcquisition();
+
+		basicCamera.SequentialCapture();
 
 		// image processing and saving logic can be added here...
 	}

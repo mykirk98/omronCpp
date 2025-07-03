@@ -41,38 +41,6 @@ bool TriggerCamera::Initialize(const CIStSystemPtr& pSystem)
 	}
 }
 
-void TriggerCamera::StartAcquisition()
-{
-	try
-	{
-		// Start the image acquisition of the host(PC) side.
-		m_pDataStream->StartAcquisition();
-		
-		// Start the image acquisition of the camera side.
-		m_pDevice->AcquisitionStart();
-	}
-	catch (const GenICam::GenericException& e)
-	{
-		std::cerr << "Start acquisition error: " << e.GetDescription() << std::endl;
-	}
-}
-
-void TriggerCamera::StopAcquisition()
-{
-	try
-	{
-		// Stop the image acquisition of the camera side.
-		m_pDevice->AcquisitionStop();
-
-		// Stop the image acquisition of the host(PC) side.
-		m_pDataStream->StopAcquisition();
-	}
-	catch (const GenICam::GenericException& e)
-	{
-		std::cerr << "Stop acquisition error: " << e.GetDescription() << std::endl;
-	}
-}
-
 void TriggerCamera::OnStCallbackMethod(IStCallbackParamBase* pIStCallbackParamBase, void* pvContext)
 {
 	if (pvContext)
