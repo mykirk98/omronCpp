@@ -1,19 +1,19 @@
 #include "ImageSaveQueue.h"
 
-//#define ENABLED_LOGGING
+//#define LOGGING
 
 ImageSaveQueue::ImageSaveQueue()
 {
-#ifdef ENABLED_LOGGING
-	std::cout << "[ImageSaveQueue] Initialized." << std::endl;
-#endif // ENABLED_LOGGING
+#ifdef LOGGING
+	std::cout << "[ImageSaveQueue] constructed." << std::endl;
+#endif // LOGGING
 }
 
 ImageSaveQueue::~ImageSaveQueue()
 {
-#ifdef ENABLED_LOGGING
-	std::cout << "[ImageSaveQueue] Destroyed." << std::endl;
-#endif // ENABLED_LOGGING
+#ifdef LOGGING
+	std::cout << "[ImageSaveQueue] destructed." << std::endl;
+#endif // LOGGING
 }
 
 void ImageSaveQueue::Push(const FrameData& frame)
@@ -27,9 +27,9 @@ void ImageSaveQueue::Push(const FrameData& frame)
 	// notify one waiting consumer(ImageSaveThread) that a new frame is available
 	m_cv.notify_one();
 
-#ifdef ENABLED_LOGGING
+#ifdef LOGGING
 	std::cout << "[ImageSaveQueue] Pushed from " << frame.serialNumber << "\tframe #" << frame.frameID << "\tQueue size : " << m_queue.size() << std::endl;
-#endif // ENABLED_LOGGING
+#endif // LOGGING
 
 }
 
@@ -47,9 +47,9 @@ bool ImageSaveQueue::Pop(FrameData& frame)
 	// remove the front frame from the queue
 	m_queue.pop();
 
-#ifdef ENABLED_LOGGING
+#ifdef LOGGING
 	std::cout << "[ImageSaveQueue] Popped from " << frame.serialNumber << "\tframe #" << frame.frameID << "\tQueue size : " << m_queue.size() << std::endl;
-#endif // ENABLED_LOGGING
+#endif // LOGGING
 
 	// return true to indicate that a frame was successfully retrieved
 	return true;
@@ -69,16 +69,16 @@ bool ImageSaveQueue::PopWithTimeOut(FrameData& frame, std::chrono::milliseconds 
 		// remove the front frame from the queue
 		m_queue.pop();
 
-#ifdef ENABLED_LOGGING
+#ifdef LOGGING
 		std::cout << "[ImageSaveQueue] Popped from " << frame.serialNumber << "\tframe #" << frame.frameID << "\tQueue size : " << m_queue.size() << std::endl;
-#endif // ENABLED_LOGGING
+#endif // LOGGING
 
 		// return true to indicate that a frame was successfully retrieved
 		return true;
 	}
-#ifdef ENABLED_LOGGING
+#ifdef LOGGING
 	std::cout << "[ImageSaveQueue] Timeout expired, no frame available." << std::endl;
-#endif // ENABLED_LOGGING
+#endif // LOGGING
 
 	// if the timeout expires and no frame is available, return false
 	return false;
@@ -89,9 +89,9 @@ bool ImageSaveQueue::isEmpty() const
 	// ensure thread safety when checking if the queue is empty
 	std::lock_guard<std::mutex> lock(m_mutex);
 
-#ifdef ENABLED_LOGGING
+#ifdef LOGGING
 	std::cout << "[ImageSaveQueue] isEmpty() called, queue size: " << m_queue.size() << std::endl;
-#endif // ENABLED_LOGGING
+#endif // LOGGING
 
 	// return true if the queue is empty, false otherwise
 	return m_queue.empty();
@@ -102,9 +102,9 @@ size_t ImageSaveQueue::Size() const
 	// ensure thread safety when getting the size of the queue
 	std::lock_guard<std::mutex> lock(m_mutex);
 
-#ifdef ENABLED_LOGGING
+#ifdef LOGGING
 	std::cout << "[ImageSaveQueue] Size() called, queue size: " << m_queue.size() << std::endl;
-#endif // ENABLED_LOGGING
+#endif // LOGGING
 
 	// return the size of the queue
 	return m_queue.size();
@@ -122,7 +122,7 @@ void ImageSaveQueue::Clear()
 	// notify all waiting consumers that the queue has been cleared
 	m_cv.notify_all();
 
-#ifdef ENABLED_LOGGING
+#ifdef LOGGING
 	std::cout << "[ImageSaveQueue] Clear() called, queue cleared." << std::endl;
-#endif // ENABLED_LOGGING
+#endif // LOGGING
 }
