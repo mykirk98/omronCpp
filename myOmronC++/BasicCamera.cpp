@@ -88,13 +88,15 @@ void BasicCamera::StopAcquisition()
 	}
 }
 
-void BasicCamera::PrintFrameInfo(const IStImage* pImage, const uint64_t frameID)
+void BasicCamera::PrintFrameInfo(const CIStStreamBufferPtr& pStreamBuffer)
 {
 	try
 	{
-		std::cout << "Block ID: " << frameID
-			<< "\tSize: " << pImage->GetImageWidth() << " x " << pImage->GetImageHeight()
-			<< "\tFirst byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pImage->GetImageBuffer()))
+		std::cout << "Block ID: " << pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()
+			<< "\tSize: " << pStreamBuffer->GetIStImage()->GetImageWidth() << " x " << pStreamBuffer->GetIStImage()->GetImageHeight()
+			<< "\tFirst byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pStreamBuffer->GetIStImage()->GetImageBuffer()))
+			<< std::endl
+			<< "time stamp: " << pStreamBuffer->GetIStStreamBufferInfo()->GetTimestamp()
 			<< std::endl;
 	}
 	catch (const GenICam::GenericException& e)
@@ -133,7 +135,7 @@ void BasicCamera::SequentialCapture()
 			// If yes, we create a IStImage object for further image handling.
 			IStImage* pImage = pStreamBuffer->GetIStImage();
 			uint64_t frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
-			PrintFrameInfo(pImage, frameID);
+			PrintFrameInfo(pStreamBuffer);
 		}
 		else
 		{

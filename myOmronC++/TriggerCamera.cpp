@@ -86,8 +86,8 @@ void TriggerCamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 				IStImage* pImage = pStreamBuffer->GetIStImage();
 				
 				uint64_t frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
+				PrintFrameInfo(pStreamBuffer);
 #ifdef LOGGING
-				//PrintFrameInfo(pImage, pStreamBuffer);
 				std::cout << "[TriggerCamera] respond trigger" << std::endl;
 #endif // LOGGING
 			}

@@ -33,7 +33,7 @@ protected:
 	@param pImage : Image pointer containing frame data
 	@param frameID : Frame ID of the image
 	*/
-	void PrintFrameInfo(const IStImage* pImage, const uint64_t frameID);
+	void PrintFrameInfo(const CIStStreamBufferPtr& pStreamBuffer);
 	/*
 	@brief Load saved image from a directory
 	@param pImageBuffer : Image buffer pointer to load the image into
