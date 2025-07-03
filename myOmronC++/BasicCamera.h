@@ -6,7 +6,7 @@
 
 using namespace StApi;
 
-/* @brief This class is responsible for managing camera operations such as initialization, image acquisition, and sequential capture. */
+/* @brief This class provides basic camera functionalities such as initialization, image acquisition, and sequential capture. */
 class BasicCamera
 {
 public:

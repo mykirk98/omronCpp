@@ -1,19 +1,33 @@
-#include "BasicCamera.h"
+#include "TriggerCamera.h"
 
 int main()
 {
-	std::cout << "==========Basic Camera Example==========" << std::endl;
-	CStApiAutoInit objStApiAutoInit; // Initialize StApi
-	CIStSystemPtr pSystem(CreateIStSystem()); // Create a system object for device scan and connection
+	std::cout << "==========Trigger Camera Example==========" << std::endl;
+	CStApiAutoInit objStApiAutoInit;
+	CIStSystemPtr pSystem(CreateIStSystem());
 
-	BasicCamera basicCamera(10);
-	if (basicCamera.Initialize(pSystem))
+	TriggerCamera cameraWorker;
+	if (cameraWorker.Initialize(pSystem))
 	{
-		basicCamera.StartAcquisition();
+		cameraWorker.StartAcquisition();
 
-		basicCamera.SequentialCapture();
+		std::cout << "0: Generate trigger" << std::endl;
+		std::cout << "Else: Exit" << std::endl;
+		std::cout << "Select: ";
 
-		// image processing and saving logic can be added here...
+		while (true)
+		{
+			size_t nindex;
+			std::cin >> nindex;
+			if (nindex == 0)
+			{
+				cameraWorker.pICommandTriggerSoftware->Execute();
+			}
+			else
+			{
+				break;
+			}
+		}
 	}
 	else
 	{

@@ -1,11 +1,7 @@
 #pragma once
 #include "BasicCamera.h"
-#include "config.h"
 
-/*
-@brief camera worker with callback class
-@brief This class handles camera operations using callbacks for image acquisition and processing.
-*/
+/* @brief This class extends BasicCamera to implement software trigger functionality. */
 class TriggerCamera : public BasicCamera
 {
 public:

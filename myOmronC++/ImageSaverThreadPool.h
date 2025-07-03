@@ -40,10 +40,7 @@ struct CSV
 	static constexpr EStStillImageFileFormat_t fileFormat = StStillImageFileFormat_CSV;
 };
 
-/*
-@brief ImageSaverThreadPool class
-@brief This class manages a pool of threads for saving images.
-*/
+/* @brief This class manages a pool of threads for saving images. */
 class ImageSaverThreadPool
 {
 public:

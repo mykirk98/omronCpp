@@ -1,4 +1,5 @@
 #include "BasicCamera.h"
+#include "config.h"
 
 BasicCamera::BasicCamera(uint64_t imageCount)
 	: m_imageCount(imageCount)
