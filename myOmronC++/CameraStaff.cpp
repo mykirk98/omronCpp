@@ -1,33 +1,43 @@
 #include "CameraStaff.h"
-#include <chrono>
-#include <iostream>
+
+//#define LOGGING
 
 CameraStaff::CameraStaff()
-    : m_worker(std::make_unique<TriggerCamera>())
+    : m_camera(std::make_unique<TriggerCamera>())
     , m_running(false)
     , m_triggerRequested(false)
 {
+#ifdef LOGGING
+    std::cout << "[CameraStaff] constructed" << std::endl;
+#endif // LOGGING
 }
 
 CameraStaff::~CameraStaff()
 {
     Stop();
+#ifdef LOGGING
+	std::cout << "[CameraStaff] destructed" << std::endl;
+#endif // LOGGING
 }
 
 bool CameraStaff::Initialize(const CIStSystemPtr& pSystem, const std::string& saveDir)
 {
     m_saveDir = saveDir;
-    return m_worker->Initialize(pSystem);
-	std::cout << "[CameraStaff] Camera initialized successfully." << std::endl;
+    return m_camera->Initialize(pSystem);
+#ifdef LOGGING
+	std::cout << "[CameraStaff] Initialized" << std::endl;
+#endif // LOGGING
 }
 
 void CameraStaff::Start()
 {
     m_running = true;
-    m_worker->StartAcquisition();
+    m_camera->StartAcquisition();
 
     m_thread = std::thread(&CameraStaff::Run, this);
-	std::cout << "[CameraStaff] Camera thread acquisition started successfully." << std::endl;
+#ifdef LOGGING
+	std::cout << "[CameraStaff] thread started" << std::endl;
+#endif // LOGGING
 }
 
 void CameraStaff::Stop()
@@ -36,14 +46,18 @@ void CameraStaff::Stop()
     if (m_thread.joinable())
         m_thread.join();
 
-    m_worker->StopAcquisition();
-	std::cout << "[CameraStaff] Camera thread acquisition stopped successfully." << std::endl;
+    m_camera->StopAcquisition();
+#ifdef LOGGING
+	std::cout << "[CameraStaff] thread stopped" << std::endl;
+#endif // LOGGING
 }
 
 void CameraStaff::Trigger()
 {
     m_triggerRequested = true;
+#ifdef LOGGING
 	std::cout << "[CameraStaff] Trigger requested." << std::endl;
+#endif // LOGGING
 }
 
 void CameraStaff::Run()
@@ -54,9 +68,10 @@ void CameraStaff::Run()
         {
             try
             {
-                m_worker->pICommandTriggerSoftware->Execute();
-                std::this_thread::sleep_for(std::chrono::milliseconds(200)); // 이미지 저장 대기
+                m_camera->pICommandTriggerSoftware->Execute();
+#ifdef LOGGING
 				std::cout << "[CameraStaff] Trigger executed." << std::endl;
+#endif // LOGGING
             }
             catch (const std::exception& e)
             {
@@ -64,13 +79,14 @@ void CameraStaff::Run()
             }
             m_triggerRequested = false;
         }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(10)); // CPU 낭비 방지용 대기
+        // Sleep to prevent busy waiting, if i don't do this, the CPU usage will be high
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
 
 /*
 #include "CameraStaff.h"
+
 int main()
 {
     CStApiAutoInit objStApiAutoInit;

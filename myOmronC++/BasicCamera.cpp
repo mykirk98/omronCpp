@@ -1,7 +1,7 @@
 #include "BasicCamera.h"
 #include "config.h"
 
-#define LOGGING
+//#define LOGGING
 
 BasicCamera::BasicCamera(uint64_t imageCount)
 	: m_imageCount(imageCount)

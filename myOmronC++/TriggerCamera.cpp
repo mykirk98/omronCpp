@@ -1,6 +1,6 @@
 #include "TriggerCamera.h"
 
-#define LOGGING
+//#define LOGGING
 
 TriggerCamera::TriggerCamera()
 	: pICommandTriggerSoftware(nullptr)
@@ -87,7 +87,8 @@ void TriggerCamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 				
 				uint64_t frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
 #ifdef LOGGING
-				PrintFrameInfo(pImage, pStreamBuffer);
+				//PrintFrameInfo(pImage, pStreamBuffer);
+				std::cout << "[TriggerCamera] respond trigger" << std::endl;
 #endif // LOGGING
 			}
 			else
