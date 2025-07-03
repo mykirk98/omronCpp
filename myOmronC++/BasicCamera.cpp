@@ -26,6 +26,11 @@ bool BasicCamera::Initialize(const CIStSystemPtr& pSystem)
 		std::cout << "[BasicCamera] " << m_pDevice->GetIStDeviceInfo()->GetDisplayName() << ": connected." << std::endl;
 		std::cout << "[BasicCamera] serial number: " << m_pDevice->GetIStDeviceInfo()->GetSerialNumber() << std::endl;
 		std::cout << "[BasicCamera] # of available data stream" << m_pDevice->GetDataStreamCount() << std::endl;
+		
+		//std::string dstCfgDir = "C:\\Users\\USER\\Pictures\\Features.cfg";
+		//CameraConfigurator::Load(m_pDevice, dstCfgDir);
+		//CameraConfigurator::DisplayNodes(m_pDevice->GetRemoteIStPort()->GetINodeMap()->GetNode("Root"));
+
 		return true;
 	}
 	catch (const GenICam::GenericException& e)
@@ -43,13 +48,6 @@ void BasicCamera::StartAcquisition()
 		m_pDataStream->StartAcquisition(m_imageCount);
 		// Start the image acquisition of the camera side.
 		m_pDevice->AcquisitionStart();
-		
-		//std::string dstCfgDir = "C:\\Users\\USER\\Pictures\\Features.cfg";
-		//SaveConfigFile(dstCfgDir);
-		//LoadConfigFile(dstCfgDir);
-		//CameraConfigurator::Load(m_pDevice, dstCfgDir);
-		//CameraConfigurator::DisplayNodes(m_pDevice->GetRemoteIStPort()->GetINodeMap()->GetNode("Root"));
-		SequentialCapture();
 	}
 	catch (const GenICam::GenericException& e)
 	{
@@ -61,13 +59,10 @@ void BasicCamera::StopAcquisition()
 {
 	try
 	{
-		if (m_pDevice)
-		{
-			// Stop the image acquisition of the camera side.
-			m_pDevice->AcquisitionStop();
-			// Stop the image acquisition of the host(PC) side.
-			m_pDataStream->StopAcquisition();
-		}
+		// Stop the image acquisition of the camera side.
+		m_pDevice->AcquisitionStop();
+		// Stop the image acquisition of the host(PC) side.
+		m_pDataStream->StopAcquisition();
 	}
 	catch (const GenICam::GenericException& e)
 	{
@@ -148,12 +143,13 @@ void BasicCamera::SequentialCapture()
 			// If yes, we create a IStImage object for further image handling.
 			IStImage* pImage = pStreamBuffer->GetIStImage();
 			uint64_t frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
-			PrintFrameInfo(pImage, frameID);
+			//PrintFrameInfo(pImage, frameID);
 
 			FrameData frame;
 			frame.pImage = pImage;
 			frame.frameID = frameID;
-			frame.serialNumber = m_pDevice->GetIStDeviceInfo()->GetDisplayName().c_str();
+			//frame.serialNumber = m_pDevice->GetIStDeviceInfo()->GetDisplayName().c_str();
+			frame.serialNumber = m_pDevice->GetIStDeviceInfo()->GetSerialNumber().c_str();
 			frame.timestamp = std::chrono::steady_clock::now();
 
 			saverThreadPool.Enqueue(frame);
@@ -173,11 +169,10 @@ void BasicCamera::SequentialCapture()
 
 int main()
 {
-	std::cout << "Basic Camera Example" << std::endl;
+	std::cout << "==========Basic Camera Example==========" << std::endl;
 	CStApiAutoInit objStApiAutoInit; // Initialize StApi
 	CIStSystemPtr pSystem(CreateIStSystem()); // Create a system object for device scan and connection
 
-	std::string targetDir = "C:\\Users\\mykir\\Work\\Experiments\\";	//NOTE: LAB PC DIRECTORY
 	BasicCamera basicCamera(10);
 	if (basicCamera.Initialize(pSystem))
 	{

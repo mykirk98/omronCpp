@@ -6,11 +6,12 @@ int main()
 	CStApiAutoInit objStApiAutoInit; // Initialize StApi
 	CIStSystemPtr pSystem(CreateIStSystem()); // Create a system object for device scan and connection
 
-	//std::string targetDir = "C:\\Users\\mykir\\Work\\Experiments\\";	//NOTE: LAB PC DIRECTORY
 	BasicCamera basicCamera(10);
 	if (basicCamera.Initialize(pSystem))
 	{
 		basicCamera.StartAcquisition();
+
+		basicCamera.SequentialCapture();
 
 		// image processing and saving logic can be added here...
 	}

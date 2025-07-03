@@ -1,7 +1,7 @@
 #pragma once
 #include <StApi_TL.h>	// TL : Transport Layer
 
-//#include "CameraConfigurator.h"
+#include "CameraConfigurator.h"
 #include "ImageSaverThreadPool.h"
 
 using namespace StApi;
@@ -25,10 +25,13 @@ public:
 	bool Initialize(const CIStSystemPtr& pSystem);
 	/* @brief Start image acquisition method */
 	void StartAcquisition();
+	/* @brief Sequential image capture function */
+	void SequentialCapture();
+
+protected:
 	/* @brief Stop image acquisition method */
 	void StopAcquisition();
 
-protected:
 	void PrintFrameInfo(const IStImage* pImage, CIStStreamBufferPtr& pStreamBuffer);
 	/*
 	@brief Display frame information
@@ -61,8 +64,6 @@ protected:
 	CIStDataStreamPtr m_pDataStream;
 
 private:
-	/* @brief Sequential image capture function */
-	void SequentialCapture();
 
 
 	uint64_t m_imageCount;	// Number of images to capture
