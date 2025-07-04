@@ -1,124 +1,75 @@
+// CameraManager.cpp
 #include "CameraManager.h"
-
-CameraManager::CameraManager()
-{
-}
 
 CameraManager::~CameraManager()
 {
-	StopAcquisitionAll();
+    StopAll();
 }
 
-bool CameraManager::InitializeAll(size_t cameraCount)
+bool CameraManager::AddCamera(int index, const CIStSystemPtr& pSystem)
 {
-    try
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    if (m_cameras.count(index) > 0)
     {
-		// Create StApi system object
-        m_pSystem = CreateIStSystem();
-        for (size_t i = 0; i < cameraCount; ++i)
+        std::cerr << "[CameraManager] Camera with index " << index << " already exists." << std::endl;
+        return false;
+    }
+
+    std::shared_ptr<TriggerCamera> camera = std::make_shared<TriggerCamera>();
+
+    if (camera->Initialize(pSystem))
+    {
+        m_cameras[index] = camera;
+        std::cout << "[CameraManager] Camera " << index << " added." << std::endl;
+        return true;
+    }
+
+    std::cerr << "[CameraManager] Failed to initialize camera at index " << index << std::endl;
+    return false;
+}
+
+void CameraManager::StartAll()
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    for (auto& cam : m_cameras)
+    {
+        cam.second->StartAcquisition();
+    }
+    std::cout << "[CameraManager] All cameras started." << std::endl;
+}
+
+void CameraManager::StopAll()
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    for (auto& cam : m_cameras)
+    {
+        cam.second->StopAcquisition();
+    }
+    std::cout << "[CameraManager] All cameras stopped." << std::endl;
+}
+
+void CameraManager::TriggerSelectedCameras(const std::vector<int>& indices)
+{
+    std::vector<std::thread> threads;
+
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        for (int idx : indices)
         {
-			// Create TriggerCamera unique pointer object for each camera
-            std::unique_ptr<TriggerCamera> worker(new TriggerCamera());
-            if (worker->Initialize(m_pSystem))
+            if (m_cameras.count(idx))
             {
-				// If initialization is successful, add the worker to the vector
-                m_workers.push_back(std::move(worker));
+                threads.emplace_back([camera = m_cameras[idx]]() {
+                    camera->pICommandTriggerSoftware->Execute(); // 내부에 Software Trigger 실행
+                    });
             }
             else
             {
-                std::cerr << "[Manager] Camera " << i << " initialization failed." << std::endl;    //TODO: instead of i, show camera serial number
-				return false; // If any camera fails to initialize, return false
+                std::cerr << "[CameraManager] Camera index " << idx << " not found." << std::endl;
             }
         }
-        return true;
-    }
-    catch (const GenICam::GenericException& e)
-    {
-		std::cerr << "[Manager] initialization ALL error: " << e.GetDescription() << std::endl;
-		return false;
-    }
-}
-
-void CameraManager::StartAcquisitionAll()
-{
-	// Start acquisition for all cameras
-	for (std::vector<std::unique_ptr<TriggerCamera>>::iterator it = m_workers.begin(); it != m_workers.end(); ++it)
-	{
-        (*it)->StartAcquisition();
-	}
-}
-
-void CameraManager::StopAcquisitionAll()
-{
-	// Stop acquisition for all cameras
-    for (std::vector<std::unique_ptr<TriggerCamera>>::iterator it = m_workers.begin(); it != m_workers.end(); ++it)
-    {
-        (*it)->StopAcquisition();
-    }
-}
-
-void CameraManager::TriggerAll()
-{
-	// Send trigger signal to all cameras
-	for (std::vector<std::unique_ptr<TriggerCamera>>::iterator it = m_workers.begin(); it != m_workers.end(); ++it)
-	{
-		if ((*it)->pICommandTriggerSoftware)
-            (*it)->pICommandTriggerSoftware->Execute();
-	}
-}
-
-/*
-#include "CameraManager.h"
-#include <iostream>
-#include <string>
-
-int main()
-{
-	std::string saveDirectory = "C:\\Users\\mykir\\Work\\Experiments\\";    //NOTE: LAB PC DIRECTORY
-    size_t cameraCount = 2;
-
-    CameraManager cameraManager;
-
-    if (!cameraManager.InitializeAll(cameraCount))
-    {
-        std::cerr << "Failed to initialize manager" << std::endl;
-        return -1;
     }
 
-    cameraManager.StartAcquisitionAll();
-
-    while (true)
-    {
-        std::cout << "\n0: Send trigger" << std::endl;
-        std::cout << "1: Save image" << std::endl;
-        std::cout << "2: Terminate" << std::endl;
-        std::cout << "Input: ";
-
-        int choice;
-        std::cin >> choice;
-
-        if (choice == 0)
-        {
-            cameraManager.TriggerAll();
-            std::cout << "Sending trigger completed." << std::endl;
-        }
-        else if (choice == 1)
-        {
-            cameraManager.SaveImageAll(saveDirectory);
-            std::cout << "Saving image completed: " << saveDirectory << std::endl;
-        }
-        else if (choice == 2)
-        {
-            break;
-        }
-        else
-        {
-            std::cout << "Wrong input." << std::endl;
-        }
-    }
-
-    cameraManager.StopAcquisitionAll();
-
-    return 0;
+    for (auto& t : threads)
+        t.join(); // 비동기 호출이지만 동시에 실행되게 하고, 종료까지 기다림
 }
-*/

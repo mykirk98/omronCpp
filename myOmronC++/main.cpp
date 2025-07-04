@@ -1,37 +1,35 @@
-#include "TriggerCamera.h"
+#include "CameraStaff.h"
 
 int main()
 {
-	std::cout << "==========Trigger Camera Example==========" << std::endl;
-	CStApiAutoInit objStApiAutoInit;
-	CIStSystemPtr pSystem(CreateIStSystem());
+    std::cout << "==========Camera Staff Example==========" << std::endl;
+    CStApiAutoInit objStApiAutoInit;
+    CIStSystemPtr system = CreateIStSystem();
+    std::string saveDir = "C:\\Users\\mykir\\Work\\Experiments\\";	//NOTE: LAB PC DIRECTORY
 
-	TriggerCamera cameraWorker;
-	if (cameraWorker.Initialize(pSystem))
-	{
-		cameraWorker.StartAcquisition();
+    CameraStaff staff;
+    if (staff.Initialize(system, saveDir))
+    {
+        staff.Start();
 
-		std::cout << "0: Generate trigger" << std::endl;
-		std::cout << "Else: Exit" << std::endl;
-		std::cout << "Select: ";
+        /*while (true)
+        {
+            std::cout << "0: Trigger image, Else: Quit\n> ";
+            int cmd;
+            std::cin >> cmd;
 
-		while (true)
-		{
-			size_t nindex;
-			std::cin >> nindex;
-			if (nindex == 0)
-			{
-				cameraWorker.pICommandTriggerSoftware->Execute();
-			}
-			else
-			{
-				break;
-			}
+            if (cmd == 0)
+                staff.Trigger();
+            else
+                break;
+        }*/
+
+        for (int i = 0; i < 10; ++i)
+        {
+            std::cout << "Triggering image " << i + 1 << std::endl;
+            staff.Trigger();
+            std::this_thread::sleep_for(std::chrono::milliseconds(20)); // Simulate some delay between triggers
 		}
-	}
-	else
-	{
-		std::cerr << "Camera initialization failed." << std::endl;
-	}
-	return 0;
+        staff.Stop();
+    }
 }
