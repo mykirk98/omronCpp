@@ -3,9 +3,8 @@
 
 //#define LOGGING
 
-BasicCamera::BasicCamera(uint64_t imageCount)
-	: m_imageCount(imageCount)
-	, m_saveRootDir("C:\\Users\\mykir\\Work\\Experiments\\") //NOTE: LAB WINDOWS PC DIRECTORY
+BasicCamera::BasicCamera()
+	: m_saveRootDir("C:\\Users\\mykir\\Work\\Experiments\\") //NOTE: LAB WINDOWS PC DIRECTORY
 	//, m_saveRootDir("C:\\Users\\USER\\Pictures\\")	//NOTE: HOME PC DIRECTORY
 	//, m_saveRootDir("/home/msis/Pictures/SentechExperiments/Experiments1/";)	//NOTE: LAB LINUX PC DIRECTORY
 {
@@ -50,12 +49,12 @@ bool BasicCamera::Initialize(const CIStSystemPtr& pSystem)
 	}
 }
 
-void BasicCamera::StartAcquisition()
+void BasicCamera::StartAcquisition(uint64_t imageCount)
 {
 	try
 	{
 		// Start the image acquisition of the host(PC) side.
-		m_pDataStream->StartAcquisition(m_imageCount);
+		m_pDataStream->StartAcquisition(imageCount);
 		// Start the image acquisition of the camera side.
 		m_pDevice->AcquisitionStart();
 
@@ -162,7 +161,7 @@ int main()
 	BasicCamera basicCamera(10);
 	if (basicCamera.Initialize(pSystem))
 	{
-		basicCamera.StartAcquisition();
+		basicCamera.StartAcquisition(100);
 
 		basicCamera.SequentialCapture();
 

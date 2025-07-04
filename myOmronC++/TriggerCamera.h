@@ -15,10 +15,14 @@ public:
 	@param pSystem : CIStSystemPtr object representing the camera system
 	*/
 	bool Initialize(const CIStSystemPtr& pSystem);
+	/* @brief Start image acquisition method */
+	void StartAcquisition();
+	/* @brief Stop image acquisition method */
+	void StopAcquisition();
 
 	/* @brief Command interface pointer for software trigger */
 	GenApi::CCommandPtr pICommandTriggerSoftware;
-	
+
 private:
 	/*
 	@brief Callback method for handling StApi events, static method to be used with RegisterCallback

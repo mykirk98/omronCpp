@@ -10,18 +10,15 @@ using namespace StApi;
 class BasicCamera
 {
 public:
-	/*
-	@brief BasicCamera constructor
-	@param imageCount : Number of images to capture
-	*/
-	explicit BasicCamera(uint64_t imageCount = 100);
+	/* @brief BasicCamera constructor */
+	explicit BasicCamera();
 	/* @brief BasicCamera destructor */
 	~BasicCamera();
 	
 	/* @brief Initialize camera settings */
 	bool Initialize(const CIStSystemPtr& pSystem);
 	/* @brief Start image acquisition method */
-	void StartAcquisition();
+	void StartAcquisition(uint64_t imageCount);
 	/* @brief Stop image acquisition method */
 	void StopAcquisition();
 	/* @brief Sequential image capture function */
@@ -49,6 +46,5 @@ protected:
 	CIStDataStreamPtr m_pDataStream;
 
 private:
-	uint64_t m_imageCount;	// Number of images to capture
 	std::string m_saveRootDir;
 };
