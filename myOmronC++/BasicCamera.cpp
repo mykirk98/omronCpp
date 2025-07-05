@@ -94,8 +94,7 @@ void BasicCamera::PrintFrameInfo(const CIStStreamBufferPtr& pStreamBuffer)
 		std::cout << "Block ID: " << pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()
 			<< "\tSize: " << pStreamBuffer->GetIStImage()->GetImageWidth() << " x " << pStreamBuffer->GetIStImage()->GetImageHeight()
 			<< "\tFirst byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pStreamBuffer->GetIStImage()->GetImageBuffer()))
-			<< std::endl
-			<< "time stamp: " << pStreamBuffer->GetIStStreamBufferInfo()->GetTimestamp()
+			<< "\ttime stamp: " << pStreamBuffer->GetIStStreamBufferInfo()->GetTimestamp()
 			<< std::endl;
 	}
 	catch (const GenICam::GenericException& e)
@@ -133,7 +132,6 @@ void BasicCamera::SequentialCapture()
 		{
 			// If yes, we create a IStImage object for further image handling.
 			IStImage* pImage = pStreamBuffer->GetIStImage();
-			uint64_t frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
 			PrintFrameInfo(pStreamBuffer);
 		}
 		else
