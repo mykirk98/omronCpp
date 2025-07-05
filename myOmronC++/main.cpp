@@ -1,35 +1,38 @@
-#include "CameraStaff.h"
+#include "TriggerCamera.h"
+#include <iostream>
+#include <chrono>
 
 int main()
 {
-    std::cout << "==========Camera Staff Example==========" << std::endl;
-    CStApiAutoInit objStApiAutoInit;
-    CIStSystemPtr system = CreateIStSystem();
-    std::string saveDir = "C:\\Users\\mykir\\Work\\Experiments\\";	//NOTE: LAB PC DIRECTORY
+	std::cout << "========== Trigger Camera with Wait Example ==========" << std::endl;
 
-    CameraStaff staff;
-    if (staff.Initialize(system, saveDir))
-    {
-        staff.Start();
+	CStApiAutoInit stApiAutoInit;
+	CIStSystemPtr pSystem(CreateIStSystem());
 
-        /*while (true)
-        {
-            std::cout << "0: Trigger image, Else: Quit\n> ";
-            int cmd;
-            std::cin >> cmd;
+	TriggerCamera camera;
+	if (camera.Initialize(pSystem))
+	{
+		camera.StartAcquisition();
 
-            if (cmd == 0)
-                staff.Trigger();
-            else
-                break;
-        }*/
+		// calculate average FPS
+		std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
 
-        for (int i = 0; i < 10; ++i)
-        {
-            std::cout << "Triggering image " << i + 1 << std::endl;
-            staff.Trigger();
-            std::this_thread::sleep_for(std::chrono::milliseconds(20)); // Simulate some delay between triggers
+		for (int i = 0; i < 1000; ++i)
+		{
+			std::cout << "[Main] Triggering " << i << std::endl;
+			if (camera.IssueTriggerAndWait(100))
+				std::cout << "[Main] Frame " << i << " captured." << std::endl;
+			else
+				std::cerr << "[Main] Frame " << i << " timed out." << std::endl;
 		}
-        staff.Stop();
-    }
+
+		std::chrono::steady_clock::time_point endTime = std::chrono::steady_clock::now();
+		double elapsedTime = std::chrono::duration<double, std::milli>(endTime - startTime).count();
+		double averageFPS = 1000.0 / (elapsedTime / 1000.0); // 1000 frames
+		std::cout << "[Main] Average FPS: " << averageFPS << std::endl;
+
+		camera.StopAcquisition();
+	}
+	
+	return 0;
 }

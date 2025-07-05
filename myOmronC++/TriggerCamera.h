@@ -1,5 +1,8 @@
 #pragma once
 #include "BasicCamera.h"
+#include <mutex>
+#include <condition_variable>
+#include <atomic>
 
 /* @brief This class extends BasicCamera to implement software trigger functionality. */
 class TriggerCamera : public BasicCamera
@@ -22,6 +25,16 @@ public:
 
 	/* @brief Command interface pointer for software trigger */
 	GenApi::CCommandPtr pICommandTriggerSoftware;
+
+	std::mutex m_mutex; // Mutex for thread safety
+	std::condition_variable m_cv;
+	std::atomic<bool> m_imageCaptured = false;
+
+	/*
+	@brief Issues a software trigger and waits for the image to be captured
+	@param timeoutMs : Timeout in milliseconds to wait for the image capture
+	*/
+	bool IssueTriggerAndWait(int timeoutMs = 1000);
 
 private:
 	/*

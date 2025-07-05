@@ -1,6 +1,7 @@
 #include "TriggerCamera.h"
 
 //#define LOGGING
+//#define SYNC_LOGGING
 
 TriggerCamera::TriggerCamera()
 	: pICommandTriggerSoftware(nullptr)
@@ -23,7 +24,9 @@ bool TriggerCamera::Initialize(const CIStSystemPtr& pSystem)
 	{
 		// Create a camera device object and connect to the first detected device.
 		m_pDevice = pSystem->CreateFirstIStDevice();
+#ifdef LOGGING
 		std::cout << "[TriggerCamera] " << m_pDevice->GetIStDeviceInfo()->GetDisplayName() << " : connected" << std::endl;
+#endif // LOGGING
 		// Get the INodeMap interface pointer for the camera settings.
 		GenApi::CNodeMapPtr pINodeMap(m_pDevice->GetRemoteIStPort()->GetINodeMap());
 		// Set the TriggerSelector to FrameStart.
@@ -33,8 +36,9 @@ bool TriggerCamera::Initialize(const CIStSystemPtr& pSystem)
 		
 		// Create a DataStream object for handling image stream data.
 		m_pDataStream = m_pDevice->CreateIStDataStream(0);
+#ifdef LOGGING
 		std::cout << "[TriggerCamera] # of available data stream : " << m_pDevice->GetDataStreamCount() << std::endl;
-
+#endif // LOGGING
 		// Register a callback function. When a Data stream event is triggered, the registered function will be called.
 		RegisterCallback(m_pDataStream, &TriggerCamera::OnStCallbackMethod, this);
 		//NOTE: this : means the current instance of TriggerCamera, allowing the callback to access instance variables and methods.
@@ -90,6 +94,32 @@ void TriggerCamera::StopAcquisition()
 	}
 }
 
+bool TriggerCamera::IssueTriggerAndWait(int timeoutMs)
+{
+	{	//NOTE: Critical section to ensure thread safety
+		// Lock the mutex to ensure thread safety when accessing shared resources
+		std::cout << "[TriggerCamera] Locking mutex and issuing trigger" << std::endl;
+		std::lock_guard<std::mutex> lock(m_mutex);
+		// Reset the image captured flag to false before issuing a new trigger
+		m_imageCaptured = false;
+	}	//NOTE: end of critical section, mutex is automatically released
+	// Issue a software trigger command to the camera
+	pICommandTriggerSoftware->Execute();
+	std::cout << "[TriggerCamera] Trigger issued" << std::endl;
+
+	// Wait for the image to be captured or timeout
+	std::unique_lock<std::mutex> lock(m_mutex);
+	std::cout << "[TriggerCamera] Waiting for image capture with timeout: " << timeoutMs << " ms" << std::endl;
+	bool success = m_cv.wait_for(lock, std::chrono::milliseconds(timeoutMs), [this]() {
+		return m_imageCaptured.load();	// Check if the image has been captured
+		});
+	std::cout << "[TriggerCamera] Wait completed" << std::endl;
+	//NOTE: if m_imageCaptured is true, it means the image has been captured successfully
+	//NOTE: and the condition variable will notify the waiting thread to wake up.
+
+	return success; // true = 이미지 도착, false = 타임아웃
+}
+
 void TriggerCamera::OnStCallbackMethod(IStCallbackParamBase* pIStCallbackParamBase, void* pvContext)
 {
 	if (pvContext)
@@ -122,9 +152,18 @@ void TriggerCamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 			{
 				// If yes, we create a IStImage object for further image handling.
 				IStImage* pImage = pStreamBuffer->GetIStImage();
-				
-				uint64_t frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
 				PrintFrameInfo(pStreamBuffer);
+
+				// 조건변수로 통지
+				{
+					std::cout << "[TriggerCamera] Image captured, notifying waiting thread" << std::endl;
+					std::lock_guard<std::mutex> lock(m_mutex);
+					m_imageCaptured = true;
+					std::cout << "[TriggerCamera] Image captured flag set to true" << std::endl;
+				}
+				std::cout << "[TriggerCamera] Notifying condition variable" << std::endl;
+				m_cv.notify_one(); // 대기 중 스레드에게 통지
+
 #ifdef LOGGING
 				std::cout << "[TriggerCamera] respond trigger" << std::endl;
 #endif // LOGGING
