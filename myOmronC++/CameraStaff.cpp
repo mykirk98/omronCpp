@@ -23,10 +23,10 @@ CameraStaff::~CameraStaff()
 bool CameraStaff::Initialize(const CIStSystemPtr& pSystem, const std::string& saveDir)
 {
     m_saveDir = saveDir;
-    return m_camera->Initialize(pSystem);
 #ifdef LOGGING
 	std::cout << "[CameraStaff] Initialized" << std::endl;
 #endif // LOGGING
+    return m_camera->Initialize(pSystem);
 }
 
 void CameraStaff::Start()
