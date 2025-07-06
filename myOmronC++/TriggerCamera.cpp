@@ -255,11 +255,11 @@ int main()
 	if (camera.Initialize(pSystem))
 	{
 		camera.StartAcquisition();
-
+		int imageCount = 500;
 		// calculate average FPS
 		std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
 
-		for (int i = 0; i < 1000; ++i)
+		for (int i = 0; i < imageCount; ++i)
 		{
 			std::cout << "[Main] Triggering " << i << std::endl;
 			if (camera.TriggerAndWait(100))
@@ -270,8 +270,8 @@ int main()
 
 		std::chrono::steady_clock::time_point endTime = std::chrono::steady_clock::now();
 		double elapsedTime = std::chrono::duration<double, std::milli>(endTime - startTime).count();
-		double averageFPS = 1000.0 / (elapsedTime / 1000.0); // 1000 frames
-		std::cout << "[Main] Average FPS: " << averageFPS << std::endl;
+		double averageFPS = float(imageCount) / (elapsedTime / 1000.0); // 1000 frames
+		std::cout << "[Main] Average FPS: " << averageFPS << std::endl;	// 65.6537
 
 		camera.StopAcquisition();
 	}

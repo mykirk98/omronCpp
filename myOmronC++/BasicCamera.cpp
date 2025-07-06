@@ -156,12 +156,17 @@ int main()
 	CStApiAutoInit objStApiAutoInit; // Initialize StApi
 	CIStSystemPtr pSystem(CreateIStSystem()); // Create a system object for device scan and connection
 
-	BasicCamera basicCamera(10);
+	BasicCamera basicCamera;
 	if (basicCamera.Initialize(pSystem))
 	{
-		basicCamera.StartAcquisition(100);
+		basicCamera.StartAcquisition(500);
 
+		std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
 		basicCamera.SequentialCapture();
+		std::chrono::steady_clock::time_point endTime = std::chrono::steady_clock::now();
+		std::chrono::duration<double> elapsedSeconds = endTime - startTime;
+		double averageFPS = 500 / elapsedSeconds.count(); // Calculate average FPS
+		std::cout << "[Main] Average FPs: " << averageFPS << std::endl; // Display average FPS
 
 		basicCamera.StopAcquisition();
 	}
