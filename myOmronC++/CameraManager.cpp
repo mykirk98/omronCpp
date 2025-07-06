@@ -59,9 +59,9 @@ void CameraManager::TriggerSelectedCameras(const std::vector<int>& indices)
         {
             if (m_cameras.count(idx))
             {
-                threads.emplace_back([camera = m_cameras[idx]]() {
-                    camera->pICommandTriggerSoftware->Execute(); // 내부에 Software Trigger 실행
-                    });
+                //threads.emplace_back([camera = m_cameras[idx]]() {
+                //    camera->pICommandTriggerSoftware->Execute(); // 내부에 Software Trigger 실행
+                //    });
             }
             else
             {

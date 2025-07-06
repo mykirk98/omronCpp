@@ -68,7 +68,7 @@ void CameraStaff::Run()
         {
             try
             {
-                m_camera->pICommandTriggerSoftware->Execute();
+                //m_camera->pICommandTriggerSoftware->Execute();
 #ifdef LOGGING
 				std::cout << "[CameraStaff] Trigger executed." << std::endl;
 #endif // LOGGING

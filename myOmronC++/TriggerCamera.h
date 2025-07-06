@@ -22,19 +22,11 @@ public:
 	void StartAcquisition();
 	/* @brief Stop image acquisition method */
 	void StopAcquisition();
-
-	/* @brief Command interface pointer for software trigger */
-	GenApi::CCommandPtr pICommandTriggerSoftware;
-
-	std::mutex m_mutex; // Mutex for thread safety
-	std::condition_variable m_cv;
-	std::atomic<bool> m_imageCaptured = false;
-
 	/*
-	@brief Issues a software trigger and waits for the image to be captured
+	@brief Execute software trigger and wait for image capture
 	@param timeoutMs : Timeout in milliseconds to wait for the image capture
 	*/
-	bool IssueTriggerAndWait(int timeoutMs = 1000);
+	bool TriggerAndWait(int timeoutMs = 1000);
 
 private:
 	/*
@@ -63,4 +55,13 @@ private:
 	@param triggerSource : Trigger source to set
 	*/
 	void SetTriggerMode(GenApi::CNodeMapPtr& pINodeMap, const char* triggerSelector, const char* triggerMode, const char* triggerSource);
+
+	/* @brief Pointer to the GenICam command node for executing a software trigger */
+	GenApi::CCommandPtr pICommandTriggerSoftware;
+	/* @brief Mutex to ensure thread safety when accessing shared resources (e.g., image capture flag) */
+	std::mutex m_mutex;
+	/* @brief Condition variable used to wait for and notify image capture events between threads */
+	std::condition_variable m_cv;
+	/* @brief Atomic flag indicating whether an image has been captured (used for thread-safe status checks) */
+	std::atomic<bool> m_imageCaptured;
 };

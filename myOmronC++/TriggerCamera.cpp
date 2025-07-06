@@ -1,10 +1,11 @@
 #include "TriggerCamera.h"
 
 //#define LOGGING
-//#define SYNC_LOGGING
+#define SYNC_LOGGING
 
 TriggerCamera::TriggerCamera()
 	: pICommandTriggerSoftware(nullptr)
+	, m_imageCaptured(false)
 {
 #ifdef LOGGING
 	std::cout << "[TriggerCamera] constructed" << std::endl;
@@ -94,30 +95,41 @@ void TriggerCamera::StopAcquisition()
 	}
 }
 
-bool TriggerCamera::IssueTriggerAndWait(int timeoutMs)
+bool TriggerCamera::TriggerAndWait(int timeoutMs)
 {
-	{	//NOTE: Critical section to ensure thread safety
+	{	//NOTE: <--Critical section to ensure thread safety
 		// Lock the mutex to ensure thread safety when accessing shared resources
-		std::cout << "[TriggerCamera] Locking mutex and issuing trigger" << std::endl;
+#ifdef SYNC_LOGGING
+		std::cout << "[TriggerCamera] Locking mutex and execute the trigger" << std::endl;
+#endif // SYNC_LOGGING
 		std::lock_guard<std::mutex> lock(m_mutex);
 		// Reset the image captured flag to false before issuing a new trigger
 		m_imageCaptured = false;
-	}	//NOTE: end of critical section, mutex is automatically released
+	}	//NOTE: <--end of critical section, mutex is automatically released
+
 	// Issue a software trigger command to the camera
 	pICommandTriggerSoftware->Execute();
-	std::cout << "[TriggerCamera] Trigger issued" << std::endl;
+#ifdef SYNC_LOGGING
+	std::cout << "[TriggerCamera] Trigger executed" << std::endl;
+#endif // SYNC_LOGGING
 
 	// Wait for the image to be captured or timeout
 	std::unique_lock<std::mutex> lock(m_mutex);
+#ifdef SYNC_LOGGING
 	std::cout << "[TriggerCamera] Waiting for image capture with timeout: " << timeoutMs << " ms" << std::endl;
+#endif // SYNC_LOGGING
+	// Use condition variable to wait for the image to be captured or timeout
 	bool success = m_cv.wait_for(lock, std::chrono::milliseconds(timeoutMs), [this]() {
 		return m_imageCaptured.load();	// Check if the image has been captured
 		});
+#ifdef SYNC_LOGGING
 	std::cout << "[TriggerCamera] Wait completed" << std::endl;
+#endif // SYNC_LOGGING
 	//NOTE: if m_imageCaptured is true, it means the image has been captured successfully
 	//NOTE: and the condition variable will notify the waiting thread to wake up.
 
-	return success; // true = 이미지 도착, false = 타임아웃
+	// true = image captured, false = timeout occurred
+	return success;
 }
 
 void TriggerCamera::OnStCallbackMethod(IStCallbackParamBase* pIStCallbackParamBase, void* pvContext)
@@ -154,15 +166,19 @@ void TriggerCamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 				IStImage* pImage = pStreamBuffer->GetIStImage();
 				PrintFrameInfo(pStreamBuffer);
 
-				// 조건변수로 통지
-				{
-					std::cout << "[TriggerCamera] Image captured, notifying waiting thread" << std::endl;
+				
+				{	//NOTE: <--Critical section to ensure thread safety
+#ifdef SYNC_LOGGING
+					std::cout << "[TriggerCamera] Image captured" << std::endl;
+#endif // SYNC_LOGGING
 					std::lock_guard<std::mutex> lock(m_mutex);
 					m_imageCaptured = true;
-					std::cout << "[TriggerCamera] Image captured flag set to true" << std::endl;
-				}
-				std::cout << "[TriggerCamera] Notifying condition variable" << std::endl;
-				m_cv.notify_one(); // 대기 중 스레드에게 통지
+#ifdef SYNC_LOGGING
+					std::cout << "[TriggerCamera] Image captured flag set to true," 
+						<< "notifying condition variable" << std::endl;
+#endif // SYNC_LOGGING
+				}	//NOTE: <--end of critical section, mutex is automatically released
+				m_cv.notify_one();
 
 #ifdef LOGGING
 				std::cout << "[TriggerCamera] respond trigger" << std::endl;
@@ -226,41 +242,40 @@ void TriggerCamera::SetTriggerMode(GenApi::CNodeMapPtr& pINodeMap, const char* t
 // Example usage of TriggerCamera class
 /*
 #include "TriggerCamera.h"
+#include <chrono>
 
 int main()
 {
-	std::cout << "==========Trigger Camera Example==========" << std::endl;
-	CStApiAutoInit objStApiAutoInit;
+	std::cout << "========== Trigger Camera with Wait Example ==========" << std::endl;
+
+	CStApiAutoInit stApiAutoInit;
 	CIStSystemPtr pSystem(CreateIStSystem());
 
-	TriggerCamera cameraWorker;
-	if (cameraWorker.Initialize(pSystem))
+	TriggerCamera camera;
+	if (camera.Initialize(pSystem))
 	{
-		cameraWorker.StartAcquisition();
+		camera.StartAcquisition();
 
-		std::cout << "0: Generate trigger" << std::endl;
-		std::cout << "Else: Exit" << std::endl;
-		std::cout << "Select: ";
+		// calculate average FPS
+		std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
 
-		while (true)
+		for (int i = 0; i < 1000; ++i)
 		{
-			size_t nindex;
-			std::cin >> nindex;
-			if (nindex == 0)
-			{
-				cameraWorker.pICommandTriggerSoftware->Execute();
-			}
+			std::cout << "[Main] Triggering " << i << std::endl;
+			if (camera.TriggerAndWait(100))
+				std::cout << "[Main] Frame " << i << " captured." << std::endl;
 			else
-			{
-				break;
-			}
+				std::cerr << "[Main] Frame " << i << " timed out." << std::endl;
 		}
-		cameraWorker.StopAcquisition();
+
+		std::chrono::steady_clock::time_point endTime = std::chrono::steady_clock::now();
+		double elapsedTime = std::chrono::duration<double, std::milli>(endTime - startTime).count();
+		double averageFPS = 1000.0 / (elapsedTime / 1000.0); // 1000 frames
+		std::cout << "[Main] Average FPS: " << averageFPS << std::endl;
+
+		camera.StopAcquisition();
 	}
-	else
-	{
-		std::cerr << "Camera initialization failed." << std::endl;
-	}
+
 	return 0;
 }
 */

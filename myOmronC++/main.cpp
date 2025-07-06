@@ -1,5 +1,4 @@
 #include "TriggerCamera.h"
-#include <iostream>
 #include <chrono>
 
 int main()
@@ -20,7 +19,7 @@ int main()
 		for (int i = 0; i < 1000; ++i)
 		{
 			std::cout << "[Main] Triggering " << i << std::endl;
-			if (camera.IssueTriggerAndWait(100))
+			if (camera.TriggerAndWait(100))
 				std::cout << "[Main] Frame " << i << " captured." << std::endl;
 			else
 				std::cerr << "[Main] Frame " << i << " timed out." << std::endl;
