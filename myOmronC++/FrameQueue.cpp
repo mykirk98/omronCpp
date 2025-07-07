@@ -7,6 +7,7 @@ void FrameQueue::Push(IStImage* frame)
 		std::lock_guard<std::mutex> lock(m_mutex);
 		// Push the frame into the queue
 		m_queue.push(frame);
+		std::cout << "[FrameQueue] Frame pushed, queue size: " << m_queue.size() << std::endl;
 	}
 	// Notify one waiting thread that a new frame is available
 	m_cv.notify_one();
@@ -92,7 +93,7 @@ int main()
 
 		camera.StopAcquisition();
 	}
-	
+
 	return 0;
 }
 */

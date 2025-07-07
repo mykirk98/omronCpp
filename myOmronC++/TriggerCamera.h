@@ -10,7 +10,7 @@ class TriggerCamera : public BasicCamera
 {
 public:
 	/* @brief TriggerCamera constructor */
-	TriggerCamera();
+	explicit TriggerCamera();
 	/* @brief TriggerCamera destructor */
 	~TriggerCamera();
 

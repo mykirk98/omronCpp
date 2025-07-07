@@ -183,7 +183,7 @@ void TriggerCamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 				if (m_pFrameQueue)
 				{
 					m_pFrameQueue->Push(pImage);
-					std::cout << "[TriggerCamera] Image pushed. Queue size: " << m_pFrameQueue->Size() << std::endl;
+					//std::cout << "[TriggerCamera] Image pushed. Queue size: " << m_pFrameQueue->Size() << std::endl;
 				}
 				std::chrono::steady_clock::time_point captureTime = std::chrono::steady_clock::now();
 				// print capture time
