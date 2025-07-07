@@ -135,6 +135,7 @@
     <ClCompile Include="EventCamera.cpp" />
     <ClCompile Include="CameraStaff.cpp" />
     <ClCompile Include="BasicCamera.cpp" />
+    <ClCompile Include="FrameQueue.cpp" />
     <ClCompile Include="ImageSaveQueue.cpp" />
     <ClCompile Include="ImageSaverThreadPool.cpp" />
     <ClCompile Include="TriggerCamera.cpp" />
@@ -149,6 +150,7 @@
     <ClInclude Include="EventCamera.h" />
     <ClInclude Include="CameraStaff.h" />
     <ClInclude Include="BasicCamera.h" />
+    <ClInclude Include="FrameQueue.h" />
     <ClInclude Include="ImageSaveQueue.h" />
     <ClInclude Include="ImageSaverThreadPool.h" />
     <ClInclude Include="TriggerCamera.h" />
