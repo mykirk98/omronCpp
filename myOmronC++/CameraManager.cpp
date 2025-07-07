@@ -1,75 +1,74 @@
-// CameraManager.cpp
 #include "CameraManager.h"
+#include <iostream>
 
-CameraManager::~CameraManager()
+void CameraManager::AddCamera(std::unique_ptr<TriggerCamera> camera)
 {
-    StopAll();
+    m_cameras.push_back(std::move(camera));
 }
 
-bool CameraManager::AddCamera(int index, const CIStSystemPtr& pSystem)
+void CameraManager::StartShooting(int imageCount)
 {
-    std::lock_guard<std::mutex> lock(m_mutex);
-
-    if (m_cameras.count(index) > 0)
+    for (auto& camera : m_cameras)
     {
-        std::cerr << "[CameraManager] Camera with index " << index << " already exists." << std::endl;
-        return false;
-    }
-
-    std::shared_ptr<TriggerCamera> camera = std::make_shared<TriggerCamera>();
-
-    if (camera->Initialize(pSystem))
-    {
-        m_cameras[index] = camera;
-        std::cout << "[CameraManager] Camera " << index << " added." << std::endl;
-        return true;
-    }
-
-    std::cerr << "[CameraManager] Failed to initialize camera at index " << index << std::endl;
-    return false;
-}
-
-void CameraManager::StartAll()
-{
-    std::lock_guard<std::mutex> lock(m_mutex);
-    for (auto& cam : m_cameras)
-    {
-        cam.second->StartAcquisition();
-    }
-    std::cout << "[CameraManager] All cameras started." << std::endl;
-}
-
-void CameraManager::StopAll()
-{
-    std::lock_guard<std::mutex> lock(m_mutex);
-    for (auto& cam : m_cameras)
-    {
-        cam.second->StopAcquisition();
-    }
-    std::cout << "[CameraManager] All cameras stopped." << std::endl;
-}
-
-void CameraManager::TriggerSelectedCameras(const std::vector<int>& indices)
-{
-    std::vector<std::thread> threads;
-
-    {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        for (int idx : indices)
-        {
-            if (m_cameras.count(idx))
+        m_threads.emplace_back([camera = camera.get(), imageCount]() {
+            camera->StartAcquisition();
+            for (int i = 0; i < imageCount; ++i)
             {
-                //threads.emplace_back([camera = m_cameras[idx]]() {
-                //    camera->pICommandTriggerSoftware->Execute(); // 내부에 Software Trigger 실행
-                //    });
+                bool success = camera->TriggerAndWait(100);
+                if (success)
+                    std::cout << "[Camera] Frame " << i << " captured." << std::endl;
+                else
+                    std::cerr << "[Camera] Frame " << i << " timeout!" << std::endl;
             }
-            else
-            {
-                std::cerr << "[CameraManager] Camera index " << idx << " not found." << std::endl;
-            }
+            camera->StopAcquisition();
+            });
+    }
+}
+
+void CameraManager::JoinAll()
+{
+    for (auto& t : m_threads)
+    {
+        if (t.joinable())
+            t.join();
+    }
+}
+
+// Example usage of CameraManager class
+/*
+#include "CameraManager.h"
+#include "FrameQueue.h"
+#include <StApi_TL.h>
+
+int main()
+{
+    CStApiAutoInit stApiInit;
+    CIStSystemPtr pSystem(CreateIStSystem());
+
+    auto sharedQueue = std::make_shared<FrameQueue>();
+
+    CameraManager manager;
+    int numCameras = 2;
+    int numImages = 4;
+    // 예시: 2대의 카메라 생성
+    for (int i = 0; i < numCameras; ++i)
+    {
+        auto camera = std::make_unique<TriggerCamera>();
+        if (camera->Initialize(pSystem)) {
+            camera->SetFrameQueue(sharedQueue);
+            manager.AddCamera(std::move(camera));
         }
     }
 
-    for (auto& t : threads)
-        t.join(); // 비동기 호출이지만 동시에 실행되게 하고, 종료까지 기다림
+    manager.StartShooting(numImages); // 카메라마다 100장 촬영
+    manager.JoinAll();
+
+    for (int i = 0; i < numCameras * numImages; ++i)
+    {
+        IStImage* image = sharedQueue->Pop();
+        std::cout << "[Main] Popped frame, queue size: " << sharedQueue->Size() << std::endl;
+    }
+
+    return 0;
 }
+*/

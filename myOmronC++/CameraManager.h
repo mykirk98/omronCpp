@@ -1,24 +1,17 @@
-// CameraManager.h
 #pragma once
+
+#include "TriggerCamera.h"
 #include <vector>
 #include <memory>
-#include <unordered_map>
 #include <thread>
-#include <mutex>
-#include "TriggerCamera.h"
 
-class CameraManager
-{
+class CameraManager {
 public:
-    CameraManager() = default;
-    ~CameraManager();
-
-    bool AddCamera(int index, const CIStSystemPtr& pSystem);
-    void TriggerSelectedCameras(const std::vector<int>& indices);
-    void StartAll();
-    void StopAll();
+    void AddCamera(std::unique_ptr<TriggerCamera> camera);
+    void StartShooting(int imageCount); // capture loop per camera
+    void JoinAll(); // join threads
 
 private:
-    std::unordered_map<int, std::shared_ptr<TriggerCamera>> m_cameras;
-    std::mutex m_mutex;
+    std::vector<std::unique_ptr<TriggerCamera>> m_cameras;
+    std::vector<std::thread> m_threads;
 };

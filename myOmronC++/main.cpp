@@ -1,37 +1,35 @@
-#include "TriggerCamera.h"
-#include <chrono>
+#include "CameraManager.h"
+#include "FrameQueue.h"
+#include <StApi_TL.h>
 
 int main()
 {
-	std::cout << "========== Trigger Camera with Wait Example ==========" << std::endl;
+    CStApiAutoInit stApiInit;
+    CIStSystemPtr pSystem(CreateIStSystem());
 
-	CStApiAutoInit stApiAutoInit;
-	CIStSystemPtr pSystem(CreateIStSystem());
+    auto sharedQueue = std::make_shared<FrameQueue>();
 
-	TriggerCamera camera;
-	if (camera.Initialize(pSystem))
-	{
-		camera.StartAcquisition();
+    CameraManager manager;
+    int numCameras = 2;
+    int numImages = 4;
+    // 예시: 2대의 카메라 생성
+    for (int i = 0; i < numCameras; ++i)
+    {
+        auto camera = std::make_unique<TriggerCamera>();
+        if (camera->Initialize(pSystem)) {
+            camera->SetFrameQueue(sharedQueue);
+            manager.AddCamera(std::move(camera));
+        }
+    }
 
-		// calculate average FPS
-		std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
+    manager.StartShooting(numImages); // 카메라마다 100장 촬영
+    manager.JoinAll();
 
-		for (int i = 0; i < 1000; ++i)
-		{
-			std::cout << "[Main] Triggering " << i << std::endl;
-			if (camera.TriggerAndWait(100))
-				std::cout << "[Main] Frame " << i << " captured." << std::endl;
-			else
-				std::cerr << "[Main] Frame " << i << " timed out." << std::endl;
-		}
+    for (int i = 0; i < numCameras * numImages; ++i)
+    {
+        IStImage* image = sharedQueue->Pop();
+        std::cout << "[Main] Popped frame, queue size: " << sharedQueue->Size() << std::endl;
+    }
 
-		std::chrono::steady_clock::time_point endTime = std::chrono::steady_clock::now();
-		double elapsedTime = std::chrono::duration<double, std::milli>(endTime - startTime).count();
-		double averageFPS = 1000.0 / (elapsedTime / 1000.0); // 1000 frames
-		std::cout << "[Main] Average FPS: " << averageFPS << std::endl;
-
-		camera.StopAcquisition();
-	}
-	
-	return 0;
+    return 0;
 }
