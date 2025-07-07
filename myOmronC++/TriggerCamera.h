@@ -3,6 +3,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <atomic>
+#include "FrameQueue.h"
 
 /* @brief This class extends BasicCamera to implement software trigger functionality. */
 class TriggerCamera : public BasicCamera
@@ -27,6 +28,8 @@ public:
 	@param timeoutMs : Timeout in milliseconds to wait for the image capture
 	*/
 	bool TriggerAndWait(int timeoutMs = 1000);
+
+	void SetFrameQueue(std::shared_ptr<FrameQueue> queue);
 
 private:
 	/*
@@ -64,4 +67,6 @@ private:
 	std::condition_variable m_cv;
 	/* @brief Atomic flag indicating whether an image has been captured (used for thread-safe status checks) */
 	std::atomic<bool> m_imageCaptured;
+
+	std::shared_ptr<FrameQueue> m_pFrameQueue;
 };

@@ -1,7 +1,7 @@
 #include "TriggerCamera.h"
 
 //#define LOGGING
-#define SYNC_LOGGING
+//#define SYNC_LOGGING
 
 TriggerCamera::TriggerCamera()
 	: pICommandTriggerSoftware(nullptr)
@@ -108,6 +108,11 @@ bool TriggerCamera::TriggerAndWait(int timeoutMs)
 	}	//NOTE: <--end of critical section, mutex is automatically released
 
 	// Issue a software trigger command to the camera
+	std::chrono::steady_clock::time_point triggerTime = std::chrono::steady_clock::now();
+	// print trigger time
+	std::cout << "[TriggerCamera] Trigger time: "
+		<< std::chrono::duration_cast<std::chrono::milliseconds>(triggerTime.time_since_epoch()).count()
+		<< " ms" << std::endl;
 	pICommandTriggerSoftware->Execute();
 #ifdef SYNC_LOGGING
 	std::cout << "[TriggerCamera] Trigger executed" << std::endl;
@@ -132,6 +137,11 @@ bool TriggerCamera::TriggerAndWait(int timeoutMs)
 	return success;
 }
 
+void TriggerCamera::SetFrameQueue(std::shared_ptr<FrameQueue> queue)
+{
+	m_pFrameQueue = queue;
+}
+
 void TriggerCamera::OnStCallbackMethod(IStCallbackParamBase* pIStCallbackParamBase, void* pvContext)
 {
 	if (pvContext)
@@ -149,6 +159,11 @@ void TriggerCamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 		// Check callback type. Only NewBuffer event is handled in here
 		if (pCallbackParam->GetCallbackType() == StCallbackType_GenTLEvent_DataStreamNewBuffer)
 		{
+			std::chrono::steady_clock::time_point callbackTime = std::chrono::steady_clock::now();
+			// print callback time
+			std::cout << "[TriggerCamera] Callback received at: " 
+				<< std::chrono::duration_cast<std::chrono::milliseconds>(callbackTime.time_since_epoch()).count() 
+				<< " ms since epoch" << std::endl;
 			IStCallbackParamGenTLEventNewBuffer* pNewBufferParam = dynamic_cast<IStCallbackParamGenTLEventNewBuffer*>(pCallbackParam);
 			//NOTE: dynamic_cast is used to safely cast the base class pointer to the derived class pointer.
 			//NOTE: static_cast is used when you are sure about the type of the object, while dynamic_cast is used for safe downcasting in class hierarchies.
@@ -164,7 +179,18 @@ void TriggerCamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 			{
 				// If yes, we create a IStImage object for further image handling.
 				IStImage* pImage = pStreamBuffer->GetIStImage();
-				PrintFrameInfo(pStreamBuffer);
+
+				if (m_pFrameQueue)
+				{
+					m_pFrameQueue->Push(pImage);
+					std::cout << "[TriggerCamera] Image pushed. Queue size: " << m_pFrameQueue->Size() << std::endl;
+				}
+				std::chrono::steady_clock::time_point captureTime = std::chrono::steady_clock::now();
+				// print capture time
+				std::cout << "[TriggerCamera] Image captured at: " 
+					<< std::chrono::duration_cast<std::chrono::milliseconds>(captureTime.time_since_epoch()).count() 
+					<< " ms since epoch" << std::endl;
+				//PrintFrameInfo(pStreamBuffer);
 
 				
 				{	//NOTE: <--Critical section to ensure thread safety
