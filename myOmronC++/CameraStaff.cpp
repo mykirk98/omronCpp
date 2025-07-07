@@ -20,9 +20,8 @@ CameraStaff::~CameraStaff()
 #endif // LOGGING
 }
 
-bool CameraStaff::Initialize(const CIStSystemPtr& pSystem, const std::string& saveDir)
+bool CameraStaff::Initialize(const CIStSystemPtr& pSystem)
 {
-    m_saveDir = saveDir;
 #ifdef LOGGING
 	std::cout << "[CameraStaff] Initialized" << std::endl;
 #endif // LOGGING
@@ -92,10 +91,9 @@ int main()
     std::cout << "==========Camera Staff Example==========" << std::endl;
     CStApiAutoInit objStApiAutoInit;
     CIStSystemPtr system = CreateIStSystem();
-    std::string saveDir = "C:\\Users\\mykir\\Work\\Experiments\\";	//NOTE: LAB PC DIRECTORY
 
     CameraStaff staff;
-    if (staff.Initialize(system, saveDir))
+    if (staff.Initialize(system))
     {
         staff.Start();
 
