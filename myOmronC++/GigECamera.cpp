@@ -2,6 +2,7 @@
 
 GigECamera::GigECamera()
 	: m_pInterface(nullptr)
+	, m_saveRootDir("C:\\Users\\mykir\\Work\\Experiments\\") //NOTE: LAB WINDOWS PC DIRECTORY
 {
 }
 
@@ -96,6 +97,16 @@ void GigECamera::SequentialCapture()
 			// If yes, we create a IStImage object for further image handling.
 			IStImage* pImage = pStreamBuffer->GetIStImage();
 			PrintFrameInfo(pStreamBuffer);
+			
+			if (m_pThreadPool)
+			{
+				FrameData frameData;
+				frameData.serialNumber = m_pDevice->GetIStDeviceInfo()->GetSerialNumber();
+				frameData.frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
+				frameData.pImage = pImage;
+
+				m_pThreadPool->Enqueue(frameData);
+			}
 		}
 	}
 }
@@ -116,6 +127,11 @@ void GigECamera::PrintFrameInfo(const CIStStreamBufferPtr& pStreamBuffer)
 	}
 }
 
+void GigECamera::SetThreadPool(std::shared_ptr<ImageSaverThreadPool> pThreadPool)
+{
+	m_pThreadPool = pThreadPool;
+}
+
 // Example usage of GigECamera class
 /*
 #include "GigECamera.h"
@@ -123,16 +139,32 @@ void GigECamera::PrintFrameInfo(const CIStStreamBufferPtr& pStreamBuffer)
 int main()
 {
 	std::cout << "========== GigE Camera Example ==========" << std::endl;
+
+	int numImages = 3; // Number of images to capture
+
 	CStApiAutoInit stApiAutoInit;
 	CIStSystemPtr pSystem(CreateIStSystem(StSystemVendor_Default, StInterfaceType_GigEVision));
 	//CIStSystemPtr pSystem(CreateIStSystem());
+
+	std::shared_ptr<ImageSaverThreadPool> imageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(1, "C:\\Users\\mykir\\Work\\Experiments\\", true);
+	imageSaverThreadPool->Start();
+
 	GigECamera camera;
 	if (camera.Initialize(pSystem->GetIStInterface(1), 0))
 	{
-		camera.StartAcquisition(100); // Start acquisition for 100 images
+		camera.StartAcquisition(numImages);
+		camera.SetThreadPool(imageSaverThreadPool);
+
+		std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
 		camera.SequentialCapture(); // Capture images sequentially
+		std::chrono::steady_clock::time_point endTime = std::chrono::steady_clock::now();
+		std::chrono::duration<double> elapsedSeconds = endTime - startTime;
+		double averageFPS = numImages / elapsedSeconds.count(); // Calculate average FPS
+		std::cout << "[Main] Average FPS: " << averageFPS << std::endl; // Display average FPS
+
 		camera.StopAcquisition(); // Stop acquisition
 	}
+	imageSaverThreadPool->Stop(); // Stop the image saver thread pool
 	return 0;
 }
 */
