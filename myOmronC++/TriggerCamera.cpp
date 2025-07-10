@@ -182,6 +182,16 @@ void TriggerCamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 					<< " ms since epoch" << std::endl;
 				//PrintFrameInfo(pStreamBuffer);
 
+				if (m_pThreadPool)
+				{
+					FrameData frameData;
+					frameData.serialNumber = m_pDevice->GetIStDeviceInfo()->GetSerialNumber();
+					frameData.frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
+					frameData.pImage = pImage;
+
+					m_pThreadPool->Enqueue(frameData);
+				}
+
 				
 				{	//NOTE: <--Critical section to ensure thread safety
 #ifdef SYNC_LOGGING
@@ -253,6 +263,11 @@ void TriggerCamera::SetTriggerMode(GenApi::CNodeMapPtr& pINodeMap, const char* t
 	{
 		std::cerr << "[TriggerCamera] Setting trigger mode failed: " << e.GetDescription() << std::endl;
 	}
+}
+
+void TriggerCamera::SetThreadPool(std::shared_ptr<ImageSaverThreadPool> pThreadPool)
+{
+	m_pThreadPool = pThreadPool;
 }
 
 // Example usage of TriggerCamera class
