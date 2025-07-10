@@ -137,10 +137,10 @@ bool TriggerCamera::TriggerAndWait(int timeoutMs)
 	return success;
 }
 
-void TriggerCamera::SetFrameQueue(std::shared_ptr<FrameQueue> queue)
-{
-	m_pFrameQueue = queue;
-}
+//void TriggerCamera::SetFrameQueue(std::shared_ptr<FrameQueue> queue)
+//{
+//	m_pFrameQueue = queue;
+//}
 
 void TriggerCamera::OnStCallbackMethod(IStCallbackParamBase* pIStCallbackParamBase, void* pvContext)
 {
@@ -180,11 +180,11 @@ void TriggerCamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 				// If yes, we create a IStImage object for further image handling.
 				IStImage* pImage = pStreamBuffer->GetIStImage();
 
-				if (m_pFrameQueue)
-				{
-					m_pFrameQueue->Push(pImage);
-					//std::cout << "[TriggerCamera] Image pushed. Queue size: " << m_pFrameQueue->Size() << std::endl;
-				}
+				//if (m_pFrameQueue)
+				//{
+				//	m_pFrameQueue->Push(pImage);
+				//	//std::cout << "[TriggerCamera] Image pushed. Queue size: " << m_pFrameQueue->Size() << std::endl;
+				//}
 				std::chrono::steady_clock::time_point captureTime = std::chrono::steady_clock::now();
 				// print capture time
 				std::cout << "[TriggerCamera] Image captured at: " 
