@@ -99,7 +99,7 @@ private:
 	/* @brief Thread pool for saving images */
 	std::vector<std::thread> m_workers;
 	/* @brief FrameQueue object for managing image frames */
-	FrameQueue m_queue;\
+	FrameQueue m_queue;
 	/* @brief Flag to indicate whether the thread pool is running */
 	std::atomic<bool> m_running;
 	/* @brief Root directory where images will be saved */

@@ -30,6 +30,12 @@ void ImageSaverThreadPool::Start()
 
 void ImageSaverThreadPool::Stop()
 {
+	// Wait until the queue is empty before stopping the threads
+	while (!m_queue.isEmpty())
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
+
 	m_running = false;
 	// clear the queue to stop processing frames
 	// This will ensure that all threads exit gracefully
