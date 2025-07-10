@@ -126,7 +126,7 @@ void BasicCamera::SequentialCapture()
 	{
 		// Retrieve the buffer pointer of image data with a timeout of 5000ms.
 		CIStStreamBufferPtr pStreamBuffer(m_pDataStream->RetrieveBuffer(5000));
-
+		
 		// Check if the acquired data contains image data.
 		if (pStreamBuffer->GetIStStreamBufferInfo()->IsImagePresent())
 		{
@@ -168,16 +168,19 @@ void BasicCamera::SetThreadPool(std::shared_ptr<ImageSaverThreadPool> pThreadPoo
 int main()
 {
 	std::cout << "==========Basic Camera Example==========" << std::endl;
+
+	int numImages = 10; // Number of images to capture
+
 	CStApiAutoInit objStApiAutoInit; // Initialize StApi
 	CIStSystemPtr pSystem(CreateIStSystem()); // Create a system object for device scan and connection
 
-	std::shared_ptr<ImageSaverThreadPool> imageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(4, "C:\\Users\\mykir\\Work\\Experiments\\", true);
+	std::shared_ptr<ImageSaverThreadPool> imageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(1, "C:\\Users\\mykir\\Work\\Experiments\\", true);
 	imageSaverThreadPool->Start();
 
 	BasicCamera basicCamera;
 	if (basicCamera.Initialize(pSystem))
 	{
-		basicCamera.StartAcquisition(30);
+		basicCamera.StartAcquisition(numImages);
 		basicCamera.SetThreadPool(imageSaverThreadPool);
 
 
@@ -185,7 +188,7 @@ int main()
 		basicCamera.SequentialCapture();
 		std::chrono::steady_clock::time_point endTime = std::chrono::steady_clock::now();
 		std::chrono::duration<double> elapsedSeconds = endTime - startTime;
-		double averageFPS = 500 / elapsedSeconds.count(); // Calculate average FPS
+		double averageFPS = numImages / elapsedSeconds.count(); // Calculate average FPS
 		std::cout << "[Main] Average FPs: " << averageFPS << std::endl; // Display average FPS
 
 		basicCamera.StopAcquisition();
