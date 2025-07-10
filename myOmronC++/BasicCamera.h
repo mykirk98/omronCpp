@@ -24,6 +24,8 @@ public:
 	/* @brief Sequential image capture function */
 	void SequentialCapture();
 
+	void SetThreadPool(std::shared_ptr<ImageSaverThreadPool> pThreadPool);
+
 protected:
 	/*
 	@brief Display frame information
@@ -47,4 +49,5 @@ protected:
 
 private:
 	std::string m_saveRootDir;
+	std::shared_ptr<ImageSaverThreadPool> m_pThreadPool;
 };

@@ -133,6 +133,16 @@ void BasicCamera::SequentialCapture()
 			// If yes, we create a IStImage object for further image handling.
 			IStImage* pImage = pStreamBuffer->GetIStImage();
 			PrintFrameInfo(pStreamBuffer);
+
+			if (m_pThreadPool)
+			{
+				FrameData frameData;
+				frameData.serialNumber = m_pDevice->GetIStDeviceInfo()->GetSerialNumber();
+				frameData.frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
+				frameData.pImage = pImage;
+
+				m_pThreadPool->Enqueue(frameData);
+			}
 		}
 		else
 		{
@@ -143,6 +153,11 @@ void BasicCamera::SequentialCapture()
 	std::cout << "[BasicCamera] Sequential capture completed" << std::endl;
 #endif // LOGGING
 
+}
+
+void BasicCamera::SetThreadPool(std::shared_ptr<ImageSaverThreadPool> pThreadPool)
+{
+	m_pThreadPool = pThreadPool;
 }
 
 
@@ -156,10 +171,15 @@ int main()
 	CStApiAutoInit objStApiAutoInit; // Initialize StApi
 	CIStSystemPtr pSystem(CreateIStSystem()); // Create a system object for device scan and connection
 
+	std::shared_ptr<ImageSaverThreadPool> imageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(4, "C:\\Users\\mykir\\Work\\Experiments\\", true);
+	imageSaverThreadPool->Start();
+
 	BasicCamera basicCamera;
 	if (basicCamera.Initialize(pSystem))
 	{
-		basicCamera.StartAcquisition(500);
+		basicCamera.StartAcquisition(30);
+		basicCamera.SetThreadPool(imageSaverThreadPool);
+
 
 		std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
 		basicCamera.SequentialCapture();
@@ -174,6 +194,7 @@ int main()
 	{
 		std::cerr << "Camera initialization failed." << std::endl;
 	}
+	imageSaverThreadPool->Stop();
 	return 0;
 }
 */

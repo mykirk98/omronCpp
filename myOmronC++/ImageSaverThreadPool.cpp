@@ -1,8 +1,4 @@
 #include "ImageSaverThreadPool.h"
-//#include <filesystem>
-//#include <iomanip>
-//#include <sstream>
-//#include <iostream>
 
 ImageSaverThreadPool::ImageSaverThreadPool(size_t threadCount, const std::string& saveRootDir, bool convertToColor)
 	: m_running(false)
