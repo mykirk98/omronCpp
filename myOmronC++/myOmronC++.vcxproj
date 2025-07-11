@@ -137,9 +137,9 @@
     <ClCompile Include="GigECamera.cpp" />
     <ClCompile Include="GigEConfigurator.cpp" />
     <ClCompile Include="FrameQueue.cpp" />
+    <ClCompile Include="GigEManager.cpp" />
     <ClCompile Include="ImageSaverThreadPool.cpp" />
     <ClCompile Include="TriggerCamera.cpp" />
-    <ClCompile Include="CameraWorker_Chunk.cpp" />
     <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
@@ -152,9 +152,9 @@
     <ClInclude Include="GigECamera.h" />
     <ClInclude Include="GigEConfigurator.h" />
     <ClInclude Include="FrameQueue.h" />
+    <ClInclude Include="GigEManager.h" />
     <ClInclude Include="ImageSaverThreadPool.h" />
     <ClInclude Include="TriggerCamera.h" />
-    <ClInclude Include="CameraWorker_Chunk.h" />
     <ClInclude Include="config.h" />
   </ItemGroup>
   <ItemGroup>

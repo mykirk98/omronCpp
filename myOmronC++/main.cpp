@@ -1,35 +1,25 @@
-#include "CameraManager.h"
-#include "FrameQueue.h"
-#include <StApi_TL.h>
+#include "GigEManager.h"
+#include <iostream>
 
-int main()
-{
-    CStApiAutoInit stApiInit;
-    CIStSystemPtr pSystem(CreateIStSystem());
+int main() {
+    GigEManager manager;
 
-    auto sharedQueue = std::make_shared<FrameQueue>();
-
-    CameraManager manager;
-    int numCameras = 2;
-    int numImages = 4;
-    // 예시: 2대의 카메라 생성
-    for (int i = 0; i < numCameras; ++i)
-    {
-        auto camera = std::make_unique<TriggerCamera>();
-        if (camera->Initialize(pSystem)) {
-            camera->SetFrameQueue(sharedQueue);
-            manager.AddCamera(std::move(camera));
-        }
+    // Step 1: Initialize all cameras
+    if (!manager.Initialize()) {
+        std::cerr << "[main] Failed to initialize cameras." << std::endl;
+        return -1;
     }
 
-    manager.StartShooting(numImages); // 카메라마다 100장 촬영
-    manager.JoinAll();
+    // Step 2: Start acquisition on all cameras
+    manager.StartAll();
+    std::cout << "[main] Acquisition started on all cameras." << std::endl;
 
-    for (int i = 0; i < numCameras * numImages; ++i)
-    {
-        IStImage* image = sharedQueue->Pop();
-        std::cout << "[Main] Popped frame, queue size: " << sharedQueue->Size() << std::endl;
-    }
+    // Step 3: Interactive trigger loop
+    manager.RunInteractiveLoop();
+
+    // Step 4: Stop acquisition on all cameras
+    manager.StopAll();
+    std::cout << "[main] Acquisition stopped on all cameras." << std::endl;
 
     return 0;
 }
