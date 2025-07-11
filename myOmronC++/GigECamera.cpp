@@ -3,6 +3,7 @@
 GigECamera::GigECamera()
 	: m_pInterface(nullptr)
 	, m_saveRootDir("C:\\Users\\mykir\\Work\\Experiments\\") //NOTE: LAB WINDOWS PC DIRECTORY
+	, pICommandTriggerSoftware(nullptr)
 {
 }
 
@@ -39,8 +40,18 @@ bool GigECamera::Initialize(IStInterface* pInterface, uint32_t interfaceDeviceIn
 		}
 		std::cout << "[GigECamera] " << m_pDevice->GetIStDeviceInfo()->GetDisplayName() << ": connected" << std::endl;
 
+		// Get the INodeMap interface pointer for the camera settings.
+		GenApi::CNodeMapPtr pINodeMap(m_pDevice->GetRemoteIStPort()->GetINodeMap());
+		// Set the TriggerSelector to FrameStart.
+		SetTriggerMode(pINodeMap, TRIGGER_SELECTOR_FRAME_START, TRIGGER_MODE_ON, TRIGGER_SOURCE_SOFTWARE);
+		// Set the ICommand interface pointer for the TriggerSoftware node.
+		pICommandTriggerSoftware = pINodeMap->GetNode(TRIGGER_SOFTWARE);
+
 		m_pDataStream = m_pDevice->CreateIStDataStream(0);
 		std::cout << "[GigECamera] # of available data streams: " << m_pDevice->GetDataStreamCount() << std::endl;
+
+		RegisterCallback(m_pDataStream, &GigECamera::OnStCallbackMethod, this);
+
 
 		return true;
 	}
@@ -53,12 +64,12 @@ bool GigECamera::Initialize(IStInterface* pInterface, uint32_t interfaceDeviceIn
 
 }
 
-void GigECamera::StartAcquisition(uint64_t imageCount)
+void GigECamera::StartAcquisition()
 {
 	try
 	{
 		// Start the image acquisition of the host(PC) side.
-		m_pDataStream->StartAcquisition(imageCount);
+		m_pDataStream->StartAcquisition();
 		// Start the image acquisition of the camera side.
 		m_pDevice->AcquisitionStart();
 	}
@@ -97,17 +108,103 @@ void GigECamera::SequentialCapture()
 			// If yes, we create a IStImage object for further image handling.
 			IStImage* pImage = pStreamBuffer->GetIStImage();
 			PrintFrameInfo(pStreamBuffer);
-			
-			if (m_pThreadPool)
-			{
-				FrameData frameData;
-				frameData.serialNumber = m_pDevice->GetIStDeviceInfo()->GetSerialNumber();
-				frameData.frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
-				frameData.pImage = pImage;
 
-				m_pThreadPool->Enqueue(frameData);
+			CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
+			ConvertPixelFormat(pImage, true, pImageBuffer);
+			GenICam::gcstring savePath = SetSavePath(m_saveRootDir, pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID());
+			SaveImage<BMP>(pImageBuffer, savePath);
+		}
+	}
+}
+
+void GigECamera::OnStCallbackMethod(IStCallbackParamBase* pIStCallbackParamBase, void* pvContext)
+{
+	if (pvContext)
+	{
+		// pvContext is a pointer to the TriggerCamera instance
+		static_cast<GigECamera*>(pvContext)->OnCallback(pIStCallbackParamBase);
+		//NOTE: static_cast is used here to convert the void pointer back to TriggerCamera pointer
+	}
+}
+
+void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
+{
+	try
+	{
+		// Check callback type. Only NewBuffer event is handled in here
+		if (pCallbackParam->GetCallbackType() == StCallbackType_GenTLEvent_DataStreamNewBuffer)
+		{
+			IStCallbackParamGenTLEventNewBuffer* pNewBufferParam = dynamic_cast<IStCallbackParamGenTLEventNewBuffer*>(pCallbackParam);
+			//NOTE: dynamic_cast is used to safely cast the base class pointer to the derived class pointer.
+			//NOTE: static_cast is used when you are sure about the type of the object, while dynamic_cast is used for safe downcasting in class hierarchies.
+
+			// Get the IStDataStream interface pointer from the received callback parameter.
+			IStDataStream* pDataStream = pNewBufferParam->GetIStDataStream();
+
+			// Retrieve the buffer pointer of image data for that callback indicated there is a buffer received.
+			CIStStreamBufferPtr pStreamBuffer(pDataStream->RetrieveBuffer(0));
+
+			// Check if the acquired data contains image data.
+			if (pStreamBuffer->GetIStStreamBufferInfo()->IsImagePresent())
+			{
+				std::cout << "A" << std::endl;
+				// If yes, we create a IStImage object for further image handling.
+				IStImage* pImage = pStreamBuffer->GetIStImage();
+
+				PrintFrameInfo(pStreamBuffer);
+
+				CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
+				ConvertPixelFormat(pImage, true, pImageBuffer);
+				GenICam::gcstring savePath = SetSavePath(m_saveRootDir, pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID());
+				SaveImage<BMP>(pImageBuffer, savePath);
+
+			}
+			else
+			{
+				std::cout << "[TriggerCamera] No image present in the buffer." << std::endl;
 			}
 		}
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "[TriggerCamera] Callback Exception: " << e.GetDescription() << std::endl;
+	}
+}
+
+void GigECamera::SetEnumeration(GenApi::INodeMap* pInodeMap, const char* szEnumerationName, const char* szValueName)
+{
+	try
+	{
+		// Get the IEnumeration interface pointer for the specified enumeration name.
+		GenApi::CEnumerationPtr pIEnumeration(pInodeMap->GetNode(szEnumerationName));
+
+		// Get the IEnumEntry interface pointer for the specified value name.
+		GenApi::CEnumEntryPtr pIEnumEntry(pIEnumeration->GetEntryByName(szValueName));
+
+		// Get the integer value corresponding to the set value name using the IEnumEntry interface pointer.
+		// Update the settings using the IEnumeration interface pointer.
+		pIEnumeration->SetIntValue(pIEnumEntry->GetValue());
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "[TriggerCamera] Setting enumeration failed: " << e.GetDescription() << std::endl;
+	}
+}
+
+void GigECamera::SetTriggerMode(GenApi::CNodeMapPtr& pINodeMap, const char* triggerSelector, const char* triggerMode, const char* triggerSource)
+{
+	try
+	{
+		// Set the TriggerSelector to FrameStart.
+		SetEnumeration(pINodeMap, TRIGGER_SELECTOR, triggerSelector);
+		// Set the TriggerMode to On.
+		SetEnumeration(pINodeMap, TRIGGER_MODE, triggerMode);
+		// Set the TriggerSource to Software.
+		SetEnumeration(pINodeMap, TRIGGER_SOURCE, triggerSource);
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "[TriggerCamera] Setting trigger mode failed: " << e.GetDescription() << std::endl;
 	}
 }
 
@@ -132,6 +229,50 @@ void GigECamera::SetThreadPool(std::shared_ptr<ImageSaverThreadPool> pThreadPool
 	m_pThreadPool = pThreadPool;
 }
 
+void GigECamera::ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStImageBufferPtr& pDstBuffer)
+{
+	try
+	{
+		// Create a data converter object for pixel format conversion.
+		CIStPixelFormatConverterPtr pPixelFormatConverter(CreateIStConverter(StConverterType_PixelFormat));
+
+		if (isColor)
+		{
+			pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_BGR8);
+		}
+		else
+		{
+			pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_Mono8);
+		}
+		// Convert the pixel format of the source image to the destination buffer.
+		pPixelFormatConverter->Convert(pSrcImage, pDstBuffer);
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "[ImageSaverThreadPool] Converting pixel format error: " << e.GetDescription() << std::endl;
+	}
+}
+
+GenICam::gcstring GigECamera::SetSavePath(const std::string& baseDir, const uint64_t frameID)
+{
+	try
+	{
+		// Change frameID to string
+		std::string strFrameID = std::to_string(frameID);
+
+		std::string filePath = baseDir + "\\" + strFrameID;
+
+		return GenICam::gcstring(filePath.c_str());
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "[ImageSaverThreadPool] Setting save path error: " << e.GetDescription() << std::endl;
+	}
+	return GenICam::gcstring();
+}
+
+
+
 // Example usage of GigECamera class
 /*
 #include "GigECamera.h"
@@ -140,31 +281,39 @@ int main()
 {
 	std::cout << "========== GigE Camera Example ==========" << std::endl;
 
-	int numImages = 3; // Number of images to capture
-
 	CStApiAutoInit stApiAutoInit;
 	CIStSystemPtr pSystem(CreateIStSystem(StSystemVendor_Default, StInterfaceType_GigEVision));
 	//CIStSystemPtr pSystem(CreateIStSystem());
 
-	std::shared_ptr<ImageSaverThreadPool> imageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(1, "C:\\Users\\mykir\\Work\\Experiments\\", true);
-	imageSaverThreadPool->Start();
-
 	GigECamera camera;
 	if (camera.Initialize(pSystem->GetIStInterface(1), 0))
 	{
-		camera.StartAcquisition(numImages);
-		camera.SetThreadPool(imageSaverThreadPool);
+		camera.StartAcquisition();
 
-		std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
-		camera.SequentialCapture(); // Capture images sequentially
-		std::chrono::steady_clock::time_point endTime = std::chrono::steady_clock::now();
-		std::chrono::duration<double> elapsedSeconds = endTime - startTime;
-		double averageFPS = numImages / elapsedSeconds.count(); // Calculate average FPS
-		std::cout << "[Main] Average FPS: " << averageFPS << std::endl; // Display average FPS
+		//camera.SequentialCapture(); // Capture images sequentially
+		while (true)
+		{
+			std::cout << "Press 0 to trigger an image or 1 to exit: ";
+			int input;
+			std::cin >> input;
 
+			if (input == 0)
+			{
+				std::cout << "Triggering image..." << std::endl;
+				camera.pICommandTriggerSoftware->Execute(); // Execute software trigger
+			}
+			else if (input == 1)
+			{
+				std::cout << "Exiting..." << std::endl;
+				break; // Exit the loop
+			}
+			else
+			{
+				std::cout << "Invalid input. Please enter 0 or 1." << std::endl;
+			}
+		}
 		camera.StopAcquisition(); // Stop acquisition
 	}
-	imageSaverThreadPool->Stop(); // Stop the image saver thread pool
 	return 0;
 }
 */

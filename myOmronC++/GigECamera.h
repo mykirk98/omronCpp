@@ -14,20 +14,42 @@ public:
 	~GigECamera();
 
 	bool Initialize(IStInterface* pInterface, uint32_t interfaceDeviceIndex);
-	
-	void StartAcquisition(uint64_t imageCount);
-
+	void StartAcquisition();
 	void StopAcquisition();
 
 	void SequentialCapture();
 
-	void PrintFrameInfo(const CIStStreamBufferPtr& pStreamBuffer);
-
 	void SetThreadPool(std::shared_ptr<ImageSaverThreadPool> pThreadPool);
+
+	GenApi::CCommandPtr pICommandTriggerSoftware;
 
 protected:
 
 private:
+	static void OnStCallbackMethod(IStCallbackParamBase* pIStCallbackParamBase, void* pvContext);
+	void OnCallback(IStCallbackParamBase* pCallbackParam);
+	void SetEnumeration(GenApi::INodeMap* pInodeMap, const char* szEnumerationName, const char* szValueName);
+	void SetTriggerMode(GenApi::CNodeMapPtr& pINodeMap, const char* triggerSelector, const char* triggerMode, const char* triggerSource);
+
+	void PrintFrameInfo(const CIStStreamBufferPtr& pStreamBuffer);
+	void ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStImageBufferPtr& pDstBuffer);
+	GenICam::gcstring SetSavePath(const std::string& baseDir, const uint64_t frameID);
+	template<typename FORMAT>
+	void SaveImage(CIStImageBufferPtr& pImageBuffer, GenICam::gcstring& dstDir)
+	{
+		try
+		{
+			dstDir.append(FORMAT::extension);
+
+			CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
+			pStillImageFiler->Save(pImageBuffer->GetIStImage(), FORMAT::fileFormat, dstDir);
+		}
+		catch (const GenICam::GenericException& e)
+		{
+			std::cerr << "[ImageSaverThreadPool] Saving image error: " << e.GetDescription() << std::endl;
+		}
+	}
+
 	IStInterface* m_pInterface; // GigE interface pointer
 	CIStDevicePtr m_pDevice; // Camera device pointer
 	CIStDataStreamPtr m_pDataStream; // Data stream pointer
