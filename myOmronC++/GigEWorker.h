@@ -10,8 +10,8 @@ class GigEWorker
 {
 public:
     /*  @brief Constructor for GigEWorker.
-	    @param camera A shared pointer to a GigECamera object. */
-    explicit GigEWorker(std::shared_ptr<GigECamera> camera);
+	    @param camera A unique pointer to a GigECamera object. */
+    explicit GigEWorker(std::unique_ptr<GigECamera> camera);
     /*  @brief Destructor for GigEWorker. */
     ~GigEWorker();
 
@@ -30,7 +30,7 @@ private:
     /*  @brief Worker loop function that runs in a separate thread. */
     void WorkerLoop();
     /*  @brief Callback function for handling camera events. */
-    std::shared_ptr<GigECamera> m_camera;
+    std::unique_ptr<GigECamera> m_camera;
 	/*  @brief Thread object for running the worker loop. */
     std::thread m_thread;
 	/*  @brief Atomic boolean to indicate if the worker is running. */

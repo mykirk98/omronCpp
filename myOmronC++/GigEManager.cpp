@@ -25,9 +25,9 @@ bool GigEManager::Initialize() {
                 std::cout << "Device " << j << ": " << pInterface->GetIStDeviceInfo(j)->GetDisplayName() << std::endl;
                 std::cout << "SerialNumber: " << pInterface->GetIStDeviceInfo(j)->GetSerialNumber() << std::endl;
 
-                auto camera = std::make_shared<GigECamera>();
+                auto camera = std::make_unique<GigECamera>();
                 if (camera->Initialize(pInterface, j)) {
-                    auto worker = std::make_shared<GigEWorker>(camera);
+                    auto worker = std::make_shared<GigEWorker>(std::move(camera));
                     m_workers.push_back(worker);
                 }
                 else {

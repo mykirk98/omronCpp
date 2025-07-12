@@ -2,7 +2,7 @@
 #include <iostream>
 #include <chrono>
 
-GigEWorker::GigEWorker(std::shared_ptr<GigECamera> camera)
+GigEWorker::GigEWorker(std::unique_ptr<GigECamera> camera)
     : m_camera(std::move(camera))
     , m_running(false)
 {
@@ -82,28 +82,25 @@ int main() {
         CIStSystemPtr system = CreateIStSystem(StSystemVendor_Default, StInterfaceType_GigEVision);
         IStInterface* pInterface = system->GetIStInterface(1);
 
-        std::shared_ptr<GigECamera> camera = std::make_shared<GigECamera>();
+        std::unique_ptr<GigECamera> camera = std::make_unique<GigECamera>();
         if (!camera->Initialize(pInterface, 0))
         {
             std::cerr << "Failed to initialize GigECamera." << std::endl;
             return -1;
         }
 
-        GigEWorker worker(camera);
+        GigEWorker worker(std::move(camera));
         worker.Start();
-        std::cout << "[main] Worker started. Type 't' to trigger, 'exit' to quit." << std::endl;
+        std::cout << "[main] Worker started. Type '0' to trigger, 'q' to quit." << std::endl;
 
         std::string input;
         while (true)
         {
-            std::cout << "> ";
+            //std::cout << "> ";
             std::getline(std::cin, input);
 
-            if (input == "exit") break;
-            if (input == "t")
-            {
-                worker.Trigger();
-            }
+            if (input == "q") break;
+            if (input == "0")   {   worker.Trigger();   }
         }
 
         worker.Stop();
