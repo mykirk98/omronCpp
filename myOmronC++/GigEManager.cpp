@@ -25,16 +25,17 @@ bool GigEManager::Initialize() {
                 std::cout << "Device " << j << ": " << pInterface->GetIStDeviceInfo(j)->GetDisplayName() << std::endl;
                 std::cout << "SerialNumber: " << pInterface->GetIStDeviceInfo(j)->GetSerialNumber() << std::endl;
 
-                std::shared_ptr<GigECamera> camera = std::make_shared<GigECamera>();
+                auto camera = std::make_shared<GigECamera>();
                 if (camera->Initialize(pInterface, j)) {
-                    m_cameras.push_back(camera);
+                    auto worker = std::make_shared<GigEWorker>(camera);
+                    m_workers.push_back(worker);
                 }
                 else {
                     std::cerr << "[GigEManager] Failed to initialize camera " << j << std::endl;
                 }
             }
         }
-        return !m_cameras.empty();
+        return !m_workers.empty();
     }
     catch (const GenICam::GenericException& e) {
         std::cerr << "[GigEManager] Initialization error: " << e.GetDescription() << std::endl;
@@ -43,52 +44,32 @@ bool GigEManager::Initialize() {
 }
 
 void GigEManager::StartAll() {
-    std::vector<std::thread> threads;
-    for (auto& camera : m_cameras) {
-        threads.emplace_back([camera]() {
-            camera->StartAcquisition();
-            });
+    for (auto& worker : m_workers) {
+        worker->Start();
     }
-    for (auto& t : threads) t.join();
 }
 
 void GigEManager::StopAll() {
-    std::vector<std::thread> threads;
-    for (auto& camera : m_cameras) {
-        threads.emplace_back([camera]() {
-            camera->StopAcquisition();
-            });
+    for (auto& worker : m_workers) {
+        worker->Stop();
     }
-    for (auto& t : threads) t.join();
 }
 
 void GigEManager::TriggerAll() {
-    std::vector<std::thread> threads;
-    for (auto& camera : m_cameras) {
-        threads.emplace_back([camera]() {
-            if (camera->pICommandTriggerSoftware) {
-                camera->pICommandTriggerSoftware->Execute();
-            }
-            });
+    for (auto& worker : m_workers) {
+        worker->Trigger();
     }
-    for (auto& t : threads) t.join();
 }
 
 void GigEManager::TriggerSelected(const std::vector<int>& indices) {
-    std::vector<std::thread> threads;
     for (int idx : indices) {
-        if (idx >= 0 && idx < static_cast<int>(m_cameras.size())) {
-            threads.emplace_back([this, idx]() {
-                if (m_cameras[idx]->pICommandTriggerSoftware) {
-                    m_cameras[idx]->pICommandTriggerSoftware->Execute();
-                }
-                });
+        if (idx >= 0 && idx < static_cast<int>(m_workers.size())) {
+            m_workers[idx]->Trigger();
         }
         else {
             std::cerr << "[GigEManager] Invalid camera index: " << idx << std::endl;
         }
     }
-    for (auto& t : threads) t.join();
 }
 
 void GigEManager::RunInteractiveLoop() {
@@ -117,3 +98,33 @@ void GigEManager::RunInteractiveLoop() {
         }
     }
 }
+
+
+// Example usage of GigEManager class
+/*
+#include "GigEManager.h"
+#include <iostream>
+
+int main() {
+    GigEManager manager;
+
+    // Step 1: 카메라 초기화
+    if (!manager.Initialize()) {
+        std::cerr << "[main] Failed to initialize GigEManager." << std::endl;
+        return -1;
+    }
+
+    // Step 2: 모든 워커 스레드 시작 (acquisition 시작)
+    manager.StartAll();
+    std::cout << "[main] All camera workers started." << std::endl;
+
+    // Step 3: 사용자 입력 루프 실행
+    manager.RunInteractiveLoop();
+
+    // Step 4: 모든 워커 종료 (acquisition 정지)
+    manager.StopAll();
+    std::cout << "[main] All camera workers stopped. Exiting..." << std::endl;
+
+    return 0;
+}
+*/
