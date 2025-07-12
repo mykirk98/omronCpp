@@ -138,6 +138,7 @@
     <ClCompile Include="GigEConfigurator.cpp" />
     <ClCompile Include="FrameQueue.cpp" />
     <ClCompile Include="GigEManager.cpp" />
+    <ClCompile Include="GigEWorker.cpp" />
     <ClCompile Include="ImageSaverThreadPool.cpp" />
     <ClCompile Include="TriggerCamera.cpp" />
     <ClCompile Include="main.cpp">
@@ -153,6 +154,7 @@
     <ClInclude Include="GigEConfigurator.h" />
     <ClInclude Include="FrameQueue.h" />
     <ClInclude Include="GigEManager.h" />
+    <ClInclude Include="GigEWorker.h" />
     <ClInclude Include="ImageSaverThreadPool.h" />
     <ClInclude Include="TriggerCamera.h" />
     <ClInclude Include="config.h" />

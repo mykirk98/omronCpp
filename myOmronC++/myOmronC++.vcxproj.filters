@@ -24,9 +24,6 @@
     <ClCompile Include="TriggerCamera.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="CameraWorker_Chunk.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="CameraConfigurator.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -48,15 +45,18 @@
     <ClCompile Include="GigEConfigurator.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="GigEManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GigEWorker.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicCamera.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="TriggerCamera.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="CameraWorker_Chunk.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="CameraConfigurator.h">
@@ -81,6 +81,12 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="GigEConfigurator.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GigEManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GigEWorker.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
