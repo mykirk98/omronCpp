@@ -46,7 +46,7 @@ private:
 		}
 		catch (const GenICam::GenericException& e)
 		{
-			std::cerr << "[ImageSaverThreadPool] Saving image error: " << e.GetDescription() << std::endl;
+			std::cerr << "[GigECamera] Saving image error: " << e.GetDescription() << std::endl;
 		}
 	}
 
@@ -55,6 +55,7 @@ private:
 	CIStDataStreamPtr m_pDataStream; // Data stream pointer
 
 	std::string m_saveRootDir; // Directory to save images
+	GenICam::gcstring m_serialNumber;
 	std::shared_ptr<ImageSaverThreadPool> m_pThreadPool; // Thread pool for saving images
 };
 
