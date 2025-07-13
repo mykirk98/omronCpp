@@ -1,9 +1,17 @@
 #pragma once
 
 #include <StApi_TL.h>
+#include <StApi_IP.h>
 
 #include "GigEConfigurator.h"
 #include "ImageSaverThreadPool.h"
+
+#ifdef _WIN32
+#include <windows.h>  // for Sleep
+#else
+#include <unistd.h>   // for sleep/usleep
+#endif
+
 
 using namespace StApi;
 

@@ -27,7 +27,11 @@ bool GigECamera::Initialize(IStInterface* pInterface, uint32_t interfaceDeviceIn
 
 		for (size_t i = 0; i < 30; ++i)
 		{
-			Sleep(1000);
+#ifdef _WIN32
+			Sleep(1000);  // 1000 ms
+#else
+			usleep(1000 * 1000);  // 1000ms = 1초 (usleep은 마이크로초 단위)
+#endif
 			IStDeviceReleasable* pDeviceReleasable(GigEConfigurator::CreateIStDeviceByIPAddress(m_pInterface, nDeviceIPAddress));
 			//if (pDeviceReleasable != nullptr)
 			if (pDeviceReleasable != NULL)

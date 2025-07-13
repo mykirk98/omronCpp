@@ -34,7 +34,7 @@ void GigEConfigurator::UpdateDeviceIPAddress(GenApi::INodeMap* pINodeMap, uint32
 	else	{std::cerr << "Unknown serial number: " << serialNumber << std::endl;}
 
 	// Convert the new IP address string to a 32-bit number.
-#if defined(_WIN32_WINNT_WIN8) && (_WIN32_WINNT_WIN8 <= WINVER)
+#ifdef _WIN32
 	uint32_t nNewDeviceIPAddress;
 	if (!inet_pton(AF_INET, strInput.c_str(), &nNewDeviceIPAddress))
 	{
@@ -45,8 +45,10 @@ void GigEConfigurator::UpdateDeviceIPAddress(GenApi::INodeMap* pINodeMap, uint32
 		nNewDeviceIPAddress = ntohl(nNewDeviceIPAddress);
 	}
 #else
-	const uint32_t nNewDeviceIPAddress = ntohl(inet_addr(strInput.c_str()));
+	// POSIX 시스템 (Linux 등)에서는 inet_addr() + ntohl() 사용
+	uint32_t nNewDeviceIPAddress = ntohl(inet_addr(strInput.c_str()));
 #endif
+
 
 	// Get the subnet mask of the host side.
 	const uint32_t nSubnetMask = (uint32_t)pGevInterfaceSubnetMask->GetValue();
