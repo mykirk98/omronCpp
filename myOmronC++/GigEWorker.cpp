@@ -27,19 +27,12 @@ void GigEWorker::Start()
 
 void GigEWorker::Stop()
 {
-    try
+	// Stop the camera acquisition and join the thread
+    m_running = false;
+	// Ensure the camera is stopped before joining the thread
+    if (m_thread.joinable())
     {
-	    // Stop the camera acquisition and join the thread
-        m_running = false;
-	    // Ensure the camera is stopped before joining the thread
-        if (m_thread.joinable())
-        {
-            m_thread.join();
-        }
-    }
-    catch (const GenICam::GenericException& e)
-    {
-		std::cerr << "[GigEWorker] Stop thread error: " << e.GetDescription() << std::endl;
+        m_thread.join();
     }
 }
 
@@ -69,7 +62,14 @@ void GigEWorker::WorkerLoop()
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
-    m_camera->StopAcquisition();
+    try
+    {
+        m_camera->StopAcquisition();
+    }
+    catch (const GenICam::GenericException& e)
+    {
+        std::cerr << "[GigEWorker] StopAcquisition error: " << e.GetDescription() << std::endl;
+    }
 }
 
 
