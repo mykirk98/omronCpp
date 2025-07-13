@@ -4,6 +4,8 @@
 #include <thread>
 #include <atomic>
 #include <memory>
+#include <iostream>
+#include <chrono>
 
 /* @brief thread worker class for handling GigE camera operations. */
 class GigEWorker
