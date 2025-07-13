@@ -1,6 +1,7 @@
 #include "GigEManager.h"
 
-GigEManager::GigEManager()
+GigEManager::GigEManager(std::string saveRootDir)
+    : m_saveRootDir(saveRootDir)
 {
 }
 
@@ -27,7 +28,7 @@ bool GigEManager::Initialize()
                 std::cout << "Device " << j << ": " << pInterface->GetIStDeviceInfo(j)->GetDisplayName() << std::endl;
                 std::cout << "SerialNumber: " << pInterface->GetIStDeviceInfo(j)->GetSerialNumber() << std::endl;
 
-                std::unique_ptr<GigECamera> camera = std::make_unique<GigECamera>();
+                std::unique_ptr<GigECamera> camera = std::make_unique<GigECamera>(m_saveRootDir);
                 if (camera->Initialize(pInterface, j))
                 {
                     std::shared_ptr<GigEWorker> worker = std::make_shared<GigEWorker>(std::move(camera));

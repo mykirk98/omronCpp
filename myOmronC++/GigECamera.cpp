@@ -1,8 +1,8 @@
 #include "GigECamera.h"
 
-GigECamera::GigECamera()
+GigECamera::GigECamera(std::string saveRootDir)
 	: m_pInterface(nullptr)
-	, m_saveRootDir("C:\\Users\\mykir\\Work\\Experiments\\") //NOTE: LAB WINDOWS PC DIRECTORY
+	, m_saveRootDir(saveRootDir)
 	, pICommandTriggerSoftware(nullptr)
 	, m_serialNumber("")
 {
@@ -114,7 +114,7 @@ void GigECamera::SequentialCapture()
 
 			CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
 			ConvertPixelFormat(pImage, true, pImageBuffer);
-			GenICam::gcstring savePath = SetSavePath(m_saveRootDir, pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID());
+			GenICam::gcstring savePath = SetSavePath(pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID());
 			SaveImage<BMP>(pImageBuffer, savePath);
 		}
 	}
@@ -157,7 +157,7 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 
 				CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
 				ConvertPixelFormat(pImage, true, pImageBuffer);
-				GenICam::gcstring savePath = SetSavePath(m_saveRootDir, pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID());
+				GenICam::gcstring savePath = SetSavePath(pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID());
 				SaveImage<BMP>(pImageBuffer, savePath);
 
 			}
@@ -255,14 +255,11 @@ void GigECamera::ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStImage
 	}
 }
 
-GenICam::gcstring GigECamera::SetSavePath(const std::string& baseDir, const uint64_t frameID)
+GenICam::gcstring GigECamera::SetSavePath(const uint64_t frameID)
 {
 	try
 	{
-		// Change frameID to string
-		std::string strFrameID = std::to_string(frameID);
-
-		std::string filePath = baseDir + m_serialNumber.c_str() + strFrameID;
+		std::string filePath = m_saveRootDir + m_serialNumber.c_str() + "-" + std::to_string(frameID);
 
 		return GenICam::gcstring(filePath.c_str());
 	}

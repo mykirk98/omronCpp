@@ -9,7 +9,7 @@ class GigEManager
 {
 public:
     /*  @brief Constructor for GigEManager. */
-    explicit GigEManager();
+    explicit GigEManager(std::string saveRootDir);
 	/*  @brief Destructor for GigEManager. */
     ~GigEManager();
 
@@ -30,10 +30,12 @@ public:
 protected:
 
 private:
+	/*	@brief Initialize StApi */
+	CStApiAutoInit m_stApiAutoInit;
 	/*  @brief Print the status of all GigE Workers. */
     CIStSystemPtr m_pSystem;
 	/*  @brief List of GigE Workers managing individual cameras. */
     std::vector<std::shared_ptr<GigEWorker>> m_workers;
 
-	CStApiAutoInit m_stApiAutoInit; // StApi initialization object
+	std::string m_saveRootDir;
 };

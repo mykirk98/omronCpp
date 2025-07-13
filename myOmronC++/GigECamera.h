@@ -10,7 +10,7 @@ using namespace StApi;
 class GigECamera
 {
 public:
-	explicit GigECamera();
+	explicit GigECamera(std::string saveRootDir);
 	~GigECamera();
 
 	bool Initialize(IStInterface* pInterface, uint32_t interfaceDeviceIndex);
@@ -33,7 +33,7 @@ private:
 
 	void PrintFrameInfo(const CIStStreamBufferPtr& pStreamBuffer);
 	void ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStImageBufferPtr& pDstBuffer);
-	GenICam::gcstring SetSavePath(const std::string& baseDir, const uint64_t frameID);
+	GenICam::gcstring SetSavePath(const uint64_t frameID);
 	template<typename FORMAT>
 	void SaveImage(CIStImageBufferPtr& pImageBuffer, GenICam::gcstring& dstDir)
 	{
