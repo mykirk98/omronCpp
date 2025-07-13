@@ -80,28 +80,46 @@ void GigEManager::TriggerAll()
     }
 }
 
-void GigEManager::TriggerSelected(const std::vector<int>& indices)
+void GigEManager::TriggerSingle(int index)
 {
-    for (int idx : indices)
+    if (index >= 0 && index < static_cast<int>(m_workers.size()))
     {
-        if (idx >= 0 && idx < static_cast<int>(m_workers.size()))
-        {
-            m_workers[idx]->Trigger();
-        }
-        else
-        {
-            std::cerr << "[GigEManager] Invalid camera index: " << idx << std::endl;
-        }
+        m_workers[index]->Trigger();
+    }
+    else
+    {
+		std::cerr << "[GigEManager] Invalid worker index: " << index << std::endl;
     }
 }
 
-void GigEManager::RunInteractiveLoop()
+// Example usage of GigEManager class
+/*
+#include "GigEManager.h"
+#include <iostream>
+#include <sstream>
+#include <vector>
+#include <algorithm>
+
+int main()
 {
+    std::string saveRootDir = "C:\\Users\\mykir\\Work\\Experiments\\"; // NOTE: LAB WINDOWS PC DIRECTORY
+    //std::string saveRootDir = "C:\\Users\\USER\\Pictures\\"; // NOTE: HOME PC DIRECTORY
+    //std::string saveRootDir = "/home/msis/Pictures/SentechExperiments/Experiments1/"; // NOTE: LAB LINUX PC DIRECTORY
+    GigEManager manager(saveRootDir);
+
+    if (!manager.Initialize())
+    {
+        std::cerr << "Failed to initialize cameras.\n";
+        return -1;
+    }
+
+    manager.StartAll();
+
     std::cout << "Enter indices to trigger:\n";
     std::cout << "  0     => trigger ALL cameras\n";
     std::cout << "  1     => trigger camera at index 0\n";
     std::cout << "  2 3   => trigger cameras at indices 1 and 2\n";
-    std::cout << "Type 'exit' to quit.\n";
+    std::cout << "Type 'q' to quit.\n";
 
     std::string line;
     while (true)
@@ -109,7 +127,7 @@ void GigEManager::RunInteractiveLoop()
         std::cout << "> ";
         std::getline(std::cin, line);
 
-        if (line == "exit")
+        if (line == "q")
             break;
 
         std::istringstream iss(line);
@@ -123,66 +141,25 @@ void GigEManager::RunInteractiveLoop()
 
         if (inputs.empty())
         {
-            std::cerr << "[GigEManager] No input detected.\n";
+            std::cerr << "No input detected.\n";
             continue;
         }
 
-        // If input includes 0, treat as trigger all
         if (std::find(inputs.begin(), inputs.end(), 0) != inputs.end())
         {
-            TriggerAll();
+            manager.TriggerAll();
         }
         else
         {
-            // Adjust 1-based input to 0-based camera indices
-            std::vector<int> adjustedIndices;
-            for (int n : inputs)
+            for (int input : inputs)
             {
-                int index = n - 1;
-                if (index >= 0 && index < static_cast<int>(m_workers.size()))
-                {
-                    adjustedIndices.push_back(index);
-                }
-                else
-                {
-                    std::cerr << "[GigEManager] Invalid camera number: " << n << std::endl;
-                }
+                int index = input - 1;
+                manager.TriggerSingle(index);
             }
-
-            if (!adjustedIndices.empty())
-                TriggerSelected(adjustedIndices);
         }
     }
-}
 
-
-
-// Example usage of GigEManager class
-/*
-#include "GigEManager.h"
-#include <iostream>
-
-int main() {
-    GigEManager manager;
-
-    // Step 1: 카메라 초기화
-    if (!manager.Initialize())
-    {
-        std::cerr << "[main] Failed to initialize GigEManager." << std::endl;
-        return -1;
-    }
-
-    // Step 2: 모든 워커 스레드 시작 (acquisition 시작)
-    manager.StartAll();
-    std::cout << "[main] All camera workers started." << std::endl;
-
-    // Step 3: 사용자 입력 루프 실행
-    manager.RunInteractiveLoop();
-
-    // Step 4: 모든 워커 종료 (acquisition 정지)
     manager.StopAll();
-    std::cout << "[main] All camera workers stopped. Exiting..." << std::endl;
-
     return 0;
 }
 */

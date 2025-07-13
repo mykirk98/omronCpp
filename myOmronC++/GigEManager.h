@@ -2,7 +2,6 @@
 
 #include "GigEWorker.h"
 #include <vector>
-#include <sstream>
 
 /*  @brief GigEManager class for managing multiple GigE Workers. */
 class GigEManager
@@ -21,11 +20,9 @@ public:
     void StopAll();
 	/*  @brief Trigger all GigE Workers to capture an image. */
     void TriggerAll();
-	/*  @brief Trigger selected GigE Workers based on indices.
-	@param indices : A vector of indices representing the workers to trigger. */
-    void TriggerSelected(const std::vector<int>& indices);
-	/*  @brief Run an interactive loop for user input to trigger cameras. */
-    void RunInteractiveLoop();
+	/*	@brief Trigger single GigE Worker by index.
+	@param index The index of the GigE Worker to trigger. */
+	void TriggerSingle(int index);
 
 protected:
 
