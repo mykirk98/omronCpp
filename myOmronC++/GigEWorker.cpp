@@ -8,6 +8,7 @@ GigEWorker::GigEWorker(std::unique_ptr<GigECamera> camera)
 
 GigEWorker::~GigEWorker()
 {
+    Stop();
 }
 
 void GigEWorker::Start()

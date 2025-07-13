@@ -1,24 +1,39 @@
-// GigEManager.h
 #pragma once
 
-#include <StApi_TL.h>
 #include "GigEWorker.h"
 #include <vector>
-#include <memory>
+#include <sstream>
 
-class GigEManager {
+/*  @brief GigEManager class for managing multiple GigE Workers. */
+class GigEManager
+{
 public:
-    GigEManager();
+    /*  @brief Constructor for GigEManager. */
+    explicit GigEManager();
+	/*  @brief Destructor for GigEManager. */
     ~GigEManager();
 
-    bool Initialize();                // 전체 인터페이스와 디바이스 스캔 및 초기화
-    void StartAll();                  // 모든 워커 스레드 시작
-    void StopAll();                   // 모든 워커 스레드 종료
-    void TriggerAll();                // 모든 카메라에 트리거 발행
-    void TriggerSelected(const std::vector<int>& indices); // 선택된 인덱스 카메라만 트리거
-    void RunInteractiveLoop();        // 사용자 입력 루프
+	/*  @brief Initialize the GigEManager and its workers. */
+    bool Initialize();
+	/*  @brief Start all GigE Workers. */
+    void StartAll();
+	/*  @brief Stop all GigE Workers. */
+    void StopAll();
+	/*  @brief Trigger all GigE Workers to capture an image. */
+    void TriggerAll();
+	/*  @brief Trigger selected GigE Workers based on indices.
+	@param indices : A vector of indices representing the workers to trigger. */
+    void TriggerSelected(const std::vector<int>& indices);
+	/*  @brief Run an interactive loop for user input to trigger cameras. */
+    void RunInteractiveLoop();
+
+protected:
 
 private:
+	/*  @brief Print the status of all GigE Workers. */
     CIStSystemPtr m_pSystem;
+	/*  @brief List of GigE Workers managing individual cameras. */
     std::vector<std::shared_ptr<GigEWorker>> m_workers;
+
+	CStApiAutoInit m_stApiAutoInit; // StApi initialization object
 };

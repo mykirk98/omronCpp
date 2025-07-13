@@ -10,6 +10,7 @@ GigECamera::GigECamera()
 
 GigECamera::~GigECamera()
 {
+	StopAcquisition();
 }
 
 bool GigECamera::Initialize(IStInterface* pInterface, uint32_t interfaceDeviceIndex)
