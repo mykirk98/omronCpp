@@ -116,12 +116,17 @@ void GigECamera::SequentialCapture()
 			IStImage* pImage = pStreamBuffer->GetIStImage();
 			PrintFrameInfo(pStreamBuffer);
 
-			CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
-			ConvertPixelFormat(pImage, true, pImageBuffer);
-			GenICam::gcstring savePath = SetSavePath(pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID());
-			SaveImage<BMP>(pImageBuffer, savePath);
+			//CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
+			//ConvertPixelFormat(pImage, true, pImageBuffer);
+			//GenICam::gcstring savePath = SetSavePath(pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID());
+			//SaveImage<BMP>(pImageBuffer, savePath);
 		}
 	}
+}
+
+void GigECamera::SetFrameQueue(std::shared_ptr<FrameQueue> pFrameQueue)
+{
+	m_queue = pFrameQueue;
 }
 
 void GigECamera::OnStCallbackMethod(IStCallbackParamBase* pIStCallbackParamBase, void* pvContext)
@@ -156,14 +161,21 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 			{
 				// If yes, we create a IStImage object for further image handling.
 				IStImage* pImage = pStreamBuffer->GetIStImage();
-
+				
 				PrintFrameInfo(pStreamBuffer);
 
-				CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
-				ConvertPixelFormat(pImage, true, pImageBuffer);
-				GenICam::gcstring savePath = SetSavePath(pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID());
-				SaveImage<BMP>(pImageBuffer, savePath);
+				FrameData frame;
+				frame.pImage = pImage;
+				frame.serialNumber = m_serialNumber;
+				frame.frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
 
+				// Push the frame data into the frame queue for further processing.
+				if (m_queue)
+					m_queue->Push(frame);
+				else
+					std::cerr << "[GigECamera] Frame queue is not set. Cannot push frame data." << std::endl;
+
+				Sleep(100);
 			}
 			else
 			{
@@ -228,11 +240,6 @@ void GigECamera::PrintFrameInfo(const CIStStreamBufferPtr& pStreamBuffer)
 	{
 		std::cerr << "[GigECamera] Printing frame info error: " << e.GetDescription() << std::endl;
 	}
-}
-
-void GigECamera::SetThreadPool(std::shared_ptr<ImageSaverThreadPool> pThreadPool)
-{
-	m_pThreadPool = pThreadPool;
 }
 
 void GigECamera::ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStImageBufferPtr& pDstBuffer)

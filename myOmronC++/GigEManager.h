@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GigEWorker.h"
+#include "ImageSaverThreadPool.h"
 #include <vector>
 
 /*  @brief GigEManager class for managing multiple GigE Workers. */
@@ -35,4 +36,7 @@ private:
     std::vector<std::shared_ptr<GigEWorker>> m_workers;
 
 	std::string m_saveRootDir;
+
+	std::shared_ptr<FrameQueue> m_frameQueue;
+	std::shared_ptr<ImageSaverThreadPool> m_ImageSaverThreadPool;
 };

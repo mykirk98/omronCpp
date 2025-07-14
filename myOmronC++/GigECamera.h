@@ -4,7 +4,8 @@
 #include <StApi_IP.h>
 
 #include "GigEConfigurator.h"
-#include "ImageSaverThreadPool.h"
+#include "FrameQueue.h"
+//#include "ImageSaverThreadPool.h"
 
 #ifdef _WIN32
 #include <windows.h>  // for Sleep
@@ -27,7 +28,7 @@ public:
 
 	void SequentialCapture();
 
-	void SetThreadPool(std::shared_ptr<ImageSaverThreadPool> pThreadPool);
+	void SetFrameQueue(std::shared_ptr<FrameQueue> pFrameQueue);
 
 	GenApi::CCommandPtr pICommandTriggerSoftware;
 
@@ -64,6 +65,6 @@ private:
 
 	std::string m_saveRootDir; // Directory to save images
 	GenICam::gcstring m_serialNumber;
-	std::shared_ptr<ImageSaverThreadPool> m_pThreadPool; // Thread pool for saving images
+	std::shared_ptr<FrameQueue> m_queue;
 };
 

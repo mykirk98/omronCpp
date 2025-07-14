@@ -1,5 +1,8 @@
 #include "GigEManager.h"
 #include <iostream>
+#include <sstream>
+#include <vector>
+#include <algorithm>
 
 int main()
 {
@@ -8,23 +11,58 @@ int main()
 	//std::string saveRootDir = "/home/msis/Pictures/SentechExperiments/Experiments1/"; // NOTE: LAB LINUX PC DIRECTORY
     GigEManager manager(saveRootDir);
 
-    // Step 1: 카메라 초기화
     if (!manager.Initialize())
     {
-        std::cerr << "[main] Failed to initialize GigEManager." << std::endl;
+        std::cerr << "Failed to initialize cameras.\n";
         return -1;
     }
 
-    // Step 2: 모든 워커 스레드 시작 (acquisition 시작)
     manager.StartAll();
-    std::cout << "[main] All camera workers started." << std::endl;
 
-    // Step 3: 사용자 입력 루프 실행
-    manager.RunInteractiveLoop();
+    std::cout << "Enter indices to trigger:\n";
+    std::cout << "  0     => trigger ALL cameras\n";
+    std::cout << "  1     => trigger camera at index 0\n";
+    std::cout << "  2 3   => trigger cameras at indices 1 and 2\n";
+    std::cout << "Type 'q' to quit.\n";
 
-    // Step 4: 모든 워커 종료 (acquisition 정지)
+    std::string line;
+    while (true)
+    {
+        std::cout << "> ";
+        std::getline(std::cin, line);
+
+        if (line == "q")
+            break;
+
+        std::istringstream iss(line);
+        std::vector<int> inputs;
+        int num;
+
+        while (iss >> num)
+        {
+            inputs.push_back(num);
+        }
+
+        if (inputs.empty())
+        {
+            std::cerr << "No input detected.\n";
+            continue;
+        }
+
+        if (std::find(inputs.begin(), inputs.end(), 0) != inputs.end())
+        {
+            manager.TriggerAll();
+        }
+        else
+        {
+            for (int input : inputs)
+            {
+                int index = input - 1;
+                manager.TriggerSingle(index);
+            }
+        }
+    }
+
     manager.StopAll();
-    std::cout << "[main] All camera workers stopped. Exiting..." << std::endl;
-
     return 0;
 }

@@ -13,6 +13,10 @@ GigEManager::~GigEManager()
 bool GigEManager::Initialize()
 {
     try {
+        m_frameQueue = std::make_shared<FrameQueue>();
+        m_ImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_saveRootDir, m_frameQueue, true);
+		m_ImageSaverThreadPool->Start();
+
         m_pSystem = CreateIStSystem(StSystemVendor_Default, StInterfaceType_GigEVision);
 
         for (uint32_t i = 0; i < m_pSystem->GetInterfaceCount(); ++i)
@@ -31,6 +35,7 @@ bool GigEManager::Initialize()
                 std::unique_ptr<GigECamera> camera = std::make_unique<GigECamera>(m_saveRootDir);
                 if (camera->Initialize(pInterface, j))
                 {
+                    camera->SetFrameQueue(m_frameQueue);
                     std::shared_ptr<GigEWorker> worker = std::make_shared<GigEWorker>(std::move(camera));
                     m_workers.push_back(worker);
                 }
