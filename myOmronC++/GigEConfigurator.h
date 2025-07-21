@@ -1,7 +1,7 @@
 #pragma once
 
 #include <StApi_TL.h>
-
+#include <unordered_map>
 #include "config.h"
 
 //#if defined(_WIN32_WINNT_WIN8) && (_WIN32_WINNT_WIN8 <= WINVER)
@@ -28,7 +28,7 @@ using namespace StApi;
 class GigEConfigurator
 {
 public:
-	static void UpdateDeviceIPAddress(GenApi::INodeMap* pINodeMap, uint32_t deviceIndex, const GenICam::gcstring& serialNumber);
+	static void UpdateDeviceIPAddress(GenApi::INodeMap* pINodeMap, uint32_t deviceIndex, const GenICam::gcstring& serialNumber, std::string& cameraName);
 
 	static void UpdateHeartbeatTimeout(GenApi::INodeMap* pINodeMap, GenICam::gcstring heartBeatTimeOut);
 

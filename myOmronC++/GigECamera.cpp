@@ -5,6 +5,7 @@ GigECamera::GigECamera(std::string saveRootDir)
 	, m_saveRootDir(saveRootDir)
 	, pICommandTriggerSoftware(nullptr)
 	, m_serialNumber("")
+	, m_cameraName("")
 {
 }
 
@@ -20,7 +21,7 @@ bool GigECamera::Initialize(IStInterface* pInterface, uint32_t interfaceDeviceIn
 		m_pInterface = pInterface;
 		std::cout << "[GigECamera] Interface: " << m_pInterface->GetIStInterfaceInfo()->GetDisplayName() << " initialized" << std::endl;
 
-		GigEConfigurator::UpdateDeviceIPAddress(m_pInterface->GetIStPort()->GetINodeMap(), interfaceDeviceIndex, m_pInterface->GetIStDeviceInfo(interfaceDeviceIndex)->GetSerialNumber());
+		GigEConfigurator::UpdateDeviceIPAddress(m_pInterface->GetIStPort()->GetINodeMap(), interfaceDeviceIndex, m_pInterface->GetIStDeviceInfo(interfaceDeviceIndex)->GetSerialNumber(), m_cameraName);
 
 		GenApi::CIntegerPtr pGevDeviceForceIPAddress(m_pInterface->GetIStPort()->GetINodeMap()->GetNode(GEV_DEVICE_FORCE_IP_ADDRESS));
 		const int64_t nDeviceIPAddress = pGevDeviceForceIPAddress->GetValue();
@@ -59,7 +60,6 @@ bool GigECamera::Initialize(IStInterface* pInterface, uint32_t interfaceDeviceIn
 
 		RegisterCallback(m_pDataStream, &GigECamera::OnStCallbackMethod, this);
 
-
 		return true;
 	}
 	catch (const GenICam::GenericException& e)
@@ -67,8 +67,6 @@ bool GigECamera::Initialize(IStInterface* pInterface, uint32_t interfaceDeviceIn
 		std::cout << "[GigECamera] Initialization error: " << e.GetDescription() << std::endl;
 		return false;
 	}
-
-
 }
 
 void GigECamera::StartAcquisition()
@@ -168,6 +166,7 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 				frame.pImage = pImage;
 				frame.serialNumber = m_serialNumber;
 				frame.frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
+				frame.cameraName = GetCameraName();
 
 				// Push the frame data into the frame queue for further processing.
 				if (m_queue)
@@ -230,7 +229,8 @@ void GigECamera::PrintFrameInfo(const CIStStreamBufferPtr& pStreamBuffer)
 {
 	try
 	{
-		std::cout << "Block ID: " << pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()
+		std::cout << "[" << GetCameraName() << "] "
+			<< "Block ID: " << pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()
 			<< "\tSize: " << pStreamBuffer->GetIStImage()->GetImageWidth() << " x " << pStreamBuffer->GetIStImage()->GetImageHeight()
 			<< "\tFirst byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pStreamBuffer->GetIStImage()->GetImageBuffer()))
 			<< "\ttime stamp: " << pStreamBuffer->GetIStStreamBufferInfo()->GetTimestamp()

@@ -66,7 +66,7 @@ void ImageSaverThreadPool::WorkerLoop()
 			{
 				CIStImageBufferPtr pBuffer(CreateIStImageBuffer());
 				ConvertPixelFormat(frame.pImage, m_convertToColor, pBuffer);
-				GenICam::gcstring savePath = SetSavePath(m_saveRootDir, frame.serialNumber, frame.frameID);
+				GenICam::gcstring savePath = SetSavePath(m_saveRootDir, frame.cameraName, frame.serialNumber, frame.frameID);
 				SaveImage<BMP>(pBuffer, savePath);
 
 				std::cout << "[ImageSaverThreadPool] Queue size: " << m_queue->Size() << std::endl;
@@ -104,14 +104,18 @@ void ImageSaverThreadPool::ConvertPixelFormat(IStImage* pSrcImage, bool isColor,
 	}
 }
 
-GenICam::gcstring ImageSaverThreadPool::SetSavePath(const std::string& baseDir, const std::string& cameraName, const uint64_t frameID)
+GenICam::gcstring ImageSaverThreadPool::SetSavePath(const std::string& baseDir, const std::string& cameraName, const std::string& serialNumber, const uint64_t frameID)
 {
 	try
 	{
 		// Change frameID to string
 		std::string strFrameID = std::to_string(frameID);
 		
-		std::string filePath = baseDir + cameraName + strFrameID;
+#ifdef _WIN32
+		std::string filePath = baseDir + cameraName + "\\" + serialNumber + "-" + strFrameID;
+#else
+		std::string filePath = baseDir + cameraName + "/" + serialNumber + "-" + strFrameID;
+#endif
 
 		return GenICam::gcstring(filePath.c_str());
 	}

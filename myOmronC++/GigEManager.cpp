@@ -33,11 +33,14 @@ bool GigEManager::Initialize()
                 std::cout << "SerialNumber: " << pInterface->GetIStDeviceInfo(j)->GetSerialNumber() << std::endl;
 
                 std::unique_ptr<GigECamera> camera = std::make_unique<GigECamera>(m_saveRootDir);
+                const std::string& cameraName = camera->GetCameraName();
                 if (camera->Initialize(pInterface, j))
                 {
                     camera->SetFrameQueue(m_frameQueue);
                     std::shared_ptr<GigEWorker> worker = std::make_shared<GigEWorker>(std::move(camera));
                     m_workers.push_back(worker);
+
+                    m_workerMap[cameraName] = worker;
                 }
                 else
                 {
@@ -97,6 +100,20 @@ void GigEManager::TriggerSingle(int index)
     }
 }
 
+void GigEManager::TriggerSingle(const std::string& cameraName)
+{
+    //std::map<std::string, std::shared_ptr<GigEWorker>>::iterator it = m_workerMap.find(cameraName);
+    auto it = m_workerMap.find(cameraName);
+    if (it != m_workerMap.end())
+    {
+        it->second->Trigger();
+    }
+    else
+    {
+        std::cerr << "[GigEManager] Camera not found: " << cameraName << std::endl;
+	}
+}
+
 // Example usage of GigEManager class
 /*
 #include "GigEManager.h"
@@ -107,9 +124,9 @@ void GigEManager::TriggerSingle(int index)
 
 int main()
 {
-    std::string saveRootDir = "C:\\Users\\mykir\\Work\\Experiments\\"; // NOTE: LAB WINDOWS PC DIRECTORY
-    //std::string saveRootDir = "C:\\Users\\USER\\Pictures\\"; // NOTE: HOME PC DIRECTORY
-    //std::string saveRootDir = "/home/msis/Pictures/SentechExperiments/Experiments1/"; // NOTE: LAB LINUX PC DIRECTORY
+	std::string saveRootDir = "C:\\Users\\mykir\\Work\\Experiments\\"; // NOTE: LAB WINDOWS PC DIRECTORY
+	//std::string saveRootDir = "C:\\Users\\USER\\Pictures\\"; // NOTE: HOME PC DIRECTORY
+	//std::string saveRootDir = "/home/msis/Pictures/SentechExperiments/Experiments1/"; // NOTE: LAB LINUX PC DIRECTORY
     GigEManager manager(saveRootDir);
 
     if (!manager.Initialize())
@@ -119,7 +136,7 @@ int main()
     }
 
     manager.StartAll();
-
+    
     std::cout << "Enter indices to trigger:\n";
     std::cout << "  0     => trigger ALL cameras\n";
     std::cout << "  1     => trigger camera at index 0\n";
@@ -163,6 +180,19 @@ int main()
             }
         }
     }
+    
+
+    manager.TriggerSingle("12MP_1");
+    Sleep(100);
+	manager.TriggerSingle("12MP_2");
+    Sleep(100);
+	manager.TriggerSingle("5MP_1");
+    Sleep(100);
+    manager.TriggerSingle("5MP_2");
+    Sleep(100);
+    manager.TriggerSingle("5MP_3");
+    Sleep(100);
+    manager.TriggerSingle("12MP_1");
 
     manager.StopAll();
     return 0;

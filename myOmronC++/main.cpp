@@ -19,49 +19,61 @@ int main()
 
     manager.StartAll();
 
-    std::cout << "Enter indices to trigger:\n";
-    std::cout << "  0     => trigger ALL cameras\n";
-    std::cout << "  1     => trigger camera at index 0\n";
-    std::cout << "  2 3   => trigger cameras at indices 1 and 2\n";
-    std::cout << "Type 'q' to quit.\n";
+    //std::cout << "Enter indices to trigger:\n";
+    //std::cout << "  0     => trigger ALL cameras\n";
+    //std::cout << "  1     => trigger camera at index 0\n";
+    //std::cout << "  2 3   => trigger cameras at indices 1 and 2\n";
+    //std::cout << "Type 'q' to quit.\n";
 
-    std::string line;
-    while (true)
-    {
-        std::cout << "> ";
-        std::getline(std::cin, line);
+    //std::string line;
+    //while (true)
+    //{
+    //    std::cout << "> ";
+    //    std::getline(std::cin, line);
 
-        if (line == "q")
-            break;
+    //    if (line == "q")
+    //        break;
 
-        std::istringstream iss(line);
-        std::vector<int> inputs;
-        int num;
+    //    std::istringstream iss(line);
+    //    std::vector<int> inputs;
+    //    int num;
 
-        while (iss >> num)
-        {
-            inputs.push_back(num);
-        }
+    //    while (iss >> num)
+    //    {
+    //        inputs.push_back(num);
+    //    }
 
-        if (inputs.empty())
-        {
-            std::cerr << "No input detected.\n";
-            continue;
-        }
+    //    if (inputs.empty())
+    //    {
+    //        std::cerr << "No input detected.\n";
+    //        continue;
+    //    }
 
-        if (std::find(inputs.begin(), inputs.end(), 0) != inputs.end())
-        {
-            manager.TriggerAll();
-        }
-        else
-        {
-            for (int input : inputs)
-            {
-                int index = input - 1;
-                manager.TriggerSingle(index);
-            }
-        }
-    }
+    //    if (std::find(inputs.begin(), inputs.end(), 0) != inputs.end())
+    //    {
+    //        manager.TriggerAll();
+    //    }
+    //    else
+    //    {
+    //        for (int input : inputs)
+    //        {
+    //            int index = input - 1;
+    //            manager.TriggerSingle(index);
+    //        }
+    //    }
+    //}
+
+    manager.TriggerSingle("12MP_1");
+    Sleep(100);
+	manager.TriggerSingle("12MP_2");
+    Sleep(100);
+	manager.TriggerSingle("5MP_1");
+    Sleep(100);
+    manager.TriggerSingle("5MP_2");
+    Sleep(100);
+    manager.TriggerSingle("5MP_3");
+    Sleep(100);
+    manager.TriggerSingle("12MP_1");
 
     manager.StopAll();
     return 0;

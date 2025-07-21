@@ -3,6 +3,7 @@
 #include "GigEWorker.h"
 #include "ImageSaverThreadPool.h"
 #include <vector>
+#include <map>
 
 /*  @brief GigEManager class for managing multiple GigE Workers. */
 class GigEManager
@@ -24,6 +25,9 @@ public:
 	/*	@brief Trigger single GigE Worker by index.
 	@param index The index of the GigE Worker to trigger. */
 	void TriggerSingle(int index);
+	/*	@brief Trigger single GigE Worker by camera name.
+	@param cameraName The name of the camera to trigger. */
+	void TriggerSingle(const std::string& cameraName);
 
 protected:
 
@@ -34,6 +38,7 @@ private:
     CIStSystemPtr m_pSystem;
 	/*  @brief List of GigE Workers managing individual cameras. */
     std::vector<std::shared_ptr<GigEWorker>> m_workers;
+	std::map<std::string, std::shared_ptr<GigEWorker>> m_workerMap;
 
 	std::string m_saveRootDir;
 

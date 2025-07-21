@@ -68,7 +68,7 @@ private:
 		@param baseDir : Base directory where images will be saved
 		@param cameraName : Name of the camera
 		@param frameID : Frame ID of the image to be saved */
-	GenICam::gcstring SetSavePath(const std::string& baseDir, const std::string& cameraName, const uint64_t frameID);
+	GenICam::gcstring SetSavePath(const std::string& baseDir, const std::string& cameraName, const std::string& serialNumber, const uint64_t frameID);
 	template<typename FORMAT>
 	void SaveImage(CIStImageBufferPtr& pImageBuffer, GenICam::gcstring& dstDir)
 	{

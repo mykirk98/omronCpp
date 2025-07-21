@@ -32,6 +32,8 @@ public:
 
 	GenApi::CCommandPtr pICommandTriggerSoftware;
 
+	const std::string& GetCameraName() const { return m_cameraName; }
+
 protected:
 
 private:
@@ -66,5 +68,6 @@ private:
 	std::string m_saveRootDir; // Directory to save images
 	GenICam::gcstring m_serialNumber;
 	std::shared_ptr<FrameQueue> m_queue;
+	std::string m_cameraName;
 };
 
