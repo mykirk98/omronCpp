@@ -21,14 +21,14 @@ struct FrameData
 };
 
 /*
-@brief ImageSaveQueue class
+@brief FrameQueue class
 @brief This class implements a thread-safe queue for storing image frames.
 */
-class ImageSaveQueue
+class FrameQueue
 {
 public:
-	ImageSaveQueue();
-	~ImageSaveQueue();
+	FrameQueue();
+	~FrameQueue();
 
 	/*
 	@brief Producer(Camera thread) push an image frame into the queue

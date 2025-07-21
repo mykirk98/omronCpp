@@ -1,35 +1,35 @@
-#include "CameraStaff.h"
+#include "CameraManager.h"
+#include "FrameQueue.h"
+#include <StApi_TL.h>
 
 int main()
 {
-    std::cout << "==========Camera Staff Example==========" << std::endl;
-    CStApiAutoInit objStApiAutoInit;
-    CIStSystemPtr system = CreateIStSystem();
-    std::string saveDir = "C:\\Users\\mykir\\Work\\Experiments\\";	//NOTE: LAB PC DIRECTORY
+    CStApiAutoInit stApiInit;
+    CIStSystemPtr pSystem(CreateIStSystem());
 
-    CameraStaff staff;
-    if (staff.Initialize(system, saveDir))
+    auto sharedQueue = std::make_shared<FrameQueue>();
+
+    CameraManager manager;
+    int numCameras = 2;
+    int numImages = 4;
+    // 예시: 2대의 카메라 생성
+    for (int i = 0; i < numCameras; ++i)
     {
-        staff.Start();
-
-        /*while (true)
-        {
-            std::cout << "0: Trigger image, Else: Quit\n> ";
-            int cmd;
-            std::cin >> cmd;
-
-            if (cmd == 0)
-                staff.Trigger();
-            else
-                break;
-        }*/
-
-        for (int i = 0; i < 10; ++i)
-        {
-            std::cout << "Triggering image " << i + 1 << std::endl;
-            staff.Trigger();
-            std::this_thread::sleep_for(std::chrono::milliseconds(20)); // Simulate some delay between triggers
-		}
-        staff.Stop();
+        auto camera = std::make_unique<TriggerCamera>();
+        if (camera->Initialize(pSystem)) {
+            camera->SetFrameQueue(sharedQueue);
+            manager.AddCamera(std::move(camera));
+        }
     }
+
+    manager.StartShooting(numImages); // 카메라마다 100장 촬영
+    manager.JoinAll();
+
+    for (int i = 0; i < numCameras * numImages; ++i)
+    {
+        IStImage* image = sharedQueue->Pop();
+        std::cout << "[Main] Popped frame, queue size: " << sharedQueue->Size() << std::endl;
+    }
+
+    return 0;
 }

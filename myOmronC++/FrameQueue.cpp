@@ -1,22 +1,22 @@
-#include "ImageSaveQueue.h"
+#include "FrameQueue.h"
 
 //#define LOGGING
 
-ImageSaveQueue::ImageSaveQueue()
+FrameQueue::FrameQueue()
 {
 #ifdef LOGGING
 	std::cout << "[ImageSaveQueue] constructed." << std::endl;
 #endif // LOGGING
 }
 
-ImageSaveQueue::~ImageSaveQueue()
+FrameQueue::~FrameQueue()
 {
 #ifdef LOGGING
 	std::cout << "[ImageSaveQueue] destructed." << std::endl;
 #endif // LOGGING
 }
 
-void ImageSaveQueue::Push(const FrameData& frame)
+void FrameQueue::Push(const FrameData& frame)
 {
 	// producer : push a frame into the queue
 	
@@ -33,7 +33,7 @@ void ImageSaveQueue::Push(const FrameData& frame)
 
 }
 
-bool ImageSaveQueue::Pop(FrameData& frame)
+bool FrameQueue::Pop(FrameData& frame)
 {
 	// consumer : pop a frame from the queue
 
@@ -55,7 +55,7 @@ bool ImageSaveQueue::Pop(FrameData& frame)
 	return true;
 }
 
-bool ImageSaveQueue::PopWithTimeOut(FrameData& frame, std::chrono::milliseconds timeout)
+bool FrameQueue::PopWithTimeOut(FrameData& frame, std::chrono::milliseconds timeout)
 {
 	// consumer : pop a frame from the queue with a timeout
 
@@ -84,7 +84,7 @@ bool ImageSaveQueue::PopWithTimeOut(FrameData& frame, std::chrono::milliseconds 
 	return false;
 }
 
-bool ImageSaveQueue::isEmpty() const
+bool FrameQueue::isEmpty() const
 {
 	// ensure thread safety when checking if the queue is empty
 	std::lock_guard<std::mutex> lock(m_mutex);
@@ -97,7 +97,7 @@ bool ImageSaveQueue::isEmpty() const
 	return m_queue.empty();
 }
 
-size_t ImageSaveQueue::Size() const
+size_t FrameQueue::Size() const
 {
 	// ensure thread safety when getting the size of the queue
 	std::lock_guard<std::mutex> lock(m_mutex);
@@ -110,7 +110,7 @@ size_t ImageSaveQueue::Size() const
 	return m_queue.size();
 }
 
-void ImageSaveQueue::Clear()
+void FrameQueue::Clear()
 {
 	// ensure thread safety when clearing the queue
 	std::lock_guard<std::mutex> lock(m_mutex);

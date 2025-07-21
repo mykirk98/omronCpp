@@ -132,10 +132,11 @@
   <ItemGroup>
     <ClCompile Include="CameraConfigurator.cpp" />
     <ClCompile Include="CameraManager.cpp" />
-    <ClCompile Include="EventCamera.cpp" />
     <ClCompile Include="CameraStaff.cpp" />
     <ClCompile Include="BasicCamera.cpp" />
-    <ClCompile Include="ImageSaveQueue.cpp" />
+    <ClCompile Include="GigECamera.cpp" />
+    <ClCompile Include="GigEConfigurator.cpp" />
+    <ClCompile Include="FrameQueue.cpp" />
     <ClCompile Include="ImageSaverThreadPool.cpp" />
     <ClCompile Include="TriggerCamera.cpp" />
     <ClCompile Include="CameraWorker_Chunk.cpp" />
@@ -146,10 +147,11 @@
   <ItemGroup>
     <ClInclude Include="CameraConfigurator.h" />
     <ClInclude Include="CameraManager.h" />
-    <ClInclude Include="EventCamera.h" />
     <ClInclude Include="CameraStaff.h" />
     <ClInclude Include="BasicCamera.h" />
-    <ClInclude Include="ImageSaveQueue.h" />
+    <ClInclude Include="GigECamera.h" />
+    <ClInclude Include="GigEConfigurator.h" />
+    <ClInclude Include="FrameQueue.h" />
     <ClInclude Include="ImageSaverThreadPool.h" />
     <ClInclude Include="TriggerCamera.h" />
     <ClInclude Include="CameraWorker_Chunk.h" />

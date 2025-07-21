@@ -24,9 +24,6 @@
     <ClCompile Include="TriggerCamera.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="EventCamera.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="CameraWorker_Chunk.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -36,7 +33,7 @@
     <ClCompile Include="CameraStaff.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="ImageSaveQueue.cpp">
+    <ClCompile Include="FrameQueue.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ImageSaverThreadPool.cpp">
@@ -45,15 +42,18 @@
     <ClCompile Include="CameraManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="GigECamera.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GigEConfigurator.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicCamera.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="TriggerCamera.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="EventCamera.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="CameraWorker_Chunk.h">
@@ -68,13 +68,19 @@
     <ClInclude Include="CameraStaff.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ImageSaveQueue.h">
+    <ClInclude Include="FrameQueue.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ImageSaverThreadPool.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="CameraManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GigECamera.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GigEConfigurator.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

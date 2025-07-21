@@ -1,9 +1,11 @@
 #include "TriggerCamera.h"
 
 //#define LOGGING
+//#define SYNC_LOGGING
 
 TriggerCamera::TriggerCamera()
 	: pICommandTriggerSoftware(nullptr)
+	, m_imageCaptured(false)
 {
 #ifdef LOGGING
 	std::cout << "[TriggerCamera] constructed" << std::endl;
@@ -23,7 +25,9 @@ bool TriggerCamera::Initialize(const CIStSystemPtr& pSystem)
 	{
 		// Create a camera device object and connect to the first detected device.
 		m_pDevice = pSystem->CreateFirstIStDevice();
+#ifdef LOGGING
 		std::cout << "[TriggerCamera] " << m_pDevice->GetIStDeviceInfo()->GetDisplayName() << " : connected" << std::endl;
+#endif // LOGGING
 		// Get the INodeMap interface pointer for the camera settings.
 		GenApi::CNodeMapPtr pINodeMap(m_pDevice->GetRemoteIStPort()->GetINodeMap());
 		// Set the TriggerSelector to FrameStart.
@@ -33,8 +37,9 @@ bool TriggerCamera::Initialize(const CIStSystemPtr& pSystem)
 		
 		// Create a DataStream object for handling image stream data.
 		m_pDataStream = m_pDevice->CreateIStDataStream(0);
+#ifdef LOGGING
 		std::cout << "[TriggerCamera] # of available data stream : " << m_pDevice->GetDataStreamCount() << std::endl;
-
+#endif // LOGGING
 		// Register a callback function. When a Data stream event is triggered, the registered function will be called.
 		RegisterCallback(m_pDataStream, &TriggerCamera::OnStCallbackMethod, this);
 		//NOTE: this : means the current instance of TriggerCamera, allowing the callback to access instance variables and methods.
@@ -90,6 +95,48 @@ void TriggerCamera::StopAcquisition()
 	}
 }
 
+bool TriggerCamera::TriggerAndWait(int timeoutMs)
+{
+	{	//NOTE: <--Critical section to ensure thread safety
+		// Lock the mutex to ensure thread safety when accessing shared resources
+#ifdef SYNC_LOGGING
+		std::cout << "[TriggerCamera] Locking mutex and execute the trigger" << std::endl;
+#endif // SYNC_LOGGING
+		std::lock_guard<std::mutex> lock(m_mutex);
+		// Reset the image captured flag to false before issuing a new trigger
+		m_imageCaptured = false;
+	}	//NOTE: <--end of critical section, mutex is automatically released
+
+	// Issue a software trigger command to the camera
+	std::chrono::steady_clock::time_point triggerTime = std::chrono::steady_clock::now();
+	// print trigger time
+	std::cout << "[TriggerCamera] Trigger time: "
+		<< std::chrono::duration_cast<std::chrono::milliseconds>(triggerTime.time_since_epoch()).count()
+		<< " ms" << std::endl;
+	pICommandTriggerSoftware->Execute();
+#ifdef SYNC_LOGGING
+	std::cout << "[TriggerCamera] Trigger executed" << std::endl;
+#endif // SYNC_LOGGING
+
+	// Wait for the image to be captured or timeout
+	std::unique_lock<std::mutex> lock(m_mutex);
+#ifdef SYNC_LOGGING
+	std::cout << "[TriggerCamera] Waiting for image capture with timeout: " << timeoutMs << " ms" << std::endl;
+#endif // SYNC_LOGGING
+	// Use condition variable to wait for the image to be captured or timeout
+	bool success = m_cv.wait_for(lock, std::chrono::milliseconds(timeoutMs), [this]() {
+		return m_imageCaptured.load();	// Check if the image has been captured
+		});
+#ifdef SYNC_LOGGING
+	std::cout << "[TriggerCamera] Wait completed" << std::endl;
+#endif // SYNC_LOGGING
+	//NOTE: if m_imageCaptured is true, it means the image has been captured successfully
+	//NOTE: and the condition variable will notify the waiting thread to wake up.
+
+	// true = image captured, false = timeout occurred
+	return success;
+}
+
 void TriggerCamera::OnStCallbackMethod(IStCallbackParamBase* pIStCallbackParamBase, void* pvContext)
 {
 	if (pvContext)
@@ -107,6 +154,11 @@ void TriggerCamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 		// Check callback type. Only NewBuffer event is handled in here
 		if (pCallbackParam->GetCallbackType() == StCallbackType_GenTLEvent_DataStreamNewBuffer)
 		{
+			std::chrono::steady_clock::time_point callbackTime = std::chrono::steady_clock::now();
+			// print callback time
+			std::cout << "[TriggerCamera] Callback received at: " 
+				<< std::chrono::duration_cast<std::chrono::milliseconds>(callbackTime.time_since_epoch()).count() 
+				<< " ms since epoch" << std::endl;
 			IStCallbackParamGenTLEventNewBuffer* pNewBufferParam = dynamic_cast<IStCallbackParamGenTLEventNewBuffer*>(pCallbackParam);
 			//NOTE: dynamic_cast is used to safely cast the base class pointer to the derived class pointer.
 			//NOTE: static_cast is used when you are sure about the type of the object, while dynamic_cast is used for safe downcasting in class hierarchies.
@@ -122,9 +174,38 @@ void TriggerCamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 			{
 				// If yes, we create a IStImage object for further image handling.
 				IStImage* pImage = pStreamBuffer->GetIStImage();
+
+				std::chrono::steady_clock::time_point captureTime = std::chrono::steady_clock::now();
+				// print capture time
+				std::cout << "[TriggerCamera] Image captured at: " 
+					<< std::chrono::duration_cast<std::chrono::milliseconds>(captureTime.time_since_epoch()).count() 
+					<< " ms since epoch" << std::endl;
+				//PrintFrameInfo(pStreamBuffer);
+
+				if (m_pThreadPool)
+				{
+					FrameData frameData;
+					frameData.serialNumber = m_pDevice->GetIStDeviceInfo()->GetSerialNumber();
+					frameData.frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
+					frameData.pImage = pImage;
+
+					m_pThreadPool->Enqueue(frameData);
+				}
+
 				
-				uint64_t frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
-				PrintFrameInfo(pStreamBuffer);
+				{	//NOTE: <--Critical section to ensure thread safety
+#ifdef SYNC_LOGGING
+					std::cout << "[TriggerCamera] Image captured" << std::endl;
+#endif // SYNC_LOGGING
+					std::lock_guard<std::mutex> lock(m_mutex);
+					m_imageCaptured = true;
+#ifdef SYNC_LOGGING
+					std::cout << "[TriggerCamera] Image captured flag set to true," 
+						<< "notifying condition variable" << std::endl;
+#endif // SYNC_LOGGING
+				}	//NOTE: <--end of critical section, mutex is automatically released
+				m_cv.notify_one();
+
 #ifdef LOGGING
 				std::cout << "[TriggerCamera] respond trigger" << std::endl;
 #endif // LOGGING
@@ -184,44 +265,48 @@ void TriggerCamera::SetTriggerMode(GenApi::CNodeMapPtr& pINodeMap, const char* t
 	}
 }
 
+void TriggerCamera::SetThreadPool(std::shared_ptr<ImageSaverThreadPool> pThreadPool)
+{
+	m_pThreadPool = pThreadPool;
+}
+
 // Example usage of TriggerCamera class
 /*
 #include "TriggerCamera.h"
+#include <chrono>
 
 int main()
 {
-	std::cout << "==========Trigger Camera Example==========" << std::endl;
-	CStApiAutoInit objStApiAutoInit;
+	std::cout << "========== Trigger Camera with Wait Example ==========" << std::endl;
+
+	CStApiAutoInit stApiAutoInit;
 	CIStSystemPtr pSystem(CreateIStSystem());
 
-	TriggerCamera cameraWorker;
-	if (cameraWorker.Initialize(pSystem))
+	TriggerCamera camera;
+	if (camera.Initialize(pSystem))
 	{
-		cameraWorker.StartAcquisition();
+		camera.StartAcquisition();
+		int imageCount = 500;
+		// calculate average FPS
+		std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
 
-		std::cout << "0: Generate trigger" << std::endl;
-		std::cout << "Else: Exit" << std::endl;
-		std::cout << "Select: ";
-
-		while (true)
+		for (int i = 0; i < imageCount; ++i)
 		{
-			size_t nindex;
-			std::cin >> nindex;
-			if (nindex == 0)
-			{
-				cameraWorker.pICommandTriggerSoftware->Execute();
-			}
+			std::cout << "[Main] Triggering " << i << std::endl;
+			if (camera.TriggerAndWait(100))
+				std::cout << "[Main] Frame " << i << " captured." << std::endl;
 			else
-			{
-				break;
-			}
+				std::cerr << "[Main] Frame " << i << " timed out." << std::endl;
 		}
-		cameraWorker.StopAcquisition();
+
+		std::chrono::steady_clock::time_point endTime = std::chrono::steady_clock::now();
+		double elapsedTime = std::chrono::duration<double, std::milli>(endTime - startTime).count();
+		double averageFPS = float(imageCount) / (elapsedTime / 1000.0); // 1000 frames
+		std::cout << "[Main] Average FPS: " << averageFPS << std::endl;	// 65.6537
+
+		camera.StopAcquisition();
 	}
-	else
-	{
-		std::cerr << "Camera initialization failed." << std::endl;
-	}
+
 	return 0;
 }
 */

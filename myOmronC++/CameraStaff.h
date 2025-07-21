@@ -11,10 +11,10 @@
 class CameraStaff
 {
 public:
-    CameraStaff();
+    explicit CameraStaff();
     ~CameraStaff();
 
-    bool Initialize(const CIStSystemPtr& pSystem, const std::string& saveDir);
+    bool Initialize(const CIStSystemPtr& pSystem);
     void Start();
     void Stop();
     void Trigger();
@@ -26,5 +26,4 @@ private:
     std::thread m_thread;
     std::atomic<bool> m_running;
     std::atomic<bool> m_triggerRequested;
-    std::string m_saveDir;
 };
