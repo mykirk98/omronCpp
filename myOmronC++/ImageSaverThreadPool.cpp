@@ -1,9 +1,10 @@
 #include "ImageSaverThreadPool.h"
 
-ImageSaverThreadPool::ImageSaverThreadPool(size_t threadCount, const std::string& saveRootDir, bool convertToColor)
+ImageSaverThreadPool::ImageSaverThreadPool(size_t threadCount, const std::string& saveRootDir, std::shared_ptr<FrameQueue> pQueue, bool convertToColor)
 	: m_running(false)
 	, m_saveRootDir(saveRootDir)
 	, m_convertToColor(convertToColor)
+	, m_queue(pQueue)
 {
 	// Reserve space for the specified number of threads to avoid frequent reallocations
 	m_workers.reserve(threadCount);
@@ -31,7 +32,7 @@ void ImageSaverThreadPool::Start()
 void ImageSaverThreadPool::Stop()
 {
 	// Wait until the queue is empty before stopping the threads
-	while (!m_queue.isEmpty())
+	while (!m_queue->isEmpty())
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
@@ -39,25 +40,19 @@ void ImageSaverThreadPool::Stop()
 	m_running = false;
 	// clear the queue to stop processing frames
 	// This will ensure that all threads exit gracefully
-	m_queue.Clear();
+	m_queue->Clear();
 
 	// iterate through the worker threads and join them
-	for (std::vector<std::thread>::iterator it = m_workers.begin(); it != m_workers.end(); ++it)
-	{
+    for (auto& worker : m_workers)
+    {
 		// Check if the thread is joinable before joining
-		if (it->joinable())
+		if (worker.joinable())
 		{
-			it->join();
+			worker.join();
 		}
-	}
+    }
 	// clear the worker threads vector
 	m_workers.clear();
-}
-
-void ImageSaverThreadPool::Enqueue(const FrameData& frame)
-{
-	// Producer: push a frame into the queue
-	m_queue.Push(frame);
 }
 
 void ImageSaverThreadPool::WorkerLoop()
@@ -65,21 +60,21 @@ void ImageSaverThreadPool::WorkerLoop()
 	while (m_running)
 	{
 		FrameData frame;
-		if (m_queue.PopWithTimeOut(frame, std::chrono::milliseconds(200)))
+		if (m_queue && m_queue->PopWithTimeOut(frame, std::chrono::milliseconds(200)))
 		{
 			try
 			{
-				CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
-				ConvertPixelFormat(frame.pImage, m_convertToColor, pImageBuffer);
+				CIStImageBufferPtr pBuffer(CreateIStImageBuffer());
+				ConvertPixelFormat(frame.pImage, m_convertToColor, pBuffer);
+				GenICam::gcstring savePath = SetSavePath(m_saveRootDir, frame.cameraName, frame.serialNumber, frame.frameID);
+				SaveImage<BMP>(pBuffer, savePath);
 
-				GenICam::gcstring savePath = SetSavePath(m_saveRootDir, frame.serialNumber, frame.frameID);
-				SaveImage<BMP>(pImageBuffer, savePath);
-				std::cout << "[ImageSaverThreadPool] Saved image with ID: " << frame.frameID 
-					<< " to path: " << savePath.c_str() << std::endl;
+				std::cout << "[ImageSaverThreadPool] Queue size: " << m_queue->Size() << std::endl;
+				std::cout << "[ImageSaverThreadPool] Saved: " << savePath << std::endl;
 			}
 			catch (const GenICam::GenericException& e)
 			{
-				std::cerr << "[ImageSaverThreadPool] Error processing frame with ID: " << frame.frameID << e.GetDescription() << std::endl;
+				std::cerr << "[ImageSaverThreadPool] Worker error: " << e.GetDescription() << std::endl;
 			}
 		}
 	}
@@ -109,14 +104,18 @@ void ImageSaverThreadPool::ConvertPixelFormat(IStImage* pSrcImage, bool isColor,
 	}
 }
 
-GenICam::gcstring ImageSaverThreadPool::SetSavePath(const std::string& baseDir, const std::string& cameraName, const uint64_t frameID)
+GenICam::gcstring ImageSaverThreadPool::SetSavePath(const std::string& baseDir, const std::string& cameraName, const std::string& serialNumber, const uint64_t frameID)
 {
 	try
 	{
 		// Change frameID to string
 		std::string strFrameID = std::to_string(frameID);
 		
-		std::string filePath = baseDir + "\\" + cameraName + "\\" + strFrameID;
+#ifdef _WIN32
+		std::string filePath = baseDir + cameraName + "\\" + serialNumber + "-" + strFrameID;
+#else
+		std::string filePath = baseDir + cameraName + "/" + serialNumber + "-" + strFrameID;
+#endif
 
 		return GenICam::gcstring(filePath.c_str());
 	}

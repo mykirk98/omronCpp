@@ -1,16 +1,25 @@
 #pragma once
 
 #include <StApi_TL.h>
+#include <StApi_IP.h>
 
 #include "GigEConfigurator.h"
-#include "ImageSaverThreadPool.h"
+#include "FrameQueue.h"
+//#include "ImageSaverThreadPool.h"
+
+#ifdef _WIN32
+#include <windows.h>  // for Sleep
+#else
+#include <unistd.h>   // for sleep/usleep
+#endif
+
 
 using namespace StApi;
 
 class GigECamera
 {
 public:
-	explicit GigECamera();
+	explicit GigECamera(std::string saveRootDir);
 	~GigECamera();
 
 	bool Initialize(IStInterface* pInterface, uint32_t interfaceDeviceIndex);
@@ -19,9 +28,11 @@ public:
 
 	void SequentialCapture();
 
-	void SetThreadPool(std::shared_ptr<ImageSaverThreadPool> pThreadPool);
+	void SetFrameQueue(std::shared_ptr<FrameQueue> pFrameQueue);
 
 	GenApi::CCommandPtr pICommandTriggerSoftware;
+
+	const std::string& GetCameraName() const { return m_cameraName; }
 
 protected:
 
@@ -33,7 +44,7 @@ private:
 
 	void PrintFrameInfo(const CIStStreamBufferPtr& pStreamBuffer);
 	void ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStImageBufferPtr& pDstBuffer);
-	GenICam::gcstring SetSavePath(const std::string& baseDir, const uint64_t frameID);
+	GenICam::gcstring SetSavePath(const uint64_t frameID);
 	template<typename FORMAT>
 	void SaveImage(CIStImageBufferPtr& pImageBuffer, GenICam::gcstring& dstDir)
 	{
@@ -46,7 +57,7 @@ private:
 		}
 		catch (const GenICam::GenericException& e)
 		{
-			std::cerr << "[ImageSaverThreadPool] Saving image error: " << e.GetDescription() << std::endl;
+			std::cerr << "[GigECamera] Saving image error: " << e.GetDescription() << std::endl;
 		}
 	}
 
@@ -55,6 +66,8 @@ private:
 	CIStDataStreamPtr m_pDataStream; // Data stream pointer
 
 	std::string m_saveRootDir; // Directory to save images
-	std::shared_ptr<ImageSaverThreadPool> m_pThreadPool; // Thread pool for saving images
+	GenICam::gcstring m_serialNumber;
+	std::shared_ptr<FrameQueue> m_queue;
+	std::string m_cameraName;
 };
 

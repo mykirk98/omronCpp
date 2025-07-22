@@ -1,7 +1,7 @@
 #include "GigEConfigurator.h"
 
 
-void GigEConfigurator::UpdateDeviceIPAddress(GenApi::INodeMap* pINodeMap, uint32_t deviceIndex, const GenICam::gcstring& serialNumber)
+void GigEConfigurator::UpdateDeviceIPAddress(GenApi::INodeMap* pINodeMap, uint32_t deviceIndex, const GenICam::gcstring& serialNumber, std::string& cameraName)
 {
 	// Display the IP address of the host side.
 	GenApi::CIntegerPtr pGevInterfaceSubnetIPAddress(pINodeMap->GetNode(GEV_INTERFACE_SUBNET_IP_ADDRESS));
@@ -26,15 +26,28 @@ void GigEConfigurator::UpdateDeviceIPAddress(GenApi::INodeMap* pINodeMap, uint32
 	std::cout << "---------------------------------------------------------" << std::endl;
 
 	std::string strInput;
-	if		(serialNumber == "25C7812")	{	strInput = "192.168.0.31";	}
-	else if (serialNumber == "25E9151")	{	strInput = "192.168.0.21";	}
-	else if (serialNumber == "25C7667")	{	strInput = "192.168.0.41";	}
-	else if (serialNumber == "25A8829")	{	strInput = "192.168.0.42";	}
-	else if (serialNumber == "25C7669")	{	strInput = "192.168.0.43";	}
-	else	{std::cerr << "Unknown serial number: " << serialNumber << std::endl;}
+
+	std::unordered_map<std::string, std::pair<std::string, std::string>> cameraMap = {
+		{"25C7812", {"192.168.0.31", "12MP_1"}},
+		{"25E9151", {"192.168.0.21", "12MP_2"}},
+		{"25C7667", {"192.168.0.41", "5MP_1"}},
+		{"25A8829", {"192.168.0.42", "5MP_2"}},
+		{"25C7669", {"192.168.0.43", "5MP_3"}}
+	};
+
+	std::unordered_map<std::string, std::pair<std::string, std::string>>::iterator it = cameraMap.find(serialNumber.c_str());
+	if (it != cameraMap.end())
+	{
+		strInput = it->second.first;
+		cameraName = it->second.second;
+	}
+	else
+	{
+		std::cerr << "Unknown serial number: " << serialNumber << std::endl;
+	}
 
 	// Convert the new IP address string to a 32-bit number.
-#if defined(_WIN32_WINNT_WIN8) && (_WIN32_WINNT_WIN8 <= WINVER)
+#ifdef _WIN32
 	uint32_t nNewDeviceIPAddress;
 	if (!inet_pton(AF_INET, strInput.c_str(), &nNewDeviceIPAddress))
 	{
@@ -45,8 +58,10 @@ void GigEConfigurator::UpdateDeviceIPAddress(GenApi::INodeMap* pINodeMap, uint32
 		nNewDeviceIPAddress = ntohl(nNewDeviceIPAddress);
 	}
 #else
-	const uint32_t nNewDeviceIPAddress = ntohl(inet_addr(strInput.c_str()));
+	// POSIX 시스템 (Linux 등)에서는 inet_addr() + ntohl() 사용
+	uint32_t nNewDeviceIPAddress = ntohl(inet_addr(strInput.c_str()));
 #endif
+
 
 	// Get the subnet mask of the host side.
 	const uint32_t nSubnetMask = (uint32_t)pGevInterfaceSubnetMask->GetValue();

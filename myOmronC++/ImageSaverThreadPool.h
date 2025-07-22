@@ -44,13 +44,11 @@ struct CSV
 class ImageSaverThreadPool
 {
 public:
-	/*
-	@brief ImageSaverThreadPool constructor
-	@param threadCount : Number of threads in the pool
-	@brief saveRootDir : Root directory where images will be saved
-	@brief convertToColor : Flag to indicate whether to convert images to color format
-	*/
-	ImageSaverThreadPool(size_t threadCount, const std::string& saveRootDir, bool convertToColor = false);
+	/*	@brief ImageSaverThreadPool constructor
+		@param threadCount : Number of threads in the pool
+		@brief saveRootDir : Root directory where images will be saved
+		@brief convertToColor : Flag to indicate whether to convert images to color format */
+	ImageSaverThreadPool(size_t threadCount, const std::string& saveRootDir, std::shared_ptr<FrameQueue> pQueue, bool convertToColor = false);
 	/* @brief ImageSaverThreadPool destructor */
 	~ImageSaverThreadPool();
 
@@ -58,28 +56,19 @@ public:
 	void Start();
 	/* @brief Stop the thread pool */
 	void Stop();
-	/*
-	@brief Enqueue an image frame for saving
-	@param frame : FrameData object containing image data and metadata
-	*/
-	void Enqueue(const FrameData& frame);
 
 private:
 	/* @brief WorkerLoop function */
 	void WorkerLoop();
-	/*
-	@brief Convert pixel format of the image to the buffer
-	@param pSrcImage : Source image pointer to be converted
-	@param isColor : Flag that decides whether the image is saved in color or mono format
-	*/
+	/*	@brief Convert pixel format of the image to the buffer
+		@param pSrcImage : Source image pointer to be converted
+		@param isColor : Flag that decides whether the image is saved in color or mono format */
 	void ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStImageBufferPtr& pDstBuffer);
-	/*
-	@brief Set the save path for the image
-	@param baseDir : Base directory where images will be saved
-	@param cameraName : Name of the camera
-	@param frameID : Frame ID of the image to be saved
-	*/
-	GenICam::gcstring SetSavePath(const std::string& baseDir, const std::string& cameraName, const uint64_t frameID);
+	/*	@brief Set the save path for the image
+		@param baseDir : Base directory where images will be saved
+		@param cameraName : Name of the camera
+		@param frameID : Frame ID of the image to be saved */
+	GenICam::gcstring SetSavePath(const std::string& baseDir, const std::string& cameraName, const std::string& serialNumber, const uint64_t frameID);
 	template<typename FORMAT>
 	void SaveImage(CIStImageBufferPtr& pImageBuffer, GenICam::gcstring& dstDir)
 	{
@@ -99,7 +88,7 @@ private:
 	/* @brief Thread pool for saving images */
 	std::vector<std::thread> m_workers;
 	/* @brief FrameQueue object for managing image frames */
-	FrameQueue m_queue;
+	std::shared_ptr<FrameQueue> m_queue;
 	/* @brief Flag to indicate whether the thread pool is running */
 	std::atomic<bool> m_running;
 	/* @brief Root directory where images will be saved */

@@ -1,35 +1,80 @@
-#include "CameraManager.h"
-#include "FrameQueue.h"
-#include <StApi_TL.h>
+#include "GigEManager.h"
+#include <iostream>
+#include <sstream>
+#include <vector>
+#include <algorithm>
 
 int main()
 {
-    CStApiAutoInit stApiInit;
-    CIStSystemPtr pSystem(CreateIStSystem());
+	std::string saveRootDir = "C:\\Users\\mykir\\Work\\Experiments\\"; // NOTE: LAB WINDOWS PC DIRECTORY
+	//std::string saveRootDir = "C:\\Users\\USER\\Pictures\\"; // NOTE: HOME PC DIRECTORY
+	//std::string saveRootDir = "/home/msis/Pictures/SentechExperiments/Experiments1/"; // NOTE: LAB LINUX PC DIRECTORY
+    GigEManager manager(saveRootDir);
 
-    auto sharedQueue = std::make_shared<FrameQueue>();
-
-    CameraManager manager;
-    int numCameras = 2;
-    int numImages = 4;
-    // 예시: 2대의 카메라 생성
-    for (int i = 0; i < numCameras; ++i)
+    if (!manager.Initialize())
     {
-        auto camera = std::make_unique<TriggerCamera>();
-        if (camera->Initialize(pSystem)) {
-            camera->SetFrameQueue(sharedQueue);
-            manager.AddCamera(std::move(camera));
-        }
+        std::cerr << "Failed to initialize cameras.\n";
+        return -1;
     }
 
-    manager.StartShooting(numImages); // 카메라마다 100장 촬영
-    manager.JoinAll();
+    manager.StartAll();
 
-    for (int i = 0; i < numCameras * numImages; ++i)
-    {
-        IStImage* image = sharedQueue->Pop();
-        std::cout << "[Main] Popped frame, queue size: " << sharedQueue->Size() << std::endl;
-    }
+    //std::cout << "Enter indices to trigger:\n";
+    //std::cout << "  0     => trigger ALL cameras\n";
+    //std::cout << "  1     => trigger camera at index 0\n";
+    //std::cout << "  2 3   => trigger cameras at indices 1 and 2\n";
+    //std::cout << "Type 'q' to quit.\n";
 
+    //std::string line;
+    //while (true)
+    //{
+    //    std::cout << "> ";
+    //    std::getline(std::cin, line);
+
+    //    if (line == "q")
+    //        break;
+
+    //    std::istringstream iss(line);
+    //    std::vector<int> inputs;
+    //    int num;
+
+    //    while (iss >> num)
+    //    {
+    //        inputs.push_back(num);
+    //    }
+
+    //    if (inputs.empty())
+    //    {
+    //        std::cerr << "No input detected.\n";
+    //        continue;
+    //    }
+
+    //    if (std::find(inputs.begin(), inputs.end(), 0) != inputs.end())
+    //    {
+    //        manager.TriggerAll();
+    //    }
+    //    else
+    //    {
+    //        for (int input : inputs)
+    //        {
+    //            int index = input - 1;
+    //            manager.TriggerSingle(index);
+    //        }
+    //    }
+    //}
+
+    manager.TriggerSingle("12MP_1");
+    Sleep(100);
+	manager.TriggerSingle("12MP_2");
+    Sleep(100);
+	manager.TriggerSingle("5MP_1");
+    Sleep(100);
+    manager.TriggerSingle("5MP_2");
+    Sleep(100);
+    manager.TriggerSingle("5MP_3");
+    Sleep(100);
+    manager.TriggerSingle("12MP_1");
+
+    manager.StopAll();
     return 0;
 }

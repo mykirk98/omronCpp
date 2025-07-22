@@ -187,9 +187,9 @@ void TriggerCamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 					FrameData frameData;
 					frameData.serialNumber = m_pDevice->GetIStDeviceInfo()->GetSerialNumber();
 					frameData.frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
-					frameData.pImage = pImage;
+					//frameData.pImage = pImage;
 
-					m_pThreadPool->Enqueue(frameData);
+					//m_pThreadPool->Enqueue(frameData);
 				}
 
 				

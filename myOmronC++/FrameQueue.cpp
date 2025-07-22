@@ -1,19 +1,11 @@
 #include "FrameQueue.h"
 
-//#define LOGGING
-
 FrameQueue::FrameQueue()
 {
-#ifdef LOGGING
-	std::cout << "[ImageSaveQueue] constructed." << std::endl;
-#endif // LOGGING
 }
 
 FrameQueue::~FrameQueue()
 {
-#ifdef LOGGING
-	std::cout << "[ImageSaveQueue] destructed." << std::endl;
-#endif // LOGGING
 }
 
 void FrameQueue::Push(const FrameData& frame)
@@ -26,11 +18,6 @@ void FrameQueue::Push(const FrameData& frame)
 	m_queue.push(frame);
 	// notify one waiting consumer(ImageSaveThread) that a new frame is available
 	m_cv.notify_one();
-
-#ifdef LOGGING
-	std::cout << "[ImageSaveQueue] Pushed from " << frame.serialNumber << "\tframe #" << frame.frameID << "\tQueue size : " << m_queue.size() << std::endl;
-#endif // LOGGING
-
 }
 
 bool FrameQueue::Pop(FrameData& frame)
@@ -46,10 +33,6 @@ bool FrameQueue::Pop(FrameData& frame)
 	frame = m_queue.front();
 	// remove the front frame from the queue
 	m_queue.pop();
-
-#ifdef LOGGING
-	std::cout << "[ImageSaveQueue] Popped from " << frame.serialNumber << "\tframe #" << frame.frameID << "\tQueue size : " << m_queue.size() << std::endl;
-#endif // LOGGING
 
 	// return true to indicate that a frame was successfully retrieved
 	return true;
@@ -68,18 +51,10 @@ bool FrameQueue::PopWithTimeOut(FrameData& frame, std::chrono::milliseconds time
 		frame = m_queue.front();
 		// remove the front frame from the queue
 		m_queue.pop();
-
-#ifdef LOGGING
-		std::cout << "[ImageSaveQueue] Popped from " << frame.serialNumber << "\tframe #" << frame.frameID << "\tQueue size : " << m_queue.size() << std::endl;
-#endif // LOGGING
-
+		
 		// return true to indicate that a frame was successfully retrieved
 		return true;
 	}
-#ifdef LOGGING
-	std::cout << "[ImageSaveQueue] Timeout expired, no frame available." << std::endl;
-#endif // LOGGING
-
 	// if the timeout expires and no frame is available, return false
 	return false;
 }
@@ -89,10 +64,6 @@ bool FrameQueue::isEmpty() const
 	// ensure thread safety when checking if the queue is empty
 	std::lock_guard<std::mutex> lock(m_mutex);
 
-#ifdef LOGGING
-	std::cout << "[ImageSaveQueue] isEmpty() called, queue size: " << m_queue.size() << std::endl;
-#endif // LOGGING
-
 	// return true if the queue is empty, false otherwise
 	return m_queue.empty();
 }
@@ -101,10 +72,6 @@ size_t FrameQueue::Size() const
 {
 	// ensure thread safety when getting the size of the queue
 	std::lock_guard<std::mutex> lock(m_mutex);
-
-#ifdef LOGGING
-	std::cout << "[ImageSaveQueue] Size() called, queue size: " << m_queue.size() << std::endl;
-#endif // LOGGING
 
 	// return the size of the queue
 	return m_queue.size();
@@ -121,8 +88,4 @@ void FrameQueue::Clear()
 	}
 	// notify all waiting consumers that the queue has been cleared
 	m_cv.notify_all();
-
-#ifdef LOGGING
-	std::cout << "[ImageSaveQueue] Clear() called, queue cleared." << std::endl;
-#endif // LOGGING
 }
