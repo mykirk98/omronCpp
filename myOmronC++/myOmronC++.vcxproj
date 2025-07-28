@@ -104,13 +104,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(STAPI_ROOT_PATH)Include/StApi/;$(STAPI_ROOT_PATH)Include/GenICam/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(STAPI_ROOT_PATH)Include/StApi/;$(STAPI_ROOT_PATH)Include/GenICam/;C:\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(STAPI_ROOT_PATH)lib/$(PlatformName);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(STAPI_ROOT_PATH)lib/$(PlatformName);C:\opencv\build\x64\vc16\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opencv_world4120d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -139,6 +140,7 @@
     <ClCompile Include="FrameQueue.cpp" />
     <ClCompile Include="GigEManager.cpp" />
     <ClCompile Include="GigEWorker.cpp" />
+    <ClCompile Include="ImageProcess.cpp" />
     <ClCompile Include="ImageSaverThreadPool.cpp" />
     <ClCompile Include="TriggerCamera.cpp" />
     <ClCompile Include="main.cpp">
@@ -155,6 +157,7 @@
     <ClInclude Include="FrameQueue.h" />
     <ClInclude Include="GigEManager.h" />
     <ClInclude Include="GigEWorker.h" />
+    <ClInclude Include="ImageProcess.h" />
     <ClInclude Include="ImageSaverThreadPool.h" />
     <ClInclude Include="TriggerCamera.h" />
     <ClInclude Include="config.h" />

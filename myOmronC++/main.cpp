@@ -74,6 +74,17 @@ int main()
     manager.TriggerSingle("5MP_3");
     Sleep(100);
     manager.TriggerSingle("12MP_1");
+    Sleep(100);
+    manager.TriggerSingle("12MP_2");
+    Sleep(100);
+    manager.TriggerSingle("5MP_1");
+    Sleep(100);
+    manager.TriggerSingle("5MP_2");
+    Sleep(100);
+    manager.TriggerSingle("5MP_3");
+    Sleep(100);
+    manager.TriggerSingle("12MP_1");
+    Sleep(200);
 
     manager.StopAll();
     return 0;

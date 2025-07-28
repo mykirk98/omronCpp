@@ -174,7 +174,9 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 				else
 					std::cerr << "[GigECamera] Frame queue is not set. Cannot push frame data." << std::endl;
 
-				Sleep(100);
+				//Sleep(100);
+				ImageProcess::ConvertToMat(pImage); 
+				std::cout << "[GigECamera] Image converted to openCV Mat." << std::endl;
 			}
 			else
 			{

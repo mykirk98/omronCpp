@@ -5,6 +5,7 @@
 
 #include "GigEConfigurator.h"
 #include "FrameQueue.h"
+#include "ImageProcess.h"
 //#include "ImageSaverThreadPool.h"
 
 #ifdef _WIN32
