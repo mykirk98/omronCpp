@@ -25,7 +25,7 @@
 
 using namespace StApi;
 
-class GigEConfigurator
+class GigEUtil
 {
 public:
 	static void UpdateDeviceIPAddress(GenApi::INodeMap* pINodeMap, uint32_t deviceIndex, const GenICam::gcstring& serialNumber, std::string& cameraName);

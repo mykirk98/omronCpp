@@ -13,85 +13,97 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{aff2b9bf-62bb-479c-b010-e1cd4a1565f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Camera">
+      <UniqueIdentifier>{eba5d7e6-1d62-4b67-8fa0-b39f4f51f466}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Queue">
+      <UniqueIdentifier>{0722ee81-da51-4eb7-81fa-74aff4cbfc57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThreadPool">
+      <UniqueIdentifier>{963ac878-612d-472d-872d-8ba6ba85fe50}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BasicCamera.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="TriggerCamera.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="CameraConfigurator.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="CameraStaff.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameQueue.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ImageSaverThreadPool.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="CameraManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="GigECamera.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="GigEConfigurator.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="GigEManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="GigEWorker.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="NodeMapUtil.cpp">
+      <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="ImageProcess.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Utils</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="GigEUtil.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="BasicCamera.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraManager.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraStaff.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="GigECamera.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="GigEManager.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="GigEWorker.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameQueue.cpp">
+      <Filter>Queue</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageSaverThreadPool.cpp">
+      <Filter>ThreadPool</Filter>
+    </ClCompile>
+    <ClCompile Include="TriggerCamera.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BasicCamera.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="TriggerCamera.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="CameraConfigurator.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="config.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="CameraStaff.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameQueue.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ImageSaverThreadPool.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="CameraManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GigECamera.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GigEConfigurator.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GigEManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GigEWorker.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="NodeMapUtil.h">
+      <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="ImageProcess.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="GigEUtil.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicCamera.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraManager.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraStaff.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="GigECamera.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="GigEManager.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="GigEWorker.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameQueue.h">
+      <Filter>Queue</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageSaverThreadPool.h">
+      <Filter>ThreadPool</Filter>
+    </ClInclude>
+    <ClInclude Include="TriggerCamera.h">
+      <Filter>Camera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

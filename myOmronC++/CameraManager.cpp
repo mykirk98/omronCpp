@@ -102,7 +102,7 @@ int main()
 //				std::cout << "Device " << j << ": " << pIStInterface->GetIStDeviceInfo(j)->GetDisplayName() << std::endl;
 //				std::cout << "SerialNumber " << pIStInterface->GetIStDeviceInfo(j)->GetSerialNumber() << std::endl;
 //				//UpdateDeviceIPAddress(pIStInterface->GetIStPort()->GetINodeMap(), j, pIStInterface->GetIStDeviceInfo(j)->GetSerialNumber());
-//				GigEConfigurator::UpdateDeviceIPAddress(pIStInterface->GetIStPort()->GetINodeMap(), j, pIStInterface->GetIStDeviceInfo(j)->GetSerialNumber());
+//				GigEUtil::UpdateDeviceIPAddress(pIStInterface->GetIStPort()->GetINodeMap(), j, pIStInterface->GetIStDeviceInfo(j)->GetSerialNumber());
 //
 //				GenApi::CIntegerPtr pGevDeviceForceIPAddress(pIStInterface->GetIStPort()->GetINodeMap()->GetNode(GEV_DEVICE_FORCE_IP_ADDRESS));
 //				const int64_t nDeviceIPAddress = pGevDeviceForceIPAddress->GetValue();
@@ -112,7 +112,7 @@ int main()
 //				{
 //					Sleep(1000);
 //					//IStDeviceReleasable* pIStDeviceReleasable(CreateIStDeviceByIPAddress(pIStInterface, nDeviceIPAddress));
-//					IStDeviceReleasable* pIStDeviceReleasable(GigEConfigurator::CreateIStDeviceByIPAddress(pIStInterface, nDeviceIPAddress));
+//					IStDeviceReleasable* pIStDeviceReleasable(GigEUtil::CreateIStDeviceByIPAddress(pIStInterface, nDeviceIPAddress));
 //					if (pIStDeviceReleasable != NULL)
 //					{
 //						pIStDevice.Reset(pIStDeviceReleasable);
@@ -129,7 +129,7 @@ int main()
 //
 //				// Update the camera HeartbeatTimeout settings.
 //				//UpdateHeartbeatTimeout(pIStDevice->GetRemoteIStPort()->GetINodeMap());
-//				GigEConfigurator::UpdateHeartbeatTimeout(pIStDevice->GetRemoteIStPort()->GetINodeMap(), "3000000");
+//				GigEUtil::UpdateHeartbeatTimeout(pIStDevice->GetRemoteIStPort()->GetINodeMap(), "3000000");
 //
 //			}
 //		}

@@ -1,7 +1,7 @@
-#include "GigEConfigurator.h"
+#include "GigEUtil.h"
 
 
-void GigEConfigurator::UpdateDeviceIPAddress(GenApi::INodeMap* pINodeMap, uint32_t deviceIndex, const GenICam::gcstring& serialNumber, std::string& cameraName)
+void GigEUtil::UpdateDeviceIPAddress(GenApi::INodeMap* pINodeMap, uint32_t deviceIndex, const GenICam::gcstring& serialNumber, std::string& cameraName)
 {
 	// Display the IP address of the host side.
 	GenApi::CIntegerPtr pGevInterfaceSubnetIPAddress(pINodeMap->GetNode(GEV_INTERFACE_SUBNET_IP_ADDRESS));
@@ -94,7 +94,7 @@ void GigEConfigurator::UpdateDeviceIPAddress(GenApi::INodeMap* pINodeMap, uint32
 	}
 }
 
-void GigEConfigurator::UpdateHeartbeatTimeout(GenApi::INodeMap* pINodeMap, GenICam::gcstring heartBeatTimeOut)
+void GigEUtil::UpdateHeartbeatTimeout(GenApi::INodeMap* pINodeMap, GenICam::gcstring heartBeatTimeOut)
 {
 	std::string unit;
 
@@ -131,7 +131,7 @@ void GigEConfigurator::UpdateHeartbeatTimeout(GenApi::INodeMap* pINodeMap, GenIC
 	std::cout << "New Heartbeat Timeout" << unit << "=" << pDeviceLinkHeartbeatTimeout->ToString() << std::endl;
 }
 
-IStDeviceReleasable* GigEConfigurator::CreateIStDeviceByIPAddress(IStInterface* pIStInterface, const int64_t nDeviceIPAddress)
+IStDeviceReleasable* GigEUtil::CreateIStDeviceByIPAddress(IStInterface* pIStInterface, const int64_t nDeviceIPAddress)
 {
 	pIStInterface->UpdateDeviceList();
 

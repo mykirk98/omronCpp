@@ -12,7 +12,7 @@ using namespace GenApi;
 /*
 @brief 카메라 설정 파일을 저장하고 불러오는 기능을 제공하는 클래스
 */
-class CameraConfigurator
+class NodeMapUtil
 {
 public:
 	/*
@@ -31,9 +31,9 @@ public:
 	*/
 	static void Load(const CIStDevicePtr& device, const std::string& srcDir);
 
-	// static을 사용한 이유:
-	// 이 클래스는 카메라 설정을 저장하고 불러오는 기능만을 제공하며,
-	// 인스턴스를 생성할 필요가 없기 때문입니다.
+	static void SetEnumeration(GenApi::INodeMap* pInodeMap, const char* szEnumerationName, const char* szValueName);
+
+	static void SetTriggerMode(GenApi::CNodeMapPtr& pINodeMap, const char* triggerSelector, const char* triggerMode, const char* triggerSource);
 protected:
 
 private:

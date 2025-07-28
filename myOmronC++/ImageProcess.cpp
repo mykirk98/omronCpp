@@ -1,5 +1,68 @@
 #include "ImageProcess.h"
 
+void ImageProcess::PrintFrameInfo(const CIStStreamBufferPtr& pStreamBuffer, std::string cameraName)
+{
+	try
+	{
+		std::cout << "[" << cameraName << "] "
+			<< "Block ID: " << pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()
+			<< "\tSize: " << pStreamBuffer->GetIStImage()->GetImageWidth() << " x " << pStreamBuffer->GetIStImage()->GetImageHeight()
+			<< "\tFirst byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pStreamBuffer->GetIStImage()->GetImageBuffer()))
+			<< "\ttime stamp: " << pStreamBuffer->GetIStStreamBufferInfo()->GetTimestamp()
+			<< std::endl;
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "[GigECamera] Printing frame info error: " << e.GetDescription() << std::endl;
+	}
+}
+
+GenICam::gcstring ImageProcess::SetSavePath(const std::string& baseDir, const std::string& cameraName, const std::string& serialNumber, const uint64_t frameID)
+{
+	try
+	{
+		// Change frameID to string
+		std::string strFrameID = std::to_string(frameID);
+
+#ifdef _WIN32
+		std::string filePath = baseDir + cameraName + "\\" + serialNumber + "-" + strFrameID;
+#else
+		std::string filePath = baseDir + cameraName + "/" + serialNumber + "-" + strFrameID;
+#endif
+
+		return GenICam::gcstring(filePath.c_str());
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "[ImageSaverThreadPool] Setting save path error: " << e.GetDescription() << std::endl;
+	}
+	return GenICam::gcstring();
+}
+
+void ImageProcess::ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStImageBufferPtr& pDstBuffer)
+{
+	try
+	{
+		// Create a data converter object for pixel format conversion.
+		CIStPixelFormatConverterPtr pPixelFormatConverter(CreateIStConverter(StConverterType_PixelFormat));
+
+		if (isColor)
+		{
+			pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_BGR8);
+		}
+		else
+		{
+			pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_Mono8);
+		}
+		// Convert the pixel format of the source image to the destination buffer.
+		pPixelFormatConverter->Convert(pSrcImage, pDstBuffer);
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		std::cerr << "[ImageSaverThreadPool] Converting pixel format error: " << e.GetDescription() << std::endl;
+	}
+}
+
 Mat ImageProcess::ConvertToMat(IStImage* pImage)
 {
 	{

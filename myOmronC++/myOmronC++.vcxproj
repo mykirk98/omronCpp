@@ -131,12 +131,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CameraConfigurator.cpp" />
+    <ClCompile Include="NodeMapUtil.cpp" />
     <ClCompile Include="CameraManager.cpp" />
     <ClCompile Include="CameraStaff.cpp" />
     <ClCompile Include="BasicCamera.cpp" />
     <ClCompile Include="GigECamera.cpp" />
-    <ClCompile Include="GigEConfigurator.cpp" />
+    <ClCompile Include="GigEUtil.cpp" />
     <ClCompile Include="FrameQueue.cpp" />
     <ClCompile Include="GigEManager.cpp" />
     <ClCompile Include="GigEWorker.cpp" />
@@ -148,12 +148,12 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CameraConfigurator.h" />
+    <ClInclude Include="NodeMapUtil.h" />
     <ClInclude Include="CameraManager.h" />
     <ClInclude Include="CameraStaff.h" />
     <ClInclude Include="BasicCamera.h" />
     <ClInclude Include="GigECamera.h" />
-    <ClInclude Include="GigEConfigurator.h" />
+    <ClInclude Include="GigEUtil.h" />
     <ClInclude Include="FrameQueue.h" />
     <ClInclude Include="GigEManager.h" />
     <ClInclude Include="GigEWorker.h" />

@@ -65,9 +65,12 @@ void ImageSaverThreadPool::WorkerLoop()
 			try
 			{
 				CIStImageBufferPtr pBuffer(CreateIStImageBuffer());
-				ConvertPixelFormat(frame.pImage, m_convertToColor, pBuffer);
-				GenICam::gcstring savePath = SetSavePath(m_saveRootDir, frame.cameraName, frame.serialNumber, frame.frameID);
-				SaveImage<BMP>(pBuffer, savePath);
+				//ConvertPixelFormat(frame.pImage, m_convertToColor, pBuffer);
+				ImageProcess::ConvertPixelFormat(frame.pImage, m_convertToColor, pBuffer);
+				//GenICam::gcstring savePath = SetSavePath(m_saveRootDir, frame.cameraName, frame.serialNumber, frame.frameID);
+				GenICam::gcstring savePath = ImageProcess::SetSavePath(m_saveRootDir, frame.cameraName, frame.serialNumber, frame.frameID);
+				//SaveImage<BMP>(pBuffer, savePath);
+				ImageProcess::SaveImage<BMP>(pBuffer, savePath);
 
 				std::cout << "[ImageSaverThreadPool] Queue size: " << m_queue->Size() << std::endl;
 				std::cout << "[ImageSaverThreadPool] Saved: " << savePath << std::endl;
@@ -78,50 +81,4 @@ void ImageSaverThreadPool::WorkerLoop()
 			}
 		}
 	}
-}
-
-void ImageSaverThreadPool::ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStImageBufferPtr& pDstBuffer)
-{
-	try
-	{
-		// Create a data converter object for pixel format conversion.
-		CIStPixelFormatConverterPtr pPixelFormatConverter(CreateIStConverter(StConverterType_PixelFormat));
-		
-		if (isColor)
-		{
-			pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_BGR8);
-		}
-		else
-		{
-			pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_Mono8);
-		}
-		// Convert the pixel format of the source image to the destination buffer.
-		pPixelFormatConverter->Convert(pSrcImage, pDstBuffer);
-	}
-	catch (const GenICam::GenericException& e)
-	{
-		std::cerr << "[ImageSaverThreadPool] Converting pixel format error: " << e.GetDescription() << std::endl;
-	}
-}
-
-GenICam::gcstring ImageSaverThreadPool::SetSavePath(const std::string& baseDir, const std::string& cameraName, const std::string& serialNumber, const uint64_t frameID)
-{
-	try
-	{
-		// Change frameID to string
-		std::string strFrameID = std::to_string(frameID);
-		
-#ifdef _WIN32
-		std::string filePath = baseDir + cameraName + "\\" + serialNumber + "-" + strFrameID;
-#else
-		std::string filePath = baseDir + cameraName + "/" + serialNumber + "-" + strFrameID;
-#endif
-
-		return GenICam::gcstring(filePath.c_str());
-	}
-	catch (const GenICam::GenericException& e)
-	{
-		std::cerr << "[ImageSaverThreadPool] Setting save path error: " << e.GetDescription() << std::endl;
-	}
-	return GenICam::gcstring();
 }
