@@ -1,10 +1,10 @@
 #include "ImageSaverThreadPool.h"
 
-ImageSaverThreadPool::ImageSaverThreadPool(size_t threadCount, const std::string& saveRootDir, std::shared_ptr<FrameQueue> pQueue, bool convertToColor)
+ImageSaverThreadPool::ImageSaverThreadPool(size_t threadCount, const std::string& saveRootDir, std::shared_ptr<FrameQueue> pQueue, std::shared_ptr<PathQueue> pathQueue)
 	: m_running(false)
 	, m_saveRootDir(saveRootDir)
-	, m_convertToColor(convertToColor)
 	, m_queue(pQueue)
+	, m_pathQueue(pathQueue)
 {
 	// Reserve space for the specified number of threads to avoid frequent reallocations
 	m_workers.reserve(threadCount);
@@ -72,6 +72,13 @@ void ImageSaverThreadPool::WorkerLoop()
 
 				std::cout << "[ImageSaverThreadPool] Queue size: " << m_queue->Size() << std::endl;
 				std::cout << "[ImageSaverThreadPool] Saved: " << savePath << std::endl;
+
+				// Notify the path queue that a new path has been added
+				if (m_pathQueue)
+				{
+					std::string fullMessage = frame.cameraName + " :" + savePath.c_str() + JPEG::extension;
+					m_pathQueue->Push(fullMessage);
+				}
 			}
 			catch (const GenICam::GenericException& e)
 			{

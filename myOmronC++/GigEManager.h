@@ -2,6 +2,7 @@
 
 #include "GigEWorker.h"
 #include "ImageSaverThreadPool.h"
+#include "PathQueue.h"
 #include <vector>
 #include <map>
 
@@ -10,7 +11,7 @@ class GigEManager
 {
 public:
     /*  @brief Constructor for GigEManager. */
-    explicit GigEManager(std::string saveRootDir);
+    explicit GigEManager(std::string saveRootDir, std::shared_ptr<PathQueue> pathQueue);
 	/*  @brief Destructor for GigEManager. */
     ~GigEManager();
 
@@ -44,4 +45,5 @@ private:
 
 	std::shared_ptr<FrameQueue> m_frameQueue;
 	std::shared_ptr<ImageSaverThreadPool> m_ImageSaverThreadPool;
+	std::shared_ptr<PathQueue> m_pathQueue;
 };

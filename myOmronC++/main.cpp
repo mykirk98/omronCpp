@@ -1,4 +1,5 @@
 #include "GigEManager.h"
+#include "PathQueue.h"
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -6,10 +7,11 @@
 
 int main()
 {
+	std::shared_ptr<PathQueue> pathQueue = std::make_shared<PathQueue>();
 	std::string saveRootDir = "C:\\Users\\mykir\\Work\\Experiments\\"; // NOTE: LAB WINDOWS PC DIRECTORY
 	//std::string saveRootDir = "C:\\Users\\USER\\Pictures\\"; // NOTE: HOME PC DIRECTORY
 	//std::string saveRootDir = "/home/msis/Pictures/SentechExperiments/Experiments1/"; // NOTE: LAB LINUX PC DIRECTORY
-    GigEManager manager(saveRootDir);
+    GigEManager manager(saveRootDir, pathQueue);
 
     if (!manager.Initialize())
     {

@@ -1,7 +1,8 @@
 #include "GigEManager.h"
 
-GigEManager::GigEManager(std::string saveRootDir)
+GigEManager::GigEManager(std::string saveRootDir, std::shared_ptr<PathQueue> pathQueue)
     : m_saveRootDir(saveRootDir)
+	, m_pathQueue(pathQueue)
 {
 }
 
@@ -13,8 +14,8 @@ GigEManager::~GigEManager()
 bool GigEManager::Initialize()
 {
     try {
-        m_frameQueue = std::make_shared<FrameQueue>();
-        m_ImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_saveRootDir, m_frameQueue, true);
+		m_frameQueue = std::make_shared<FrameQueue>();  //TODO: 생성자 안으로 이동
+		m_ImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_saveRootDir, m_frameQueue, m_pathQueue); //TODO: 생성자 안으로 이동
 		m_ImageSaverThreadPool->Start();
 
         m_pSystem = CreateIStSystem(StSystemVendor_Default, StInterfaceType_GigEVision);
@@ -117,6 +118,7 @@ void GigEManager::TriggerSingle(const std::string& cameraName)
 // Example usage of GigEManager class
 /*
 #include "GigEManager.h"
+#include "PathQueue.h"
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -124,10 +126,11 @@ void GigEManager::TriggerSingle(const std::string& cameraName)
 
 int main()
 {
-	std::string saveRootDir = "C:\\Users\\mykir\\Work\\Experiments\\"; // NOTE: LAB WINDOWS PC DIRECTORY
-	//std::string saveRootDir = "C:\\Users\\USER\\Pictures\\"; // NOTE: HOME PC DIRECTORY
-	//std::string saveRootDir = "/home/msis/Pictures/SentechExperiments/Experiments1/"; // NOTE: LAB LINUX PC DIRECTORY
-    GigEManager manager(saveRootDir);
+    std::shared_ptr<PathQueue> pathQueue = std::make_shared<PathQueue>();
+    std::string saveRootDir = "C:\\Users\\mykir\\Work\\Experiments\\"; // NOTE: LAB WINDOWS PC DIRECTORY
+    //std::string saveRootDir = "C:\\Users\\USER\\Pictures\\"; // NOTE: HOME PC DIRECTORY
+    //std::string saveRootDir = "/home/msis/Pictures/SentechExperiments/Experiments1/"; // NOTE: LAB LINUX PC DIRECTORY
+    GigEManager manager(saveRootDir, pathQueue);
 
     if (!manager.Initialize())
     {
@@ -136,64 +139,61 @@ int main()
     }
 
     manager.StartAll();
-    
-    std::cout << "Enter indices to trigger:\n";
-    std::cout << "  0     => trigger ALL cameras\n";
-    std::cout << "  1     => trigger camera at index 0\n";
-    std::cout << "  2 3   => trigger cameras at indices 1 and 2\n";
-    std::cout << "Type 'q' to quit.\n";
 
-    std::string line;
-    while (true)
+    //std::cout << "Enter indices to trigger:\n";
+    //std::cout << "  0     => trigger ALL cameras\n";
+    //std::cout << "  1     => trigger camera at index 0\n";
+    //std::cout << "  2 3   => trigger cameras at indices 1 and 2\n";
+    //std::cout << "Type 'q' to quit.\n";
+
+    //std::string line;
+    //while (true)
+    //{
+    //    std::cout << "> ";
+    //    std::getline(std::cin, line);
+
+    //    if (line == "q")
+    //        break;
+
+    //    std::istringstream iss(line);
+    //    std::vector<int> inputs;
+    //    int num;
+
+    //    while (iss >> num)
+    //    {
+    //        inputs.push_back(num);
+    //    }
+
+    //    if (inputs.empty())
+    //    {
+    //        std::cerr << "No input detected.\n";
+    //        continue;
+    //    }
+
+    //    if (std::find(inputs.begin(), inputs.end(), 0) != inputs.end())
+    //    {
+    //        manager.TriggerAll();
+    //    }
+    //    else
+    //    {
+    //        for (int input : inputs)
+    //        {
+    //            int index = input - 1;
+    //            manager.TriggerSingle(index);
+    //        }
+    //    }
+    //}
+
+    for (int i = 0; i < 20; ++i)
     {
-        std::cout << "> ";
-        std::getline(std::cin, line);
-
-        if (line == "q")
-            break;
-
-        std::istringstream iss(line);
-        std::vector<int> inputs;
-        int num;
-
-        while (iss >> num)
-        {
-            inputs.push_back(num);
-        }
-
-        if (inputs.empty())
-        {
-            std::cerr << "No input detected.\n";
-            continue;
-        }
-
-        if (std::find(inputs.begin(), inputs.end(), 0) != inputs.end())
-        {
-            manager.TriggerAll();
-        }
-        else
-        {
-            for (int input : inputs)
-            {
-                int index = input - 1;
-                manager.TriggerSingle(index);
-            }
-        }
+        manager.TriggerSingle("5MP_1");
+        manager.TriggerSingle("5MP_2");
+        manager.TriggerSingle("5MP_3");
+        manager.TriggerSingle("12MP_1");
+        manager.TriggerSingle("12MP_2");
+        Sleep(150);
     }
-    
-
-    manager.TriggerSingle("12MP_1");
-    Sleep(100);
-	manager.TriggerSingle("12MP_2");
-    Sleep(100);
-	manager.TriggerSingle("5MP_1");
-    Sleep(100);
-    manager.TriggerSingle("5MP_2");
-    Sleep(100);
-    manager.TriggerSingle("5MP_3");
-    Sleep(100);
-    manager.TriggerSingle("12MP_1");
-
+    Sleep(1000);
     manager.StopAll();
     return 0;
 }
