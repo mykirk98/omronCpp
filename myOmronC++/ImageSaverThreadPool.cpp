@@ -65,12 +65,10 @@ void ImageSaverThreadPool::WorkerLoop()
 			try
 			{
 				CIStImageBufferPtr pBuffer(CreateIStImageBuffer());
-				//ConvertPixelFormat(frame.pImage, m_convertToColor, pBuffer);
-				ImageProcess::ConvertPixelFormat(frame.pImage, m_convertToColor, pBuffer);
-				//GenICam::gcstring savePath = SetSavePath(m_saveRootDir, frame.cameraName, frame.serialNumber, frame.frameID);
+				ImageProcess::ConvertPixelFormat(frame.pImage, frame.isMono, pBuffer);
 				GenICam::gcstring savePath = ImageProcess::SetSavePath(m_saveRootDir, frame.cameraName, frame.serialNumber, frame.frameID);
-				//SaveImage<BMP>(pBuffer, savePath);
-				ImageProcess::SaveImage<BMP>(pBuffer, savePath);
+				//ImageProcess::SaveImage<BMP>(pBuffer, savePath);
+				ImageProcess::SaveImage<JPEG>(pBuffer, savePath);
 
 				std::cout << "[ImageSaverThreadPool] Queue size: " << m_queue->Size() << std::endl;
 				std::cout << "[ImageSaverThreadPool] Saved: " << savePath << std::endl;

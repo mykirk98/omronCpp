@@ -46,7 +46,7 @@ bool GigECamera::Initialize(IStInterface* pInterface, uint32_t interfaceDeviceIn
 			throw RUNTIME_EXCEPTION("A device with an IP address of %s could not be found.", pGevDeviceForceIPAddress->ToString().c_str());
 		}
 		std::cout << "[GigECamera] " << m_pDevice->GetIStDeviceInfo()->GetDisplayName() << ": connected" << std::endl;
-
+		
 		m_serialNumber = m_pDevice->GetIStDeviceInfo()->GetSerialNumber();
 		// Get the INodeMap interface pointer for the camera settings.
 		GenApi::CNodeMapPtr pINodeMap(m_pDevice->GetRemoteIStPort()->GetINodeMap());
@@ -154,7 +154,9 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 			{
 				// If yes, we create a IStImage object for further image handling.
 				IStImage* pImage = pStreamBuffer->GetIStImage();
-				
+				const EStPixelFormatNamingConvention_t ePFNC = pImage->GetImagePixelFormat();
+				const IStPixelFormatInfo* const pPixelFormatInfo = GetIStPixelFormatInfo(ePFNC);
+
 				ImageProcess::PrintFrameInfo(pStreamBuffer, m_cameraName);
 
 				FrameData frame;
@@ -162,6 +164,7 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 				frame.serialNumber = m_serialNumber;
 				frame.frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
 				frame.cameraName = GetCameraName();
+				frame.isMono = pPixelFormatInfo->IsMono();
 
 				// Push the frame data into the frame queue for further processing.
 				if (m_queue)
@@ -169,9 +172,9 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 				else
 					std::cerr << "[GigECamera] Frame queue is not set. Cannot push frame data." << std::endl;
 
-				//Sleep(100);
 				Mat mat = ImageProcess::ConvertToMat(pImage);
-				std::cout << "[GigECamera] Image converted to openCV Mat." << std::endl;
+				//std::cout << "[GigECamera] Image converted to openCV Mat." << std::endl;
+				Sleep(50);
 			}
 			else
 			{

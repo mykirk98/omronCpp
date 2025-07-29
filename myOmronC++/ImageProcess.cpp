@@ -39,20 +39,19 @@ GenICam::gcstring ImageProcess::SetSavePath(const std::string& baseDir, const st
 	return GenICam::gcstring();
 }
 
-void ImageProcess::ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStImageBufferPtr& pDstBuffer)
+void ImageProcess::ConvertPixelFormat(IStImage* pSrcImage, bool isMono, CIStImageBufferPtr& pDstBuffer)
 {
 	try
 	{
 		// Create a data converter object for pixel format conversion.
 		CIStPixelFormatConverterPtr pPixelFormatConverter(CreateIStConverter(StConverterType_PixelFormat));
-
-		if (isColor)
+		if (isMono)
 		{
-			pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_BGR8);
+			pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_Mono8);
 		}
 		else
 		{
-			pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_Mono8);
+			pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_BGR8);
 		}
 		// Convert the pixel format of the source image to the destination buffer.
 		pPixelFormatConverter->Convert(pSrcImage, pDstBuffer);

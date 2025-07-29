@@ -62,30 +62,17 @@ int main()
     //        }
     //    }
     //}
-
-    //manager.TriggerSingle("12MP_1");
-    //Sleep(100);
-	//manager.TriggerSingle("12MP_2");
-    //Sleep(100);
-	manager.TriggerSingle("5MP_1");
-    Sleep(100);
-    manager.TriggerSingle("5MP_2");
-    Sleep(100);
-    manager.TriggerSingle("5MP_3");
-    Sleep(100);
-    //manager.TriggerSingle("12MP_1");
-    //Sleep(100);
-    //manager.TriggerSingle("12MP_2");
-    //Sleep(100);
-    manager.TriggerSingle("5MP_1");
-    Sleep(100);
-    manager.TriggerSingle("5MP_2");
-    Sleep(100);
-    manager.TriggerSingle("5MP_3");
-    //Sleep(100);
-    //manager.TriggerSingle("12MP_1");
-    Sleep(200);
-
+    
+    for (int i = 0; i < 20; ++i)
+    {
+        manager.TriggerSingle("5MP_1");
+        manager.TriggerSingle("5MP_2");
+        manager.TriggerSingle("5MP_3");
+		manager.TriggerSingle("12MP_1");
+		manager.TriggerSingle("12MP_2");
+        Sleep(150);
+    }
+    Sleep(1000);
     manager.StopAll();
     return 0;
 }

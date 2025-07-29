@@ -53,15 +53,13 @@ public:
 	static GenICam::gcstring SetSavePath(const std::string& baseDir, const std::string& cameraName, const std::string& serialNumber, const uint64_t frameID);
 	/*	@brief Convert pixel format of the image to the buffer
 	@param pSrcImage : Source image pointer to be converted
-	@param isColor : Flag that decides whether the image is saved in color or mono format
+	@param isMono : Flag indicating if the image is monochrome
 	@param pDstBuffer : buffer to store the converted image	*/
-	static void ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStImageBufferPtr& pDstBuffer);
+	static void ConvertPixelFormat(IStImage* pSrcImage, bool isMono, CIStImageBufferPtr& pDstBuffer);
 
-	/*
-	@brief Save the image in the specified format
+	/* @brief Save the image in the specified format
 	@param pImageBuffer : Image buffer containing the image data
-	@param dstDir : Destination directory where the image will be saved
-	*/
+	@param dstDir : Destination directory where the image will be saved */
 	template<typename FORMAT>
 	static void SaveImage(CIStImageBufferPtr& pImageBuffer, GenICam::gcstring& dstDir)
 	{
@@ -82,4 +80,3 @@ public:
 	@return cv::Mat object containing the image data */
 	static Mat ConvertToMat(IStImage* pImage);
 };
-

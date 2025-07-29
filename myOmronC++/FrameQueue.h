@@ -15,6 +15,7 @@ struct FrameData
 	std::string serialNumber;
 	uint64_t frameID = 0;
 	std::string cameraName;
+	bool isMono = NULL;
 };
 
 /*	@brief FrameQueue class
