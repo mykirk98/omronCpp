@@ -143,6 +143,7 @@
     <ClCompile Include="ImageProcess.cpp" />
     <ClCompile Include="ImageSaverThreadPool.cpp" />
     <ClCompile Include="PathQueue.cpp" />
+    <ClCompile Include="PathToGuiAdapter.cpp" />
     <ClCompile Include="TriggerCamera.cpp" />
     <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
@@ -161,6 +162,7 @@
     <ClInclude Include="ImageProcess.h" />
     <ClInclude Include="ImageSaverThreadPool.h" />
     <ClInclude Include="PathQueue.h" />
+    <ClInclude Include="PathToGuiAdapter.h" />
     <ClInclude Include="TriggerCamera.h" />
     <ClInclude Include="config.h" />
   </ItemGroup>

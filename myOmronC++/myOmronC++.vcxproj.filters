@@ -64,6 +64,12 @@
     <ClCompile Include="TriggerCamera.cpp">
       <Filter>Camera</Filter>
     </ClCompile>
+    <ClCompile Include="PathToGuiAdapter.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="PathQueue.cpp">
+      <Filter>Queue</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NodeMapUtil.h">
@@ -104,6 +110,12 @@
     </ClInclude>
     <ClInclude Include="TriggerCamera.h">
       <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="PathToGuiAdapter.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="PathQueue.h">
+      <Filter>Queue</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
