@@ -74,11 +74,11 @@ void ImageSaverThreadPool::WorkerLoop()
 				std::cout << "[ImageSaverThreadPool] Saved: " << savePath << std::endl;
 
 				// Notify the path queue that a new path has been added
-				if (m_pathQueue)
-				{
-					std::string fullMessage = frame.cameraName + " :" + savePath.c_str() + JPEG::extension;
-					m_pathQueue->Push(fullMessage);
-				}
+				//if (m_pathQueue)
+				//{
+				//	std::string fullMessage = frame.cameraName + " :" + savePath.c_str() + JPEG::extension;
+				//	m_pathQueue->Push(fullMessage);
+				//}
 			}
 			catch (const GenICam::GenericException& e)
 			{

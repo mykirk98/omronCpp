@@ -1,5 +1,10 @@
 #include "GigEManager.h"
 
+GigEManager::GigEManager(std::string saveRootDir)
+    : m_saveRootDir(saveRootDir)
+{
+}
+
 GigEManager::GigEManager(std::string saveRootDir, std::shared_ptr<PathQueue> pathQueue)
     : m_saveRootDir(saveRootDir)
 	, m_pathQueue(pathQueue)

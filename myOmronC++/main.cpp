@@ -11,7 +11,8 @@ int main()
 	std::string saveRootDir = "C:\\Users\\mykir\\Work\\Experiments\\"; // NOTE: LAB WINDOWS PC DIRECTORY
 	//std::string saveRootDir = "C:\\Users\\USER\\Pictures\\"; // NOTE: HOME PC DIRECTORY
 	//std::string saveRootDir = "/home/msis/Pictures/SentechExperiments/Experiments1/"; // NOTE: LAB LINUX PC DIRECTORY
-    GigEManager manager(saveRootDir, pathQueue);
+    //GigEManager manager(saveRootDir, pathQueue);
+    GigEManager manager(saveRootDir);
 
     if (!manager.Initialize())
     {
