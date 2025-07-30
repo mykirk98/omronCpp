@@ -43,12 +43,12 @@ void ImageSaverThreadPool::Stop()
 	m_pFrameQueue->Clear();
 
 	// iterate through the worker threads and join them
-    for (auto& worker : m_workers)
+	for (std::vector<std::thread>::iterator worker = m_workers.begin(); worker != m_workers.end(); ++worker)
     {
 		// Check if the thread is joinable before joining
-		if (worker.joinable())
+		if (worker->joinable())
 		{
-			worker.join();
+			worker->join();
 		}
     }
 	// clear the worker threads vector
