@@ -7,9 +7,6 @@
 #include <vector>
 #include <atomic>
 #include <string>
-#include <StApi_IP.h>
-
-using namespace StApi;
 
 /* @brief This class manages a pool of threads for saving images. */
 class ImageSaverThreadPool

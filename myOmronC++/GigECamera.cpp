@@ -117,6 +117,11 @@ void GigECamera::SequentialCapture()
 	}
 }
 
+void GigECamera::ExecuteTrigger()
+{
+	pICommandTriggerSoftware->Execute();
+}
+
 void GigECamera::SetFrameQueue(std::shared_ptr<FrameQueue> pFrameQueue)
 {
 	m_queue = pFrameQueue;

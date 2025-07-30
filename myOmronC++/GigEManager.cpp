@@ -2,6 +2,7 @@
 
 GigEManager::GigEManager(std::string saveRootDir)
     : m_saveRootDir(saveRootDir)
+    , m_running(false)
 {
 }
 
@@ -108,7 +109,7 @@ void GigEManager::TriggerSingle(int index)
 {
     if (index >= 0 && index < static_cast<int>(m_cameras.size()))
     {
-		m_cameras[index]->pICommandTriggerSoftware->Execute();  //TODO: 래퍼로 감싸서 호출하기, 직접 자원에 접근하는 것은 좋지 않음
+        m_cameras[index]->ExecuteTrigger();
     }
     else
     {
@@ -122,7 +123,7 @@ void GigEManager::TriggerSingle(const std::string& cameraName)
     //auto it = m_cameraMap.find(cameraName);
     if (it != m_cameraMap.end())
     {
-		it->second->pICommandTriggerSoftware->Execute();  //TODO: 래퍼로 감싸서 호출하기, 직접 자원에 접근하는 것은 좋지 않음
+        it->second->ExecuteTrigger();
     }
     else
     {
@@ -144,10 +145,6 @@ void GigEManager::CameraLoop(std::shared_ptr<GigECamera> camera)
 /*
 #include "GigEManager.h"
 #include "PathQueue.h"
-#include <iostream>
-#include <sstream>
-#include <vector>
-#include <algorithm>
 
 int main()
 {
@@ -155,7 +152,8 @@ int main()
     std::string saveRootDir = "C:\\Users\\mykir\\Work\\Experiments\\"; // NOTE: LAB WINDOWS PC DIRECTORY
     //std::string saveRootDir = "C:\\Users\\USER\\Pictures\\"; // NOTE: HOME PC DIRECTORY
     //std::string saveRootDir = "/home/msis/Pictures/SentechExperiments/Experiments1/"; // NOTE: LAB LINUX PC DIRECTORY
-    GigEManager manager(saveRootDir, pathQueue);
+    //GigEManager manager(saveRootDir, pathQueue);
+    GigEManager manager(saveRootDir);
 
     if (!manager.Initialize())
     {
@@ -165,51 +163,7 @@ int main()
 
     manager.StartAll();
 
-    //std::cout << "Enter indices to trigger:\n";
-    //std::cout << "  0     => trigger ALL cameras\n";
-    //std::cout << "  1     => trigger camera at index 0\n";
-    //std::cout << "  2 3   => trigger cameras at indices 1 and 2\n";
-    //std::cout << "Type 'q' to quit.\n";
-
-    //std::string line;
-    //while (true)
-    //{
-    //    std::cout << "> ";
-    //    std::getline(std::cin, line);
-
-    //    if (line == "q")
-    //        break;
-
-    //    std::istringstream iss(line);
-    //    std::vector<int> inputs;
-    //    int num;
-
-    //    while (iss >> num)
-    //    {
-    //        inputs.push_back(num);
-    //    }
-
-    //    if (inputs.empty())
-    //    {
-    //        std::cerr << "No input detected.\n";
-    //        continue;
-    //    }
-
-    //    if (std::find(inputs.begin(), inputs.end(), 0) != inputs.end())
-    //    {
-    //        manager.TriggerAll();
-    //    }
-    //    else
-    //    {
-    //        for (int input : inputs)
-    //        {
-    //            int index = input - 1;
-    //            manager.TriggerSingle(index);
-    //        }
-    //    }
-    //}
-
-    for (int i = 0; i < 20; ++i)
+    for (int i = 0; i < 10; ++i)
     {
         manager.TriggerSingle("5MP_1");
         manager.TriggerSingle("5MP_2");

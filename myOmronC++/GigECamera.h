@@ -1,7 +1,6 @@
 #pragma once
 
 #include <StApi_TL.h>
-#include <StApi_IP.h>
 
 #include "FrameQueue.h"
 #include "ImageProcess.h"
@@ -29,9 +28,9 @@ public:
 
 	void SequentialCapture();
 
-	void SetFrameQueue(std::shared_ptr<FrameQueue> pFrameQueue);
+	void ExecuteTrigger();
 
-	GenApi::CCommandPtr pICommandTriggerSoftware;
+	void SetFrameQueue(std::shared_ptr<FrameQueue> pFrameQueue);
 
 	const std::string& GetCameraName() const { return m_cameraName; }
 
@@ -45,9 +44,11 @@ private:
 	CIStDevicePtr m_pDevice; // Camera device pointer
 	CIStDataStreamPtr m_pDataStream; // Data stream pointer
 
+	GenApi::CCommandPtr pICommandTriggerSoftware;
+	std::shared_ptr<FrameQueue> m_queue;
+
 	std::string m_saveRootDir; // Directory to save images
 	GenICam::gcstring m_serialNumber;
-	std::shared_ptr<FrameQueue> m_queue;
 	std::string m_cameraName;
 };
 

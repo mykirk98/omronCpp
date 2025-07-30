@@ -1,9 +1,5 @@
 #include "GigEManager.h"
 #include "PathQueue.h"
-#include <iostream>
-#include <sstream>
-#include <vector>
-#include <algorithm>
 
 int main()
 {
@@ -21,50 +17,6 @@ int main()
     }
 
     manager.StartAll();
-
-    //std::cout << "Enter indices to trigger:\n";
-    //std::cout << "  0     => trigger ALL cameras\n";
-    //std::cout << "  1     => trigger camera at index 0\n";
-    //std::cout << "  2 3   => trigger cameras at indices 1 and 2\n";
-    //std::cout << "Type 'q' to quit.\n";
-
-    //std::string line;
-    //while (true)
-    //{
-    //    std::cout << "> ";
-    //    std::getline(std::cin, line);
-
-    //    if (line == "q")
-    //        break;
-
-    //    std::istringstream iss(line);
-    //    std::vector<int> inputs;
-    //    int num;
-
-    //    while (iss >> num)
-    //    {
-    //        inputs.push_back(num);
-    //    }
-
-    //    if (inputs.empty())
-    //    {
-    //        std::cerr << "No input detected.\n";
-    //        continue;
-    //    }
-
-    //    if (std::find(inputs.begin(), inputs.end(), 0) != inputs.end())
-    //    {
-    //        manager.TriggerAll();
-    //    }
-    //    else
-    //    {
-    //        for (int input : inputs)
-    //        {
-    //            int index = input - 1;
-    //            manager.TriggerSingle(index);
-    //        }
-    //    }
-    //}
     
     for (int i = 0; i < 10; ++i)
     {
