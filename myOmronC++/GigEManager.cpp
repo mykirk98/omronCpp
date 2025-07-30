@@ -11,6 +11,7 @@ GigEManager::GigEManager(std::string saveRootDir)
 
 GigEManager::GigEManager(std::string saveRootDir, std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue)
     : m_strSaveRootDir(saveRootDir)
+	, m_running(false)
 	, m_pPathQueue(pathQueue)
 {
     m_pFrameQueue = std::make_shared<ThreadSafeQueue<FrameData>>();
@@ -32,14 +33,14 @@ bool GigEManager::Initialize()
         for (uint32_t ifaceIdx = 0; ifaceIdx < m_pSystem->GetInterfaceCount(); ++ifaceIdx)
         {
             IStInterface* pInterface = m_pSystem->GetIStInterface(ifaceIdx);
-            std::cout << "Interface " << ifaceIdx << ": " << pInterface->GetIStInterfaceInfo()->GetDisplayName() << std::endl;
-            std::cout << "DeviceCount = " << pInterface->GetDeviceCount() << std::endl;
+            m_logger->Log("Interface " + std::to_string(ifaceIdx) + ": " + std::string(pInterface->GetIStInterfaceInfo()->GetDisplayName()));
+			m_logger->Log("DeviceCount = " + std::to_string(pInterface->GetDeviceCount()));
 
             for (uint32_t deviceIdx = 0; deviceIdx < pInterface->GetDeviceCount(); ++deviceIdx)
             {
-                std::cout << "-------------------------------------------" << std::endl;
-                std::cout << "Device " << deviceIdx << ": " << pInterface->GetIStDeviceInfo(deviceIdx)->GetDisplayName() << std::endl;
-                std::cout << "SerialNumber: " << pInterface->GetIStDeviceInfo(deviceIdx)->GetSerialNumber() << std::endl;
+				m_logger->Log("-------------------------------------------");
+				m_logger->Log("Device " + std::to_string(deviceIdx) + ": " + std::string(pInterface->GetIStDeviceInfo(deviceIdx)->GetDisplayName()));
+				m_logger->Log("SerialNumber: " + std::string(pInterface->GetIStDeviceInfo(deviceIdx)->GetSerialNumber()));
 
                 std::shared_ptr<GigECamera> camera = std::make_shared<GigECamera>(m_strSaveRootDir);
                 if (camera->Initialize(pInterface, deviceIdx))
@@ -51,7 +52,7 @@ bool GigEManager::Initialize()
                 }
                 else
                 {
-                    std::cerr << "[GigEManager] Failed to initialize camera " << deviceIdx << std::endl;
+					m_logger->Log("[GigEManager] Failed to initialize camera " + std::to_string(deviceIdx));
                 }
             }
         }
@@ -59,7 +60,7 @@ bool GigEManager::Initialize()
     }
     catch (const GenICam::GenericException& e)
     {
-        std::cerr << "[GigEManager] Initialization error: " << e.GetDescription() << std::endl;
+		m_logger->Log("[GigEManager] Initialization error: " + std::string(e.GetDescription()));
         return false;
     }
 }
@@ -76,7 +77,7 @@ void GigEManager::StartAll()
         }
         catch (const std::exception& e)
         {
-            std::cerr << "[GigEManager] Worker failed to start: " << e.what() << std::endl;
+			m_logger->Log("[GigEManager] Worker failed to start: " + std::string(e.what()));
         }
     }
 }
@@ -95,6 +96,8 @@ void GigEManager::StopAll()
     {
         camera->StopAcquisition();
     }
+	m_pImageSaverThreadPool->Stop();
+	m_logger->Stop();
     m_threads.clear();
 }
 
@@ -114,7 +117,7 @@ void GigEManager::TriggerSingle(int index)
     }
     else
     {
-		std::cerr << "[GigEManager] Invalid worker index: " << index << std::endl;
+		m_logger->Log("[GigEManager] Invalid worker index: " + std::to_string(index));
     }
 }
 
@@ -127,7 +130,7 @@ void GigEManager::TriggerSingle(const std::string& cameraName)
     }
     else
     {
-        std::cerr << "[GigEManager] Camera not found: " << cameraName << std::endl;
+		m_logger->Log("[GigEManager] Camera not found: " + cameraName);
 	}
 }
 

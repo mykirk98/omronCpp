@@ -25,7 +25,6 @@ void ImageSaverThreadPool::Start()
 	{
 		// Create a new thread and add it to the worker pool
 		m_workers.emplace_back(&ImageSaverThreadPool::WorkerLoop, this);
-		// & : pointer to the WorkerLoop member function
 		// this : pointer to the current instance of ImageSaverThreadPool
 	}
 }
@@ -39,8 +38,7 @@ void ImageSaverThreadPool::Stop()
 	}
 
 	m_running = false;
-	// clear the queue to stop processing frames
-	// This will ensure that all threads exit gracefully
+	// clear the queue to stop processing frames, This will ensure that all threads exit gracefully
 	m_pFrameQueue->Clear();
 
 	// iterate through the worker threads and join them
@@ -71,10 +69,7 @@ void ImageSaverThreadPool::WorkerLoop()
 				//ImageProcess::SaveImage<BMP>(pBuffer, savePath);
 				ImageProcess::SaveImage<JPEG>(pBuffer, savePath);
 
-				//std::cout << "[ImageSaverThreadPool] Queue size: " << m_pFrameQueue->Size() << std::endl;
-				m_logger->Log("[ImageSaverThreadPool] Queue size: " + std::to_string(m_pFrameQueue->Size()));
-				//std::cout << "[ImageSaverThreadPool] Saved: " << savePath << std::endl;
-				m_logger->Log("[ImageSaverThreadPool] Saved: " + std::string(savePath) + JPEG::extension);
+				m_logger->Log("[ImageSaverThreadPool] Saved: " + std::string(savePath) + JPEG::extension + "\t after Queue size:" + std::to_string(m_pFrameQueue->Size()));
 
 				// Notify the path queue that a new path has been added
 				//if (m_pathQueue)
@@ -85,7 +80,6 @@ void ImageSaverThreadPool::WorkerLoop()
 			}
 			catch (const GenICam::GenericException& e)
 			{
-				//std::cerr << "[ImageSaverThreadPool] Worker error: " << e.GetDescription() << std::endl;
 				m_logger->Log("[ImageSaverThreadPool] Worker error: " + std::string(e.GetDescription()));
 			}
 		}
