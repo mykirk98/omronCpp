@@ -4,8 +4,9 @@ GigEManager::GigEManager(std::string saveRootDir)
     : m_strSaveRootDir(saveRootDir)
     , m_running(false)
 {
+	m_logger = std::make_shared<LoggerThread>();
     m_pFrameQueue = std::make_shared<ThreadSafeQueue<FrameData>>();
-	m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strSaveRootDir, m_pFrameQueue, m_pPathQueue);
+	m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strSaveRootDir, m_pFrameQueue, m_pPathQueue, m_logger);
 }
 
 GigEManager::GigEManager(std::string saveRootDir, std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue)
@@ -13,7 +14,7 @@ GigEManager::GigEManager(std::string saveRootDir, std::shared_ptr<ThreadSafeQueu
 	, m_pPathQueue(pathQueue)
 {
     m_pFrameQueue = std::make_shared<ThreadSafeQueue<FrameData>>();
-    m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strSaveRootDir, m_pFrameQueue, m_pPathQueue);
+    m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strSaveRootDir, m_pFrameQueue, m_pPathQueue, m_logger);
 }
 
 GigEManager::~GigEManager()
@@ -24,6 +25,7 @@ GigEManager::~GigEManager()
 bool GigEManager::Initialize()
 {
     try {
+        m_logger->Start();
 		m_pImageSaverThreadPool->Start();
 
         m_pSystem = CreateIStSystem(StSystemVendor_Default, StInterfaceType_GigEVision);

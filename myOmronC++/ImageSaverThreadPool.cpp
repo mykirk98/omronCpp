@@ -1,6 +1,6 @@
 #include "ImageSaverThreadPool.h"
 
-ImageSaverThreadPool::ImageSaverThreadPool(size_t threadCount, const std::string& saveRootDir, std::shared_ptr<ThreadSafeQueue<FrameData>> pQueue, std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue)
+ImageSaverThreadPool::ImageSaverThreadPool(size_t threadCount, const std::string& saveRootDir, std::shared_ptr<ThreadSafeQueue<FrameData>> pQueue, std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue, std::shared_ptr<LoggerThread> logger)
 	: m_running(false)
 	, m_strSaveRootDir(saveRootDir)
 	, m_pFrameQueue(pQueue)
@@ -8,6 +8,7 @@ ImageSaverThreadPool::ImageSaverThreadPool(size_t threadCount, const std::string
 {
 	// Reserve space for the specified number of threads to avoid frequent reallocations
 	m_workers.reserve(threadCount);
+	m_logger = logger;
 }
 
 ImageSaverThreadPool::~ImageSaverThreadPool()
@@ -70,8 +71,10 @@ void ImageSaverThreadPool::WorkerLoop()
 				//ImageProcess::SaveImage<BMP>(pBuffer, savePath);
 				ImageProcess::SaveImage<JPEG>(pBuffer, savePath);
 
-				std::cout << "[ImageSaverThreadPool] Queue size: " << m_pFrameQueue->Size() << std::endl;
-				std::cout << "[ImageSaverThreadPool] Saved: " << savePath << std::endl;
+				//std::cout << "[ImageSaverThreadPool] Queue size: " << m_pFrameQueue->Size() << std::endl;
+				m_logger->Log("[ImageSaverThreadPool] Queue size: " + std::to_string(m_pFrameQueue->Size()));
+				//std::cout << "[ImageSaverThreadPool] Saved: " << savePath << std::endl;
+				m_logger->Log("[ImageSaverThreadPool] Saved: " + std::string(savePath) + JPEG::extension);
 
 				// Notify the path queue that a new path has been added
 				//if (m_pathQueue)
@@ -82,7 +85,8 @@ void ImageSaverThreadPool::WorkerLoop()
 			}
 			catch (const GenICam::GenericException& e)
 			{
-				std::cerr << "[ImageSaverThreadPool] Worker error: " << e.GetDescription() << std::endl;
+				//std::cerr << "[ImageSaverThreadPool] Worker error: " << e.GetDescription() << std::endl;
+				m_logger->Log("[ImageSaverThreadPool] Worker error: " + std::string(e.GetDescription()));
 			}
 		}
 	}

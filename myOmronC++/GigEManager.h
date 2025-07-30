@@ -7,6 +7,7 @@
 #include "GigECamera.h"
 #include "ThreadSafeQueue.h"
 #include "ImageSaverThreadPool.h"
+#include "LoggerThread.h"
 
 /*  @brief GigEManager class for managing multiple GigE Workers. */
 class GigEManager
@@ -59,4 +60,6 @@ private:
 	std::shared_ptr<ImageSaverThreadPool> m_pImageSaverThreadPool;
 	/*	@brief Path queue for managing paths for communicate with other processes. */
 	std::shared_ptr<ThreadSafeQueue<std::string>> m_pPathQueue;
+	/*	@brief Logger thread for logging messages. */
+	std::shared_ptr<LoggerThread> m_logger;
 };

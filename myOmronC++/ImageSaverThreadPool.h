@@ -6,6 +6,7 @@
 #include <vector>
 #include <atomic>
 #include <string>
+#include "LoggerThread.h"
 
 /* @brief This class manages a pool of threads for saving images. */
 class ImageSaverThreadPool
@@ -14,7 +15,7 @@ public:
 	/*	@brief ImageSaverThreadPool constructor
 		@param threadCount : Number of threads in the pool
 		@brief saveRootDir : Root directory where images will be saved */
-	ImageSaverThreadPool(size_t threadCount, const std::string& saveRootDir, std::shared_ptr<ThreadSafeQueue<FrameData>> pQueue, std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue);
+	ImageSaverThreadPool(size_t threadCount, const std::string& saveRootDir, std::shared_ptr<ThreadSafeQueue<FrameData>> pQueue, std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue, std::shared_ptr<LoggerThread> logger);
 	/* @brief ImageSaverThreadPool destructor */
 	~ImageSaverThreadPool();
 
@@ -39,4 +40,5 @@ private:
 	std::string m_strSaveRootDir;
 
 	std::shared_ptr<ThreadSafeQueue<std::string>> m_pPathQueue;
+	std::shared_ptr<LoggerThread> m_logger;
 };

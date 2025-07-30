@@ -111,7 +111,7 @@ void GigECamera::SequentialCapture()
 		{
 			// If yes, we create a IStImage object for further image handling.
 			IStImage* pImage = pStreamBuffer->GetIStImage();
-			ImageProcess::PrintFrameInfo(pStreamBuffer, m_strUserDefinedName);
+			//ImageProcess::PrintFrameInfo(pStreamBuffer, m_strUserDefinedName);
 		}
 	}
 }
@@ -171,7 +171,7 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 				const EStPixelFormatNamingConvention_t ePFNC = pImage->GetImagePixelFormat();
 				const IStPixelFormatInfo* const pPixelFormatInfo = GetIStPixelFormatInfo(ePFNC);
 
-				ImageProcess::PrintFrameInfo(pStreamBuffer, m_strUserDefinedName);
+				//ImageProcess::PrintFrameInfo(pStreamBuffer, m_strUserDefinedName);
 
 				FrameData frame;
 				frame.pImage = pImage;

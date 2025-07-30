@@ -61,6 +61,9 @@
     <ClCompile Include="PathToGuiAdapter.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="LoggerThread.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NodeMapUtil.h">
@@ -101,6 +104,9 @@
     </ClInclude>
     <ClInclude Include="ThreadSafeQueue.h">
       <Filter>Queue</Filter>
+    </ClInclude>
+    <ClInclude Include="LoggerThread.h">
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
