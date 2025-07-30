@@ -22,7 +22,7 @@ bool GigECamera::Initialize(IStInterface* pInterface, uint32_t iFaceDeviceIdx)
 		m_pInterface = pInterface;
 		m_logger->Log("Device " + std::to_string(iFaceDeviceIdx) + " : " + std::string(m_pInterface->GetIStDeviceInfo(iFaceDeviceIdx)->GetDisplayName()) + " connecting...\n");
 		//TODO: 효율적으로 인자를 전달하는 방법이 있지 않을까?
-		GigEUtil::UpdateDeviceIPAddress(m_pInterface->GetIStPort()->GetINodeMap(), iFaceDeviceIdx, m_pInterface->GetIStDeviceInfo(iFaceDeviceIdx)->GetSerialNumber(), m_strUserDefinedName, m_logger);
+		GigEUtil::UpdateDeviceIPAddress(m_pInterface, iFaceDeviceIdx, m_strUserDefinedName, m_logger);
 
 		GenApi::CIntegerPtr pGevDeviceForceIPAddress(m_pInterface->GetIStPort()->GetINodeMap()->GetNode(GEV_DEVICE_FORCE_IP_ADDRESS));
 		const int64_t nDeviceIPAddress = pGevDeviceForceIPAddress->GetValue();

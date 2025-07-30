@@ -18,16 +18,16 @@ int main()
 
     manager.StartAll();
     
-  //  for (int i = 0; i < 10; ++i)
-  //  {
-  //      //manager.TriggerSingle("5MP_1");
-  //      //manager.TriggerSingle("5MP_2");
-  //      //manager.TriggerSingle("5MP_3");
-		//manager.TriggerSingle("12MP_1");
-		//manager.TriggerSingle("12MP_2");
-  //      Sleep(150);
-  //  }
-  //  Sleep(3000);
+    for (int i = 0; i < 10; ++i)
+    {
+        manager.TriggerSingle("5MP_1");
+        manager.TriggerSingle("5MP_2");
+        manager.TriggerSingle("5MP_3");
+		manager.TriggerSingle("12MP_1");
+		manager.TriggerSingle("12MP_2");
+        Sleep(150);
+    }
+    Sleep(3000);
     manager.StopAll();
     return 0;
 }

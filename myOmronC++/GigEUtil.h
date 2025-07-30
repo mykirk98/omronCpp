@@ -29,7 +29,7 @@ using namespace StApi;
 class GigEUtil
 {
 public:
-	static void UpdateDeviceIPAddress(GenApi::INodeMap* pINodeMap, uint32_t deviceIndex, const GenICam::gcstring& serialNumber, std::string& cameraName, std::shared_ptr<Logger> logger);
+	static void UpdateDeviceIPAddress(IStInterface* pInterface, uint32_t deviceIndex, std::string& userDefinedName, std::shared_ptr<Logger> logger);
 
 	static void UpdateHeartbeatTimeout(GenApi::INodeMap* pINodeMap, GenICam::gcstring heartBeatTimeOut);
 

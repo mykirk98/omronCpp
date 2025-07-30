@@ -1,8 +1,10 @@
 #include "GigEUtil.h"
 
-
-void GigEUtil::UpdateDeviceIPAddress(GenApi::INodeMap* pINodeMap, uint32_t deviceIndex, const GenICam::gcstring& serialNumber, std::string& cameraName, std::shared_ptr<Logger> logger)
+void GigEUtil::UpdateDeviceIPAddress(IStInterface* pInterface, uint32_t deviceIndex, std::string& userDefinedName, std::shared_ptr<Logger> logger)
 {
+	GenApi::CNodeMapPtr pINodeMap(pInterface->GetIStPort()->GetINodeMap());
+	std::string serialNumber = pInterface->GetIStDeviceInfo(deviceIndex)->GetSerialNumber().c_str();
+
 	// Display the IP address of the host side.
 	GenApi::CIntegerPtr pGevInterfaceSubnetIPAddress(pINodeMap->GetNode(GEV_INTERFACE_SUBNET_IP_ADDRESS));
 	logger->Log("Interface IP Address : " + std::string(pGevInterfaceSubnetIPAddress->ToString()));
@@ -40,7 +42,7 @@ void GigEUtil::UpdateDeviceIPAddress(GenApi::INodeMap* pINodeMap, uint32_t devic
 	if (it != cameraMap.end())
 	{
 		strInput = it->second.first;
-		cameraName = it->second.second;
+		userDefinedName = it->second.second;
 	}
 	else
 	{
@@ -89,7 +91,7 @@ void GigEUtil::UpdateDeviceIPAddress(GenApi::INodeMap* pINodeMap, uint32_t devic
 	}
 	else
 	{
-		logger->Log("New IP address is not valid for camera : " + cameraName);
+		logger->Log("New IP address is not valid for camera : " + userDefinedName);
 	}
 }
 
