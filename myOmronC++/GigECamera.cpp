@@ -34,7 +34,6 @@ bool GigECamera::Initialize(IStInterface* pInterface, uint32_t interfaceDeviceIn
 			usleep(1000 * 1000);  // 1000ms = 1초 (usleep은 마이크로초 단위)
 #endif
 			IStDeviceReleasable* pDeviceReleasable(GigEUtil::CreateIStDeviceByIPAddress(m_pInterface, nDeviceIPAddress));
-			//if (pDeviceReleasable != nullptr)
 			if (pDeviceReleasable != NULL)
 			{
 				m_pDevice.Reset(pDeviceReleasable);

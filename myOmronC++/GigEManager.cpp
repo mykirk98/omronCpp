@@ -4,12 +4,16 @@ GigEManager::GigEManager(std::string saveRootDir)
     : m_saveRootDir(saveRootDir)
     , m_running(false)
 {
+	m_frameQueue = std::make_shared<FrameQueue>();
+	m_ImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_saveRootDir, m_frameQueue, m_pathQueue);
 }
 
 GigEManager::GigEManager(std::string saveRootDir, std::shared_ptr<PathQueue> pathQueue)
     : m_saveRootDir(saveRootDir)
 	, m_pathQueue(pathQueue)
 {
+    m_frameQueue = std::make_shared<FrameQueue>();
+    m_ImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_saveRootDir, m_frameQueue, m_pathQueue);
 }
 
 GigEManager::~GigEManager()
@@ -20,16 +24,12 @@ GigEManager::~GigEManager()
 bool GigEManager::Initialize()
 {
     try {
-		m_frameQueue = std::make_shared<FrameQueue>();  //TODO: 생성자 안으로 이동
-		m_ImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_saveRootDir, m_frameQueue, m_pathQueue); //TODO: 생성자 안으로 이동
 		m_ImageSaverThreadPool->Start();
 
         m_pSystem = CreateIStSystem(StSystemVendor_Default, StInterfaceType_GigEVision);
-
         for (uint32_t ifaceIdx = 0; ifaceIdx < m_pSystem->GetInterfaceCount(); ++ifaceIdx)
         {
             IStInterface* pInterface = m_pSystem->GetIStInterface(ifaceIdx);
-
             std::cout << "Interface " << ifaceIdx << ": " << pInterface->GetIStInterfaceInfo()->GetDisplayName() << std::endl;
             std::cout << "DeviceCount = " << pInterface->GetDeviceCount() << std::endl;
 
@@ -53,7 +53,6 @@ bool GigEManager::Initialize()
                 }
             }
         }
-        //return !m_workers.empty();
         return !m_cameras.empty();
     }
     catch (const GenICam::GenericException& e)
@@ -120,7 +119,6 @@ void GigEManager::TriggerSingle(int index)
 void GigEManager::TriggerSingle(const std::string& cameraName)
 {
 	std::map<std::string, std::shared_ptr<GigECamera>>::iterator it = m_cameraMap.find(cameraName);
-    //auto it = m_cameraMap.find(cameraName);
     if (it != m_cameraMap.end())
     {
         it->second->ExecuteTrigger();
