@@ -1,11 +1,12 @@
 #include "GigECamera.h"
 
-GigECamera::GigECamera(std::string saveRootDir)
+GigECamera::GigECamera(std::string saveRootDir, std::shared_ptr<Logger> logger)
 	: m_pInterface(nullptr)
 	, m_strSaveRootDir(saveRootDir)
 	, pICommandTriggerSoftware(nullptr)
 	, m_strSerialNumber("")
 	, m_strUserDefinedName("")
+	, m_logger(logger)
 {
 }
 
@@ -14,14 +15,14 @@ GigECamera::~GigECamera()
 	StopAcquisition();
 }
 
-bool GigECamera::Initialize(IStInterface* pInterface, uint32_t interfaceDeviceIndex)
+bool GigECamera::Initialize(IStInterface* pInterface, uint32_t iFaceDeviceIdx)
 {
 	try
 	{
 		m_pInterface = pInterface;
-		std::cout << "[GigECamera] Interface: " << m_pInterface->GetIStInterfaceInfo()->GetDisplayName() << " initialized" << std::endl;
-
-		GigEUtil::UpdateDeviceIPAddress(m_pInterface->GetIStPort()->GetINodeMap(), interfaceDeviceIndex, m_pInterface->GetIStDeviceInfo(interfaceDeviceIndex)->GetSerialNumber(), m_strUserDefinedName);
+		m_logger->Log("Device " + std::to_string(iFaceDeviceIdx) + " : " + std::string(m_pInterface->GetIStDeviceInfo(iFaceDeviceIdx)->GetDisplayName()) + " connecting...\n");
+		//TODO: 효율적으로 인자를 전달하는 방법이 있지 않을까?
+		GigEUtil::UpdateDeviceIPAddress(m_pInterface->GetIStPort()->GetINodeMap(), iFaceDeviceIdx, m_pInterface->GetIStDeviceInfo(iFaceDeviceIdx)->GetSerialNumber(), m_strUserDefinedName, m_logger);
 
 		GenApi::CIntegerPtr pGevDeviceForceIPAddress(m_pInterface->GetIStPort()->GetINodeMap()->GetNode(GEV_DEVICE_FORCE_IP_ADDRESS));
 		const int64_t nDeviceIPAddress = pGevDeviceForceIPAddress->GetValue();
@@ -44,7 +45,7 @@ bool GigECamera::Initialize(IStInterface* pInterface, uint32_t interfaceDeviceIn
 		{
 			throw RUNTIME_EXCEPTION("A device with an IP address of %s could not be found.", pGevDeviceForceIPAddress->ToString().c_str());
 		}
-		std::cout << "[GigECamera] " << m_pDevice->GetIStDeviceInfo()->GetDisplayName() << ": connected" << std::endl;
+		m_logger->Log("Device " + std::to_string(iFaceDeviceIdx) + " : " + std::string(m_pDevice->GetIStDeviceInfo()->GetDisplayName()) + " connected." + " User define name is \"" + GetUserDefinedName() + "\"");
 		
 		m_strSerialNumber = m_pDevice->GetIStDeviceInfo()->GetSerialNumber().c_str();
 		// Get the INodeMap interface pointer for the camera settings.
@@ -55,7 +56,6 @@ bool GigECamera::Initialize(IStInterface* pInterface, uint32_t interfaceDeviceIn
 		pICommandTriggerSoftware = pINodeMap->GetNode(TRIGGER_SOFTWARE);
 
 		m_pDataStream = m_pDevice->CreateIStDataStream(0);
-		std::cout << "[GigECamera] # of available data streams: " << m_pDevice->GetDataStreamCount() << std::endl;
 
 		RegisterCallback(m_pDataStream, &GigECamera::OnStCallbackMethod, this);
 
@@ -63,7 +63,7 @@ bool GigECamera::Initialize(IStInterface* pInterface, uint32_t interfaceDeviceIn
 	}
 	catch (const GenICam::GenericException& e)
 	{
-		std::cout << "[GigECamera] Initialization error: " << e.GetDescription() << std::endl;
+		m_logger->Log("[GigECamera] Initialization error: " + std::string(e.GetDescription()));
 		return false;
 	}
 }

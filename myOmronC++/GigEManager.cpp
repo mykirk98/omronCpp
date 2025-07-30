@@ -4,7 +4,7 @@ GigEManager::GigEManager(std::string saveRootDir)
     : m_strSaveRootDir(saveRootDir)
     , m_running(false)
 {
-	m_logger = std::make_shared<LoggerThread>();
+	m_logger = std::make_shared<Logger>();
     m_pFrameQueue = std::make_shared<ThreadSafeQueue<FrameData>>();
 	m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strSaveRootDir, m_pFrameQueue, m_pPathQueue, m_logger);
 }
@@ -33,16 +33,11 @@ bool GigEManager::Initialize()
         for (uint32_t ifaceIdx = 0; ifaceIdx < m_pSystem->GetInterfaceCount(); ++ifaceIdx)
         {
             IStInterface* pInterface = m_pSystem->GetIStInterface(ifaceIdx);
-            m_logger->Log("Interface " + std::to_string(ifaceIdx) + ": " + std::string(pInterface->GetIStInterfaceInfo()->GetDisplayName()) + "\n"
-                + "DeviceCount = " + std::to_string(pInterface->GetDeviceCount()));
-
+            m_logger->Log("Interface " + std::to_string(ifaceIdx) + "(" + std::string(pInterface->GetIStInterfaceInfo()->GetDisplayName()) + ")" + " initialized, " + std::to_string(pInterface->GetDeviceCount()) + " devices detected.");
+            m_logger->Log("---------------------------------------------------------------------------------------");
             for (uint32_t deviceIdx = 0; deviceIdx < pInterface->GetDeviceCount(); ++deviceIdx)
             {
-				m_logger->Log("-------------------------------------------\n"
-                "Device " + std::to_string(deviceIdx) + ": " + std::string(pInterface->GetIStDeviceInfo(deviceIdx)->GetDisplayName()) + "\n"
-                "SerialNumber: " + std::string(pInterface->GetIStDeviceInfo(deviceIdx)->GetSerialNumber()));
-
-                std::shared_ptr<GigECamera> camera = std::make_shared<GigECamera>(m_strSaveRootDir);
+                std::shared_ptr<GigECamera> camera = std::make_shared<GigECamera>(m_strSaveRootDir, m_logger);
                 if (camera->Initialize(pInterface, deviceIdx))
                 {
 				    const std::string& cameraName = camera->GetUserDefinedName();    //TODO: 이 시점에서 cameraName이 어떻게 결정된 것인지 확인 필요
@@ -54,6 +49,7 @@ bool GigEManager::Initialize()
                 {
 					m_logger->Log("[GigEManager] Failed to initialize camera " + std::to_string(deviceIdx));
                 }
+                m_logger->Log("---------------------------------------------------------------------------------------");
             }
         }
         return !m_cameras.empty();

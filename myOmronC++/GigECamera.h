@@ -7,6 +7,7 @@
 #include "GigEUtil.h"
 #include "NodeMapUtil.h"
 #include "config.h"
+#include "Logger.h"
 #ifdef _WIN32
 #include <windows.h>  // for Sleep
 #else
@@ -18,10 +19,10 @@ using namespace StApi;
 class GigECamera
 {
 public:
-	explicit GigECamera(std::string saveRootDir);
+	explicit GigECamera(std::string saveRootDir, std::shared_ptr<Logger> logger);
 	~GigECamera();
 
-	bool Initialize(IStInterface* pInterface, uint32_t interfaceDeviceIndex);
+	bool Initialize(IStInterface* pInterface, uint32_t iFaceDeviceIdx);
 	void StartAcquisition();
 	void StopAcquisition();
 
@@ -50,4 +51,6 @@ private:
 	std::string m_strSaveRootDir;
 	std::string m_strSerialNumber;
 	std::string m_strUserDefinedName;
+
+	std::shared_ptr<Logger> m_logger; // Logger for logging camera events
 };

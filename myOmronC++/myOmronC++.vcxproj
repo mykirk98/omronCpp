@@ -131,7 +131,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="LoggerThread.cpp" />
+    <ClCompile Include="Logger.cpp" />
     <ClCompile Include="NodeMapUtil.cpp" />
     <ClCompile Include="CameraManager.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -158,7 +158,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="LoggerThread.h" />
+    <ClInclude Include="Logger.h" />
     <ClInclude Include="NodeMapUtil.h" />
     <ClInclude Include="CameraManager.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

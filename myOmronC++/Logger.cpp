@@ -1,25 +1,25 @@
-#include "LoggerThread.h"
+#include "Logger.h"
 
-LoggerThread::LoggerThread()
+Logger::Logger()
 	: m_running(false)
 {
 }
 
-LoggerThread::~LoggerThread()
+Logger::~Logger()
 {
 	Stop();
 }
 
-void LoggerThread::Start()
+void Logger::Start()
 {
 	if (m_running)
 		return;
 
 	m_running = true;
-	m_thread = std::thread(&LoggerThread::Run, this);
+	m_thread = std::thread(&Logger::Run, this);
 }
 
-void LoggerThread::Stop()
+void Logger::Stop()
 {
 	if (!m_running)
 		return;
@@ -34,12 +34,12 @@ void LoggerThread::Stop()
 	}
 }
 
-void LoggerThread::Log(const std::string& message)
+void Logger::Log(const std::string& message)
 {
 	m_logQueue.Push(message);
 }
 
-void LoggerThread::Run()
+void Logger::Run()
 {
 	while (m_running)
 	{

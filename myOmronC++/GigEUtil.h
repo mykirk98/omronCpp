@@ -3,6 +3,7 @@
 #include <StApi_TL.h>
 #include <unordered_map>
 #include "config.h"
+#include "Logger.h"
 
 //#if defined(_WIN32_WINNT_WIN8) && (_WIN32_WINNT_WIN8 <= WINVER)
 //#include <WinSock2.h>	//AF_INET
@@ -28,7 +29,7 @@ using namespace StApi;
 class GigEUtil
 {
 public:
-	static void UpdateDeviceIPAddress(GenApi::INodeMap* pINodeMap, uint32_t deviceIndex, const GenICam::gcstring& serialNumber, std::string& cameraName);
+	static void UpdateDeviceIPAddress(GenApi::INodeMap* pINodeMap, uint32_t deviceIndex, const GenICam::gcstring& serialNumber, std::string& cameraName, std::shared_ptr<Logger> logger);
 
 	static void UpdateHeartbeatTimeout(GenApi::INodeMap* pINodeMap, GenICam::gcstring heartBeatTimeOut);
 

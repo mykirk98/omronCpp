@@ -1,16 +1,15 @@
 #include "GigEUtil.h"
 
 
-void GigEUtil::UpdateDeviceIPAddress(GenApi::INodeMap* pINodeMap, uint32_t deviceIndex, const GenICam::gcstring& serialNumber, std::string& cameraName)
+void GigEUtil::UpdateDeviceIPAddress(GenApi::INodeMap* pINodeMap, uint32_t deviceIndex, const GenICam::gcstring& serialNumber, std::string& cameraName, std::shared_ptr<Logger> logger)
 {
 	// Display the IP address of the host side.
 	GenApi::CIntegerPtr pGevInterfaceSubnetIPAddress(pINodeMap->GetNode(GEV_INTERFACE_SUBNET_IP_ADDRESS));
-	std::cout << "Interface IP Address=" << pGevInterfaceSubnetIPAddress->ToString() << std::endl;
+	logger->Log("Interface IP Address : " + std::string(pGevInterfaceSubnetIPAddress->ToString()));
 
 	// Display the subnet mask of the host side.
 	GenApi::CIntegerPtr pGevInterfaceSubnetMask(pINodeMap->GetNode(GEV_INTERFACE_SUBNET_MASK));
-	std::cout << "Interface Subnet Mask=" << pGevInterfaceSubnetMask->ToString() << std::endl;
-	std::cout << "---------------------------------------------------------" << std::endl;
+	logger->Log("Interface Subnet Mask : " + std::string(pGevInterfaceSubnetMask->ToString()) + "\n");
 
 	// Select the first camera.
 	GenApi::CIntegerPtr pDeviceSelector(pINodeMap->GetNode(DEVICE_SELECTOR));
@@ -18,12 +17,11 @@ void GigEUtil::UpdateDeviceIPAddress(GenApi::INodeMap* pINodeMap, uint32_t devic
 
 	// Display the current IP address of the camera.
 	GenApi::CIntegerPtr pGevDeviceIPAddress(pINodeMap->GetNode(GEV_DEVICE_IP_ADDRESS));
-	std::cout << "Old Device IP Address=" << pGevDeviceIPAddress->ToString() << std::endl;
+	logger->Log("Old Device IP Address : " + std::string(pGevDeviceIPAddress->ToString()));
 
 	// Display the current subnet mask of the camera.
 	GenApi::CIntegerPtr pGevDeviceSubnetMask(pINodeMap->GetNode(GEV_DEVICE_SUBNET_MASK));
-	std::cout << "Old Device Subnet Mask=" << pGevDeviceSubnetMask->ToString() << std::endl;
-	std::cout << "---------------------------------------------------------" << std::endl;
+	logger->Log("Old Device Subnet Mask : " + std::string(pGevDeviceSubnetMask->ToString()) + "\n");
 
 	std::string strInput;
 
@@ -46,7 +44,7 @@ void GigEUtil::UpdateDeviceIPAddress(GenApi::INodeMap* pINodeMap, uint32_t devic
 	}
 	else
 	{
-		std::cerr << "Unknown serial number: " << serialNumber << std::endl;
+		logger->Log("Unknown serial number : " + std::string(serialNumber));
 	}
 
 	// Convert the new IP address string to a 32-bit number.
@@ -78,22 +76,20 @@ void GigEUtil::UpdateDeviceIPAddress(GenApi::INodeMap* pINodeMap, uint32_t devic
 		// Specify the new IP address of the camera. At this point, the camera settings will not be updated.
 		GenApi::CIntegerPtr pGevDeviceForceIPAddress(pINodeMap->GetNode(GEV_DEVICE_FORCE_IP_ADDRESS));
 		pGevDeviceForceIPAddress->SetValue(nNewDeviceIPAddress);
-		std::cout << "New Device IP Address=" << pGevDeviceForceIPAddress->ToString() << std::endl;
+		logger->Log("New Device IP Address : " + std::string(pGevDeviceForceIPAddress->ToString()));
 
 		// Specify the new subnet mask of the camera. At this point, the camera settings will not be updated.
 		GenApi::CIntegerPtr pGevDeviceForceSubnetMask(pINodeMap->GetNode(GEV_DEVICE_FORCE_SUBNET_MASK));
 		pGevDeviceForceSubnetMask->SetValue(nSubnetMask);
-		std::cout << "New Device Subnet Mask=" << pGevDeviceForceSubnetMask->ToString() << std::endl;
-		std::cout << "---------------------------------------------------------" << std::endl;
+		logger->Log("New Device Subnet Mask : " + std::string(pGevDeviceForceSubnetMask->ToString()) + "\n");
 
 		// Update the camera settings.
 		GenApi::CCommandPtr pGevDeviceForceIP(pINodeMap->GetNode(GEV_DEVICE_FORCE_IP));
 		pGevDeviceForceIP->Execute();
-		std::cout << "New IP address is set." << std::endl;
 	}
 	else
 	{
-		std::cout << "New IP address is not valid." << std::endl;
+		logger->Log("New IP address is not valid for camera : " + cameraName);
 	}
 }
 

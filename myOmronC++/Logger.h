@@ -6,11 +6,11 @@
 #include <atomic>
 #include <memory>
 
-class LoggerThread
+class Logger
 {
 public:
-	LoggerThread();
-	~LoggerThread();
+	Logger();
+	~Logger();
 
 	void Start();
 	void Stop();
