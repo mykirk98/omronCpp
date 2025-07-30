@@ -33,7 +33,6 @@ public:
 	void SetFrameQueue(std::shared_ptr<FrameQueue> pFrameQueue);
 
 	const std::string& GetUserDefinedName();
-	const std::string& GetSerialNumber();
 
 protected:
 
@@ -48,7 +47,7 @@ private:
 	GenApi::CCommandPtr pICommandTriggerSoftware;
 	std::shared_ptr<FrameQueue> m_pFrameQueue;
 
-	std::string m_strSaveRootDir;
-	std::string m_strSerialNumber;
+	std::string m_strSaveRootDir; // Directory to save images
+	GenICam::gcstring m_serialNumber;
 	std::string m_strUserDefinedName;
 };
