@@ -174,7 +174,7 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 
 				Mat mat = ImageProcess::ConvertToMat(pImage);
 				//std::cout << "[GigECamera] Image converted to openCV Mat." << std::endl;
-				Sleep(50);
+				Sleep(75);
 			}
 			else
 			{

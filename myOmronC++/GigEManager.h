@@ -1,29 +1,31 @@
 #pragma once
 
-#include "GigEWorker.h"
-#include "ImageSaverThreadPool.h"
-#include "PathQueue.h"
+#include <thread>
 #include <vector>
 #include <map>
+#include <memory>
+#include "GigECamera.h"
+#include "ImageSaverThreadPool.h"
+#include "PathQueue.h"
 
 /*  @brief GigEManager class for managing multiple GigE Workers. */
 class GigEManager
 {
 public:
-    /*  @brief Constructor for GigEManager. */
+	/*  @brief Constructor for GigEManager. */
 	explicit GigEManager(std::string saveRootDir);
-    explicit GigEManager(std::string saveRootDir, std::shared_ptr<PathQueue> pathQueue);
+	explicit GigEManager(std::string saveRootDir, std::shared_ptr<PathQueue> pathQueue);
 	/*  @brief Destructor for GigEManager. */
-    ~GigEManager();
+	~GigEManager();
 
 	/*  @brief Initialize the GigEManager and its workers. */
-    bool Initialize();
+	bool Initialize();
 	/*  @brief Start all GigE Workers. */
-    void StartAll();
+	void StartAll();
 	/*  @brief Stop all GigE Workers. */
-    void StopAll();
+	void StopAll();
 	/*  @brief Trigger all GigE Workers to capture an image. */
-    void TriggerAll();
+	//void TriggerAll();		//TODO: Later, PTP support for parallel triggering
 	/*	@brief Trigger single GigE Worker by index.
 	@param index The index of the GigE Worker to trigger. */
 	void TriggerSingle(int index);
@@ -34,14 +36,18 @@ public:
 protected:
 
 private:
+	void CameraLoop(std::shared_ptr<GigECamera> camera);
 	/*	@brief Initialize StApi */
 	CStApiAutoInit m_stApiAutoInit;
 	/*  @brief Print the status of all GigE Workers. */
     CIStSystemPtr m_pSystem;
 	/*  @brief List of GigE Workers managing individual cameras. */
-    std::vector<std::shared_ptr<GigEWorker>> m_workers;
-	std::map<std::string, std::shared_ptr<GigEWorker>> m_workerMap;
+	std::vector<std::shared_ptr<GigECamera>> m_cameras;
+	//std::map<std::string, std::shared_ptr<GigEWorker>> m_workerMap;
+	std::map<std::string, std::shared_ptr<GigECamera>> m_cameraMap;
+	std::vector<std::thread> m_threads;
 
+	std::atomic<bool> m_running;
 	std::string m_saveRootDir;
 
 	std::shared_ptr<FrameQueue> m_frameQueue;

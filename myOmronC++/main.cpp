@@ -66,7 +66,7 @@ int main()
     //    }
     //}
     
-    for (int i = 0; i < 20; ++i)
+    for (int i = 0; i < 10; ++i)
     {
         manager.TriggerSingle("5MP_1");
         manager.TriggerSingle("5MP_2");

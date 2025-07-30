@@ -25,36 +25,35 @@ bool GigEManager::Initialize()
 
         m_pSystem = CreateIStSystem(StSystemVendor_Default, StInterfaceType_GigEVision);
 
-        for (uint32_t i = 0; i < m_pSystem->GetInterfaceCount(); ++i)
+        for (uint32_t ifaceIdx = 0; ifaceIdx < m_pSystem->GetInterfaceCount(); ++ifaceIdx)
         {
-            IStInterface* pInterface = m_pSystem->GetIStInterface(i);
+            IStInterface* pInterface = m_pSystem->GetIStInterface(ifaceIdx);
 
-            std::cout << "Interface " << i << ": " << pInterface->GetIStInterfaceInfo()->GetDisplayName() << std::endl;
+            std::cout << "Interface " << ifaceIdx << ": " << pInterface->GetIStInterfaceInfo()->GetDisplayName() << std::endl;
             std::cout << "DeviceCount = " << pInterface->GetDeviceCount() << std::endl;
 
-            for (uint32_t j = 0; j < pInterface->GetDeviceCount(); ++j)
+            for (uint32_t deviceIdx = 0; deviceIdx < pInterface->GetDeviceCount(); ++deviceIdx)
             {
                 std::cout << "-------------------------------------------" << std::endl;
-                std::cout << "Device " << j << ": " << pInterface->GetIStDeviceInfo(j)->GetDisplayName() << std::endl;
-                std::cout << "SerialNumber: " << pInterface->GetIStDeviceInfo(j)->GetSerialNumber() << std::endl;
+                std::cout << "Device " << deviceIdx << ": " << pInterface->GetIStDeviceInfo(deviceIdx)->GetDisplayName() << std::endl;
+                std::cout << "SerialNumber: " << pInterface->GetIStDeviceInfo(deviceIdx)->GetSerialNumber() << std::endl;
 
-                std::unique_ptr<GigECamera> camera = std::make_unique<GigECamera>(m_saveRootDir);
-                const std::string& cameraName = camera->GetCameraName();
-                if (camera->Initialize(pInterface, j))
+                std::shared_ptr<GigECamera> camera = std::make_shared<GigECamera>(m_saveRootDir);
+				const std::string& cameraName = camera->GetCameraName();    //TODO: 이 시점에서 cameraName이 어떻게 결정된 것인지 확인 필요
+                if (camera->Initialize(pInterface, deviceIdx))
                 {
                     camera->SetFrameQueue(m_frameQueue);
-                    std::shared_ptr<GigEWorker> worker = std::make_shared<GigEWorker>(std::move(camera));
-                    m_workers.push_back(worker);
-
-                    m_workerMap[cameraName] = worker;
+                    m_cameras.push_back(camera);
+                    m_cameraMap[cameraName] = camera;
                 }
                 else
                 {
-                    std::cerr << "[GigEManager] Failed to initialize camera " << j << std::endl;
+                    std::cerr << "[GigEManager] Failed to initialize camera " << deviceIdx << std::endl;
                 }
             }
         }
-        return !m_workers.empty();
+        //return !m_workers.empty();
+        return !m_cameras.empty();
     }
     catch (const GenICam::GenericException& e)
     {
@@ -65,11 +64,13 @@ bool GigEManager::Initialize()
 
 void GigEManager::StartAll()
 {
-    for (std::shared_ptr<GigEWorker>& worker : m_workers)
+    m_running = true;
+    for (std::shared_ptr<GigECamera>& camera : m_cameras)
     {
         try
         {
-            worker->Start();
+            camera->StartAcquisition();
+			m_threads.emplace_back(&GigEManager::CameraLoop, this, camera);
         }
         catch (const std::exception& e)
         {
@@ -80,25 +81,34 @@ void GigEManager::StartAll()
 
 void GigEManager::StopAll()
 {
-    for (std::shared_ptr<GigEWorker>& worker : m_workers)
+    m_running = false;
+    for (std::thread& thread : m_threads)
     {
-        worker->Stop();
+        if (thread.joinable())
+        {
+            thread.join();
+        }
     }
+    for (std::shared_ptr<GigECamera>& camera : m_cameras)
+    {
+        camera->StopAcquisition();
+    }
+    m_threads.clear();
 }
 
-void GigEManager::TriggerAll()
-{
-    for (std::shared_ptr<GigEWorker>& worker : m_workers)
-    {
-        worker->Trigger();
-    }
-}
+//void GigEManager::TriggerAll()
+//{
+//    for (std::shared_ptr<GigEWorker>& worker : m_workers)
+//    {
+//        worker->Trigger();
+//    }
+//}
 
 void GigEManager::TriggerSingle(int index)
 {
-    if (index >= 0 && index < static_cast<int>(m_workers.size()))
+    if (index >= 0 && index < static_cast<int>(m_cameras.size()))
     {
-        m_workers[index]->Trigger();
+		m_cameras[index]->pICommandTriggerSoftware->Execute();  //TODO: 래퍼로 감싸서 호출하기, 직접 자원에 접근하는 것은 좋지 않음
     }
     else
     {
@@ -108,15 +118,25 @@ void GigEManager::TriggerSingle(int index)
 
 void GigEManager::TriggerSingle(const std::string& cameraName)
 {
-    //std::map<std::string, std::shared_ptr<GigEWorker>>::iterator it = m_workerMap.find(cameraName);
-    auto it = m_workerMap.find(cameraName);
-    if (it != m_workerMap.end())
+	std::map<std::string, std::shared_ptr<GigECamera>>::iterator it = m_cameraMap.find(cameraName);
+    //auto it = m_cameraMap.find(cameraName);
+    if (it != m_cameraMap.end())
     {
-        it->second->Trigger();
+		it->second->pICommandTriggerSoftware->Execute();  //TODO: 래퍼로 감싸서 호출하기, 직접 자원에 접근하는 것은 좋지 않음
     }
     else
     {
         std::cerr << "[GigEManager] Camera not found: " << cameraName << std::endl;
+	}
+}
+
+void GigEManager::CameraLoop(std::shared_ptr<GigECamera> camera)
+{
+    while (m_running)
+    {
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        // Here you can add any additional logic for the camera loop if needed;
+		// e.g., checking camera status, temperature, heartbeat, etc.
 	}
 }
 

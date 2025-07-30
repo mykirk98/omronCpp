@@ -139,7 +139,6 @@
     <ClCompile Include="GigEUtil.cpp" />
     <ClCompile Include="FrameQueue.cpp" />
     <ClCompile Include="GigEManager.cpp" />
-    <ClCompile Include="GigEWorker.cpp" />
     <ClCompile Include="ImageProcess.cpp" />
     <ClCompile Include="ImageSaverThreadPool.cpp" />
     <ClCompile Include="PathQueue.cpp" />
@@ -160,7 +159,6 @@
     <ClInclude Include="GigEUtil.h" />
     <ClInclude Include="FrameQueue.h" />
     <ClInclude Include="GigEManager.h" />
-    <ClInclude Include="GigEWorker.h" />
     <ClInclude Include="ImageProcess.h" />
     <ClInclude Include="ImageSaverThreadPool.h" />
     <ClInclude Include="PathQueue.h" />

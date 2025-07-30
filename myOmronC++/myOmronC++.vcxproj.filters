@@ -52,9 +52,6 @@
     <ClCompile Include="GigEManager.cpp">
       <Filter>Camera</Filter>
     </ClCompile>
-    <ClCompile Include="GigEWorker.cpp">
-      <Filter>Camera</Filter>
-    </ClCompile>
     <ClCompile Include="FrameQueue.cpp">
       <Filter>Queue</Filter>
     </ClCompile>
@@ -97,9 +94,6 @@
       <Filter>Camera</Filter>
     </ClInclude>
     <ClInclude Include="GigEManager.h">
-      <Filter>Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="GigEWorker.h">
       <Filter>Camera</Filter>
     </ClInclude>
     <ClInclude Include="FrameQueue.h">
