@@ -33,14 +33,14 @@ bool GigEManager::Initialize()
         for (uint32_t ifaceIdx = 0; ifaceIdx < m_pSystem->GetInterfaceCount(); ++ifaceIdx)
         {
             IStInterface* pInterface = m_pSystem->GetIStInterface(ifaceIdx);
-            m_logger->Log("Interface " + std::to_string(ifaceIdx) + ": " + std::string(pInterface->GetIStInterfaceInfo()->GetDisplayName()));
-			m_logger->Log("DeviceCount = " + std::to_string(pInterface->GetDeviceCount()));
+            m_logger->Log("Interface " + std::to_string(ifaceIdx) + ": " + std::string(pInterface->GetIStInterfaceInfo()->GetDisplayName()) + "\n"
+                + "DeviceCount = " + std::to_string(pInterface->GetDeviceCount()));
 
             for (uint32_t deviceIdx = 0; deviceIdx < pInterface->GetDeviceCount(); ++deviceIdx)
             {
-				m_logger->Log("-------------------------------------------");
-				m_logger->Log("Device " + std::to_string(deviceIdx) + ": " + std::string(pInterface->GetIStDeviceInfo(deviceIdx)->GetDisplayName()));
-				m_logger->Log("SerialNumber: " + std::string(pInterface->GetIStDeviceInfo(deviceIdx)->GetSerialNumber()));
+				m_logger->Log("-------------------------------------------\n"
+                "Device " + std::to_string(deviceIdx) + ": " + std::string(pInterface->GetIStDeviceInfo(deviceIdx)->GetDisplayName()) + "\n"
+                "SerialNumber: " + std::string(pInterface->GetIStDeviceInfo(deviceIdx)->GetSerialNumber()));
 
                 std::shared_ptr<GigECamera> camera = std::make_shared<GigECamera>(m_strSaveRootDir);
                 if (camera->Initialize(pInterface, deviceIdx))
