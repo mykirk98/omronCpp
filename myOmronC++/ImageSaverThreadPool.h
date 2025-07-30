@@ -25,6 +25,8 @@ public:
 	/* @brief Stop the thread pool */
 	void Stop();
 
+protected:
+
 private:
 	/* @brief WorkerLoop function */
 	void WorkerLoop();
@@ -32,11 +34,11 @@ private:
 	/* @brief Thread pool for saving images */
 	std::vector<std::thread> m_workers;
 	/* @brief FrameQueue object for managing image frames */
-	std::shared_ptr<FrameQueue> m_queue;
+	std::shared_ptr<FrameQueue> m_pFrameQueue;
 	/* @brief Flag to indicate whether the thread pool is running */
 	std::atomic<bool> m_running;
 	/* @brief Root directory where images will be saved */
-	std::string m_saveRootDir;
+	std::string m_strSaveRootDir;
 
-	std::shared_ptr<PathQueue> m_pathQueue;
+	std::shared_ptr<PathQueue> m_pPathQueue;
 };

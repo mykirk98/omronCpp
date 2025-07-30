@@ -25,6 +25,8 @@ public:
     size_t Size() const;
     void Clear();
 
+protected:
+
 private:
     mutable std::mutex m_mutex;
     std::condition_variable m_cv;

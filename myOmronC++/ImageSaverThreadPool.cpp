@@ -2,9 +2,9 @@
 
 ImageSaverThreadPool::ImageSaverThreadPool(size_t threadCount, const std::string& saveRootDir, std::shared_ptr<FrameQueue> pQueue, std::shared_ptr<PathQueue> pathQueue)
 	: m_running(false)
-	, m_saveRootDir(saveRootDir)
-	, m_queue(pQueue)
-	, m_pathQueue(pathQueue)
+	, m_strSaveRootDir(saveRootDir)
+	, m_pFrameQueue(pQueue)
+	, m_pPathQueue(pathQueue)
 {
 	// Reserve space for the specified number of threads to avoid frequent reallocations
 	m_workers.reserve(threadCount);
@@ -32,7 +32,7 @@ void ImageSaverThreadPool::Start()
 void ImageSaverThreadPool::Stop()
 {
 	// Wait until the queue is empty before stopping the threads
-	while (!m_queue->isEmpty())
+	while (!m_pFrameQueue->isEmpty())
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
@@ -40,7 +40,7 @@ void ImageSaverThreadPool::Stop()
 	m_running = false;
 	// clear the queue to stop processing frames
 	// This will ensure that all threads exit gracefully
-	m_queue->Clear();
+	m_pFrameQueue->Clear();
 
 	// iterate through the worker threads and join them
     for (auto& worker : m_workers)
@@ -60,17 +60,17 @@ void ImageSaverThreadPool::WorkerLoop()
 	while (m_running)
 	{
 		FrameData frame;
-		if (m_queue && m_queue->PopWithTimeOut(frame, std::chrono::milliseconds(200)))
+		if (m_pFrameQueue && m_pFrameQueue->PopWithTimeOut(frame, std::chrono::milliseconds(200)))
 		{
 			try
 			{
 				CIStImageBufferPtr pBuffer(CreateIStImageBuffer());
 				ImageProcess::ConvertPixelFormat(frame.pImage, frame.isMono, pBuffer);
-				GenICam::gcstring savePath = ImageProcess::SetSavePath(m_saveRootDir, frame.cameraName, frame.serialNumber, frame.frameID);
+				GenICam::gcstring savePath = ImageProcess::SetSavePath(m_strSaveRootDir, frame.cameraName, frame.serialNumber, frame.frameID);
 				//ImageProcess::SaveImage<BMP>(pBuffer, savePath);
 				ImageProcess::SaveImage<JPEG>(pBuffer, savePath);
 
-				std::cout << "[ImageSaverThreadPool] Queue size: " << m_queue->Size() << std::endl;
+				std::cout << "[ImageSaverThreadPool] Queue size: " << m_pFrameQueue->Size() << std::endl;
 				std::cout << "[ImageSaverThreadPool] Saved: " << savePath << std::endl;
 
 				// Notify the path queue that a new path has been added

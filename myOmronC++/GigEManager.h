@@ -41,16 +41,22 @@ private:
 	CStApiAutoInit m_stApiAutoInit;
 	/*  @brief Print the status of all GigE Workers. */
     CIStSystemPtr m_pSystem;
-	/*  @brief List of GigE Workers managing individual cameras. */
+	/*	@brief vector of GigECamera objects representing the GigE cameras. */
 	std::vector<std::shared_ptr<GigECamera>> m_cameras;
-	//std::map<std::string, std::shared_ptr<GigEWorker>> m_workerMap;
+	/*	@brief Map of GigECamera objects indexed by camera name. */
 	std::map<std::string, std::shared_ptr<GigECamera>> m_cameraMap;
+	/*	@brief Vector of threads for running GigE camera loops.*/
 	std::vector<std::thread> m_threads;
 
+	/*	@brief Flag to indicate whether the GigEManager is running. */
 	std::atomic<bool> m_running;
-	std::string m_saveRootDir;
+	/*	@brief Base path to save images. */
+	std::string m_strSaveRootDir;
 
-	std::shared_ptr<FrameQueue> m_frameQueue;
-	std::shared_ptr<ImageSaverThreadPool> m_ImageSaverThreadPool;
-	std::shared_ptr<PathQueue> m_pathQueue;
+	/*	@brief Frame queue for managing image frames. */
+	std::shared_ptr<FrameQueue> m_pFrameQueue;
+	/*	@brief Thread pool for saving images. */
+	std::shared_ptr<ImageSaverThreadPool> m_pImageSaverThreadPool;
+	/*	@brief Path queue for managing paths for communicate with other processes. */
+	std::shared_ptr<PathQueue> m_pPathQueue;
 };

@@ -79,4 +79,9 @@ public:
 	@param pImage : Pointer to the IStImage to be converted
 	@return cv::Mat object containing the image data */
 	static Mat ConvertToMat(IStImage* pImage);
+
+protected:
+
+private:
+
 };

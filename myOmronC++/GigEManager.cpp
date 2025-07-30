@@ -1,19 +1,19 @@
 #include "GigEManager.h"
 
 GigEManager::GigEManager(std::string saveRootDir)
-    : m_saveRootDir(saveRootDir)
+    : m_strSaveRootDir(saveRootDir)
     , m_running(false)
 {
-	m_frameQueue = std::make_shared<FrameQueue>();
-	m_ImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_saveRootDir, m_frameQueue, m_pathQueue);
+	m_pFrameQueue = std::make_shared<FrameQueue>();
+	m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strSaveRootDir, m_pFrameQueue, m_pPathQueue);
 }
 
 GigEManager::GigEManager(std::string saveRootDir, std::shared_ptr<PathQueue> pathQueue)
-    : m_saveRootDir(saveRootDir)
-	, m_pathQueue(pathQueue)
+    : m_strSaveRootDir(saveRootDir)
+	, m_pPathQueue(pathQueue)
 {
-    m_frameQueue = std::make_shared<FrameQueue>();
-    m_ImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_saveRootDir, m_frameQueue, m_pathQueue);
+    m_pFrameQueue = std::make_shared<FrameQueue>();
+    m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strSaveRootDir, m_pFrameQueue, m_pPathQueue);
 }
 
 GigEManager::~GigEManager()
@@ -24,7 +24,7 @@ GigEManager::~GigEManager()
 bool GigEManager::Initialize()
 {
     try {
-		m_ImageSaverThreadPool->Start();
+		m_pImageSaverThreadPool->Start();
 
         m_pSystem = CreateIStSystem(StSystemVendor_Default, StInterfaceType_GigEVision);
         for (uint32_t ifaceIdx = 0; ifaceIdx < m_pSystem->GetInterfaceCount(); ++ifaceIdx)
@@ -39,11 +39,11 @@ bool GigEManager::Initialize()
                 std::cout << "Device " << deviceIdx << ": " << pInterface->GetIStDeviceInfo(deviceIdx)->GetDisplayName() << std::endl;
                 std::cout << "SerialNumber: " << pInterface->GetIStDeviceInfo(deviceIdx)->GetSerialNumber() << std::endl;
 
-                std::shared_ptr<GigECamera> camera = std::make_shared<GigECamera>(m_saveRootDir);
-				const std::string& cameraName = camera->GetCameraName();    //TODO: 이 시점에서 cameraName이 어떻게 결정된 것인지 확인 필요
+                std::shared_ptr<GigECamera> camera = std::make_shared<GigECamera>(m_strSaveRootDir);
                 if (camera->Initialize(pInterface, deviceIdx))
                 {
-                    camera->SetFrameQueue(m_frameQueue);
+				    const std::string& cameraName = camera->GetUserDefinedName();    //TODO: 이 시점에서 cameraName이 어떻게 결정된 것인지 확인 필요
+                    camera->SetFrameQueue(m_pFrameQueue);
                     m_cameras.push_back(camera);
                     m_cameraMap[cameraName] = camera;
                 }

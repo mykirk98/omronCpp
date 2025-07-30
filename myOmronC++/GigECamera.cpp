@@ -2,10 +2,10 @@
 
 GigECamera::GigECamera(std::string saveRootDir)
 	: m_pInterface(nullptr)
-	, m_saveRootDir(saveRootDir)
+	, m_strSaveRootDir(saveRootDir)
 	, pICommandTriggerSoftware(nullptr)
 	, m_serialNumber("")
-	, m_cameraName("")
+	, m_strUserDefinedName("")
 {
 }
 
@@ -21,7 +21,7 @@ bool GigECamera::Initialize(IStInterface* pInterface, uint32_t interfaceDeviceIn
 		m_pInterface = pInterface;
 		std::cout << "[GigECamera] Interface: " << m_pInterface->GetIStInterfaceInfo()->GetDisplayName() << " initialized" << std::endl;
 
-		GigEUtil::UpdateDeviceIPAddress(m_pInterface->GetIStPort()->GetINodeMap(), interfaceDeviceIndex, m_pInterface->GetIStDeviceInfo(interfaceDeviceIndex)->GetSerialNumber(), m_cameraName);
+		GigEUtil::UpdateDeviceIPAddress(m_pInterface->GetIStPort()->GetINodeMap(), interfaceDeviceIndex, m_pInterface->GetIStDeviceInfo(interfaceDeviceIndex)->GetSerialNumber(), m_strUserDefinedName);
 
 		GenApi::CIntegerPtr pGevDeviceForceIPAddress(m_pInterface->GetIStPort()->GetINodeMap()->GetNode(GEV_DEVICE_FORCE_IP_ADDRESS));
 		const int64_t nDeviceIPAddress = pGevDeviceForceIPAddress->GetValue();
@@ -111,7 +111,7 @@ void GigECamera::SequentialCapture()
 		{
 			// If yes, we create a IStImage object for further image handling.
 			IStImage* pImage = pStreamBuffer->GetIStImage();
-			ImageProcess::PrintFrameInfo(pStreamBuffer, m_cameraName);
+			ImageProcess::PrintFrameInfo(pStreamBuffer, m_strUserDefinedName);
 		}
 	}
 }
@@ -123,7 +123,12 @@ void GigECamera::ExecuteTrigger()
 
 void GigECamera::SetFrameQueue(std::shared_ptr<FrameQueue> pFrameQueue)
 {
-	m_queue = pFrameQueue;
+	m_pFrameQueue = pFrameQueue;
+}
+
+const std::string& GigECamera::GetUserDefinedName()
+{
+	return m_strUserDefinedName;
 }
 
 void GigECamera::OnStCallbackMethod(IStCallbackParamBase* pIStCallbackParamBase, void* pvContext)
@@ -161,18 +166,18 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 				const EStPixelFormatNamingConvention_t ePFNC = pImage->GetImagePixelFormat();
 				const IStPixelFormatInfo* const pPixelFormatInfo = GetIStPixelFormatInfo(ePFNC);
 
-				ImageProcess::PrintFrameInfo(pStreamBuffer, m_cameraName);
+				ImageProcess::PrintFrameInfo(pStreamBuffer, m_strUserDefinedName);
 
 				FrameData frame;
 				frame.pImage = pImage;
 				frame.serialNumber = m_serialNumber;
 				frame.frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
-				frame.cameraName = GetCameraName();
+				frame.cameraName = GetUserDefinedName();
 				frame.isMono = pPixelFormatInfo->IsMono();
 
 				// Push the frame data into the frame queue for further processing.
-				if (m_queue)
-					m_queue->Push(frame);
+				if (m_pFrameQueue)
+					m_pFrameQueue->Push(frame);
 				else
 					std::cerr << "[GigECamera] Frame queue is not set. Cannot push frame data." << std::endl;
 

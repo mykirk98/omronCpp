@@ -44,6 +44,7 @@ public:
 	/* @brief Clear the queue */
 	void Clear();
 
+protected:
 
 private:
 	/* @brief Queue to hold FrameData objects */
