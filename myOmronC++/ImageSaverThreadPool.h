@@ -1,7 +1,6 @@
 #pragma once
 
-#include "FrameQueue.h"
-#include "PathQueue.h"
+#include "ThreadSafeQueue.h"
 #include "ImageProcess.h"
 #include <thread>
 #include <vector>
@@ -14,9 +13,8 @@ class ImageSaverThreadPool
 public:
 	/*	@brief ImageSaverThreadPool constructor
 		@param threadCount : Number of threads in the pool
-		@brief saveRootDir : Root directory where images will be saved
-		@brief convertToColor : Flag to indicate whether to convert images to color format */
-	ImageSaverThreadPool(size_t threadCount, const std::string& saveRootDir, std::shared_ptr<FrameQueue> pQueue, std::shared_ptr<PathQueue> pathQueue);
+		@brief saveRootDir : Root directory where images will be saved */
+	ImageSaverThreadPool(size_t threadCount, const std::string& saveRootDir, std::shared_ptr<ThreadSafeQueue<FrameData>> pQueue, std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue);
 	/* @brief ImageSaverThreadPool destructor */
 	~ImageSaverThreadPool();
 
@@ -34,11 +32,11 @@ private:
 	/* @brief Thread pool for saving images */
 	std::vector<std::thread> m_workers;
 	/* @brief FrameQueue object for managing image frames */
-	std::shared_ptr<FrameQueue> m_pFrameQueue;
+	std::shared_ptr<ThreadSafeQueue<FrameData>> m_pFrameQueue;
 	/* @brief Flag to indicate whether the thread pool is running */
 	std::atomic<bool> m_running;
 	/* @brief Root directory where images will be saved */
 	std::string m_strSaveRootDir;
 
-	std::shared_ptr<PathQueue> m_pPathQueue;
+	std::shared_ptr<ThreadSafeQueue<std::string>> m_pPathQueue;
 };

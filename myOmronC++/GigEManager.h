@@ -5,8 +5,8 @@
 #include <map>
 #include <memory>
 #include "GigECamera.h"
+#include "ThreadSafeQueue.h"
 #include "ImageSaverThreadPool.h"
-#include "PathQueue.h"
 
 /*  @brief GigEManager class for managing multiple GigE Workers. */
 class GigEManager
@@ -14,7 +14,7 @@ class GigEManager
 public:
 	/*  @brief Constructor for GigEManager. */
 	explicit GigEManager(std::string saveRootDir);
-	explicit GigEManager(std::string saveRootDir, std::shared_ptr<PathQueue> pathQueue);
+	explicit GigEManager(std::string saveRootDir, std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue);
 	/*  @brief Destructor for GigEManager. */
 	~GigEManager();
 
@@ -54,9 +54,9 @@ private:
 	std::string m_strSaveRootDir;
 
 	/*	@brief Frame queue for managing image frames. */
-	std::shared_ptr<FrameQueue> m_pFrameQueue;
+	std::shared_ptr<ThreadSafeQueue<FrameData>> m_pFrameQueue;
 	/*	@brief Thread pool for saving images. */
 	std::shared_ptr<ImageSaverThreadPool> m_pImageSaverThreadPool;
 	/*	@brief Path queue for managing paths for communicate with other processes. */
-	std::shared_ptr<PathQueue> m_pPathQueue;
+	std::shared_ptr<ThreadSafeQueue<std::string>> m_pPathQueue;
 };

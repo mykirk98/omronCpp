@@ -4,15 +4,15 @@ GigEManager::GigEManager(std::string saveRootDir)
     : m_strSaveRootDir(saveRootDir)
     , m_running(false)
 {
-	m_pFrameQueue = std::make_shared<FrameQueue>();
+    m_pFrameQueue = std::make_shared<ThreadSafeQueue<FrameData>>();
 	m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strSaveRootDir, m_pFrameQueue, m_pPathQueue);
 }
 
-GigEManager::GigEManager(std::string saveRootDir, std::shared_ptr<PathQueue> pathQueue)
+GigEManager::GigEManager(std::string saveRootDir, std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue)
     : m_strSaveRootDir(saveRootDir)
 	, m_pPathQueue(pathQueue)
 {
-    m_pFrameQueue = std::make_shared<FrameQueue>();
+    m_pFrameQueue = std::make_shared<ThreadSafeQueue<FrameData>>();
     m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strSaveRootDir, m_pFrameQueue, m_pPathQueue);
 }
 
@@ -142,11 +142,11 @@ void GigEManager::CameraLoop(std::shared_ptr<GigECamera> camera)
 // Example usage of GigEManager class
 /*
 #include "GigEManager.h"
-#include "PathQueue.h"
 
 int main()
 {
-    std::shared_ptr<PathQueue> pathQueue = std::make_shared<PathQueue>();
+    std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue = std::make_shared<ThreadSafeQueue<std::string>>();
+    //std::shared_ptr<PathQueue> pathQueue = std::make_shared<PathQueue>();
     std::string saveRootDir = "C:\\Users\\mykir\\Work\\Experiments\\"; // NOTE: LAB WINDOWS PC DIRECTORY
     //std::string saveRootDir = "C:\\Users\\USER\\Pictures\\"; // NOTE: HOME PC DIRECTORY
     //std::string saveRootDir = "/home/msis/Pictures/SentechExperiments/Experiments1/"; // NOTE: LAB LINUX PC DIRECTORY

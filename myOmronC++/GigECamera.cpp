@@ -121,7 +121,7 @@ void GigECamera::ExecuteTrigger()
 	pICommandTriggerSoftware->Execute();
 }
 
-void GigECamera::SetFrameQueue(std::shared_ptr<FrameQueue> pFrameQueue)
+void GigECamera::SetFrameQueue(std::shared_ptr<ThreadSafeQueue<FrameData>> pFrameQueue)
 {
 	m_pFrameQueue = pFrameQueue;
 }

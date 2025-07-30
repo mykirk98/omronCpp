@@ -52,9 +52,6 @@
     <ClCompile Include="GigEManager.cpp">
       <Filter>Camera</Filter>
     </ClCompile>
-    <ClCompile Include="FrameQueue.cpp">
-      <Filter>Queue</Filter>
-    </ClCompile>
     <ClCompile Include="ImageSaverThreadPool.cpp">
       <Filter>ThreadPool</Filter>
     </ClCompile>
@@ -63,9 +60,6 @@
     </ClCompile>
     <ClCompile Include="PathToGuiAdapter.cpp">
       <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="PathQueue.cpp">
-      <Filter>Queue</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -96,9 +90,6 @@
     <ClInclude Include="GigEManager.h">
       <Filter>Camera</Filter>
     </ClInclude>
-    <ClInclude Include="FrameQueue.h">
-      <Filter>Queue</Filter>
-    </ClInclude>
     <ClInclude Include="ImageSaverThreadPool.h">
       <Filter>ThreadPool</Filter>
     </ClInclude>
@@ -108,7 +99,7 @@
     <ClInclude Include="PathToGuiAdapter.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="PathQueue.h">
+    <ClInclude Include="ThreadSafeQueue.h">
       <Filter>Queue</Filter>
     </ClInclude>
   </ItemGroup>

@@ -2,7 +2,7 @@
 
 #include <StApi_TL.h>
 
-#include "FrameQueue.h"
+#include "ThreadSafeQueue.h"
 #include "ImageProcess.h"
 #include "GigEUtil.h"
 #include "NodeMapUtil.h"
@@ -12,7 +12,6 @@
 #else
 #include <unistd.h>   // for sleep/usleep
 #endif
-
 
 using namespace StApi;
 
@@ -30,7 +29,7 @@ public:
 
 	void ExecuteTrigger();
 
-	void SetFrameQueue(std::shared_ptr<FrameQueue> pFrameQueue);
+	void SetFrameQueue(std::shared_ptr<ThreadSafeQueue<FrameData>> pFrameQueue);
 
 	const std::string& GetUserDefinedName();
 	const std::string& GetSerialNumber();
@@ -46,7 +45,7 @@ private:
 	CIStDataStreamPtr m_pDataStream; // Data stream pointer
 
 	GenApi::CCommandPtr pICommandTriggerSoftware;
-	std::shared_ptr<FrameQueue> m_pFrameQueue;
+	std::shared_ptr<ThreadSafeQueue<FrameData>> m_pFrameQueue;
 
 	std::string m_strSaveRootDir;
 	std::string m_strSerialNumber;

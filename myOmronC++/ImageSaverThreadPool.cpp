@@ -1,6 +1,6 @@
 #include "ImageSaverThreadPool.h"
 
-ImageSaverThreadPool::ImageSaverThreadPool(size_t threadCount, const std::string& saveRootDir, std::shared_ptr<FrameQueue> pQueue, std::shared_ptr<PathQueue> pathQueue)
+ImageSaverThreadPool::ImageSaverThreadPool(size_t threadCount, const std::string& saveRootDir, std::shared_ptr<ThreadSafeQueue<FrameData>> pQueue, std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue)
 	: m_running(false)
 	, m_strSaveRootDir(saveRootDir)
 	, m_pFrameQueue(pQueue)
@@ -32,7 +32,7 @@ void ImageSaverThreadPool::Start()
 void ImageSaverThreadPool::Stop()
 {
 	// Wait until the queue is empty before stopping the threads
-	while (!m_pFrameQueue->isEmpty())
+	while (!m_pFrameQueue->IsEmpty())
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
@@ -60,7 +60,7 @@ void ImageSaverThreadPool::WorkerLoop()
 	while (m_running)
 	{
 		FrameData frame;
-		if (m_pFrameQueue && m_pFrameQueue->PopWithTimeOut(frame, std::chrono::milliseconds(200)))
+		if (m_pFrameQueue && m_pFrameQueue->PopWithTimeout(frame, std::chrono::milliseconds(200)))
 		{
 			try
 			{
