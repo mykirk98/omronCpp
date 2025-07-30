@@ -4,7 +4,7 @@ GigECamera::GigECamera(std::string saveRootDir)
 	: m_pInterface(nullptr)
 	, m_strSaveRootDir(saveRootDir)
 	, pICommandTriggerSoftware(nullptr)
-	, m_serialNumber("")
+	, m_strSerialNumber("")
 	, m_strUserDefinedName("")
 {
 }
@@ -46,7 +46,7 @@ bool GigECamera::Initialize(IStInterface* pInterface, uint32_t interfaceDeviceIn
 		}
 		std::cout << "[GigECamera] " << m_pDevice->GetIStDeviceInfo()->GetDisplayName() << ": connected" << std::endl;
 		
-		m_serialNumber = m_pDevice->GetIStDeviceInfo()->GetSerialNumber();
+		m_strSerialNumber = m_pDevice->GetIStDeviceInfo()->GetSerialNumber().c_str();
 		// Get the INodeMap interface pointer for the camera settings.
 		GenApi::CNodeMapPtr pINodeMap(m_pDevice->GetRemoteIStPort()->GetINodeMap());
 		// Set the TriggerSelector to FrameStart.
@@ -131,6 +131,11 @@ const std::string& GigECamera::GetUserDefinedName()
 	return m_strUserDefinedName;
 }
 
+const std::string& GigECamera::GetSerialNumber()
+{
+	return m_strSerialNumber;
+}
+
 void GigECamera::OnStCallbackMethod(IStCallbackParamBase* pIStCallbackParamBase, void* pvContext)
 {
 	if (pvContext)
@@ -170,7 +175,7 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 
 				FrameData frame;
 				frame.pImage = pImage;
-				frame.serialNumber = m_serialNumber;
+				frame.serialNumber = GetSerialNumber();
 				frame.frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
 				frame.cameraName = GetUserDefinedName();
 				frame.isMono = pPixelFormatInfo->IsMono();
