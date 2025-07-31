@@ -50,7 +50,7 @@ private:
 
 	std::string m_strSaveRootDir;
 	std::string m_strSerialNumber;
-	std::string m_strUserDefinedName;
+	std::string m_strUDFName;
 
 	std::shared_ptr<Logger> m_logger; // Logger for logging camera events
 };

@@ -43,7 +43,7 @@ public:
 	/*	@brief Print the frame information of the image
 	@param pStreamBuffer : Stream buffer containing the image data
 	@param cameraName : Name of the camera */
-	static void PrintFrameInfo(const CIStStreamBufferPtr& pStreamBuffer, std::string cameraName);
+	static std::string PrintFrameInfo(const CIStStreamBufferPtr& pStreamBuffer, std::string cameraName);
 	/*	@brief Set the save path for the image
 	@param baseDir : Base directory where images will be saved
 	@param cameraName : Name of the camera

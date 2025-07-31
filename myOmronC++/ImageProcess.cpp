@@ -1,15 +1,16 @@
 #include "ImageProcess.h"
 
-void ImageProcess::PrintFrameInfo(const CIStStreamBufferPtr& pStreamBuffer, std::string cameraName)
+std::string ImageProcess::PrintFrameInfo(const CIStStreamBufferPtr& pStreamBuffer, std::string userDefinedName)
 {
 	try
 	{
-		std::cout << "[" << cameraName << "] "
-			<< "Block ID: " << pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()
-			<< "\tSize: " << pStreamBuffer->GetIStImage()->GetImageWidth() << " x " << pStreamBuffer->GetIStImage()->GetImageHeight()
-			<< "\tFirst byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pStreamBuffer->GetIStImage()->GetImageBuffer()))
-			<< "\ttime stamp: " << pStreamBuffer->GetIStStreamBufferInfo()->GetTimestamp()
-			<< std::endl;
+		std::string info = "[" + userDefinedName + "] " +
+			"Block ID: " + std::to_string(pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()) +
+			"\tSize: " + std::to_string(pStreamBuffer->GetIStImage()->GetImageWidth()) + " x " + std::to_string(pStreamBuffer->GetIStImage()->GetImageHeight()) +
+			"\tFirst byte: " + std::to_string(static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pStreamBuffer->GetIStImage()->GetImageBuffer()))) +
+			"\ttime stamp: " + std::to_string(pStreamBuffer->GetIStStreamBufferInfo()->GetTimestamp());
+
+		return info;
 	}
 	catch (const GenICam::GenericException& e)
 	{

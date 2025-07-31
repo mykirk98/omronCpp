@@ -5,7 +5,7 @@ GigECamera::GigECamera(std::string saveRootDir, std::shared_ptr<Logger> logger)
 	, m_strSaveRootDir(saveRootDir)
 	, pICommandTriggerSoftware(nullptr)
 	, m_strSerialNumber("")
-	, m_strUserDefinedName("")
+	, m_strUDFName("")
 	, m_logger(logger)
 {
 }
@@ -21,8 +21,7 @@ bool GigECamera::Initialize(IStInterface* pInterface, uint32_t iFaceDeviceIdx)
 	{
 		m_pInterface = pInterface;
 		m_logger->Log("Device " + std::to_string(iFaceDeviceIdx) + " : " + std::string(m_pInterface->GetIStDeviceInfo(iFaceDeviceIdx)->GetDisplayName()) + " connecting...\n");
-		//TODO: 효율적으로 인자를 전달하는 방법이 있지 않을까?
-		GigEUtil::UpdateDeviceIPAddress(m_pInterface, iFaceDeviceIdx, m_strUserDefinedName, m_logger);
+		GigEUtil::UpdateDeviceIPAddress(m_pInterface, iFaceDeviceIdx, m_strUDFName, m_logger);
 
 		GenApi::CIntegerPtr pGevDeviceForceIPAddress(m_pInterface->GetIStPort()->GetINodeMap()->GetNode(GEV_DEVICE_FORCE_IP_ADDRESS));
 		const int64_t nDeviceIPAddress = pGevDeviceForceIPAddress->GetValue();
@@ -59,11 +58,12 @@ bool GigECamera::Initialize(IStInterface* pInterface, uint32_t iFaceDeviceIdx)
 
 		RegisterCallback(m_pDataStream, &GigECamera::OnStCallbackMethod, this);
 
+		m_logger->Log("[" + m_strUDFName + "] initialized successfully.");
 		return true;
 	}
 	catch (const GenICam::GenericException& e)
 	{
-		m_logger->Log("[GigECamera] Initialization error: " + std::string(e.GetDescription()));
+		m_logger->Log("[" + m_strUDFName + "] Initialization error: " + std::string(e.GetDescription()));
 		return false;
 	}
 }
@@ -76,10 +76,11 @@ void GigECamera::StartAcquisition()
 		m_pDataStream->StartAcquisition();
 		// Start the image acquisition of the camera side.
 		m_pDevice->AcquisitionStart();
+		m_logger->Log("[" + m_strUDFName + "] Acquisition started successfully.");
 	}
 	catch (const GenICam::GenericException& e)
 	{
-		std::cerr << "[GigECamera] Start acquisition error: " << e.GetDescription() << std::endl;
+		m_logger->Log("[" + m_strUDFName + "] Start acquisition error: " + std::string(e.GetDescription()));
 	}
 }
 
@@ -91,10 +92,11 @@ void GigECamera::StopAcquisition()
 		m_pDevice->AcquisitionStop();
 		// Stop the image acquisition of the host(PC) side.
 		m_pDataStream->StopAcquisition();
+		m_logger->Log("[" + m_strUDFName + "] Acquisition stopped successfully.");
 	}
 	catch (const GenICam::GenericException& e)
 	{
-		std::cerr << "[GigECamera] Stop acquisition error: " << e.GetDescription() << std::endl;
+		m_logger->Log("[" + m_strUDFName + "] Stop acquisition error: " + std::string(e.GetDescription()));
 	}
 }
 
@@ -111,7 +113,7 @@ void GigECamera::SequentialCapture()
 		{
 			// If yes, we create a IStImage object for further image handling.
 			IStImage* pImage = pStreamBuffer->GetIStImage();
-			//ImageProcess::PrintFrameInfo(pStreamBuffer, m_strUserDefinedName);
+			//ImageProcess::PrintFrameInfo(pStreamBuffer, m_strUDFName);
 		}
 	}
 }
@@ -128,7 +130,7 @@ void GigECamera::SetFrameQueue(std::shared_ptr<ThreadSafeQueue<FrameData>> pFram
 
 const std::string& GigECamera::GetUserDefinedName()
 {
-	return m_strUserDefinedName;
+	return m_strUDFName;
 }
 
 const std::string& GigECamera::GetSerialNumber()
@@ -171,7 +173,7 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 				const EStPixelFormatNamingConvention_t ePFNC = pImage->GetImagePixelFormat();
 				const IStPixelFormatInfo* const pPixelFormatInfo = GetIStPixelFormatInfo(ePFNC);
 
-				//ImageProcess::PrintFrameInfo(pStreamBuffer, m_strUserDefinedName);
+				m_logger->Log(ImageProcess::PrintFrameInfo(pStreamBuffer, m_strUDFName));
 
 				FrameData frame;
 				frame.pImage = pImage;
@@ -183,22 +185,20 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 				// Push the frame data into the frame queue for further processing.
 				if (m_pFrameQueue)
 					m_pFrameQueue->Push(frame);
-				else
-					std::cerr << "[GigECamera] Frame queue is not set. Cannot push frame data." << std::endl;
 
 				Mat mat = ImageProcess::ConvertToMat(pImage);
-				//std::cout << "[GigECamera] Image converted to openCV Mat." << std::endl;
+				//m_logger->Log("[" + m_strUDFName + "] Image converted to OpenCV Mat.");
 				Sleep(75);
 			}
 			else
 			{
-				std::cout << "[GigECamera] No image present in the buffer." << std::endl;
+				m_logger->Log("[" + m_strUDFName + "] No image present in the buffer.");
 			}
 		}
 	}
 	catch (const GenICam::GenericException& e)
 	{
-		std::cerr << "[GigECamera] Callback Exception: " << e.GetDescription() << std::endl;
+		m_logger->Log("[" + m_strUDFName + "] Callback Exception: " + std::string(e.GetDescription()));
 	}
 }
 

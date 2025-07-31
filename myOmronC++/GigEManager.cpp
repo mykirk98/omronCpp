@@ -52,6 +52,7 @@ bool GigEManager::Initialize()
                 m_logger->Log("---------------------------------------------------------------------------------------");
             }
         }
+		m_logger->Log("[GigEManager] Total " + std::to_string(m_cameras.size()) + " cameras initialized.");
         return !m_cameras.empty();
     }
     catch (const GenICam::GenericException& e)
@@ -76,6 +77,7 @@ void GigEManager::StartAll()
 			m_logger->Log("[GigEManager] Worker failed to start: " + std::string(e.what()));
         }
     }
+	m_logger->Log("[GigEManager] All cameras started successfully.");
 }
 
 void GigEManager::StopAll()
@@ -95,6 +97,8 @@ void GigEManager::StopAll()
 	m_pImageSaverThreadPool->Stop();
 	m_logger->Stop();
     m_threads.clear();
+
+	m_logger->Log("[GigEManager] All cameras stopped successfully.");
 }
 
 //void GigEManager::TriggerAll()
