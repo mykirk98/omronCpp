@@ -15,13 +15,13 @@
 #ifdef _WIN32
 #include <WinSock2.h>     // AF_INET, inet_addr
 #include <ws2tcpip.h>     // inet_pton, etc.
-#pragma comment(lib, "Ws2_32.lib")  // Windows 전용 링커 지시문
+#pragma comment(lib, "Ws2_32.lib")  // Windows Sockets library
 #else
 #include <arpa/inet.h>    // inet_addr, inet_ntoa, htons, etc.
 #include <netinet/in.h>   // sockaddr_in
 #include <sys/socket.h>   // socket, bind, etc.
 #include <unistd.h>       // close()
-#include <cstring>        // memset, memcpy 등
+#include <cstring>        // memset, memcpy etc.
 #endif
 
 using namespace StApi;

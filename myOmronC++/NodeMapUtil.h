@@ -9,30 +9,31 @@
 using namespace StApi;
 using namespace GenApi;
 
-/*
-@brief 카메라 설정 파일을 저장하고 불러오는 기능을 제공하는 클래스
-*/
 class NodeMapUtil
 {
 public:
-	/*
-	@brief 카메라 설정 노드를 출력하는 함수
-	@param pINode : 카메라 설정 노드 포인터
-	*/
+	
+	/* @brief Display all nodes in the node map
+	@param pINode : Pointer to the node map */
 	static void DisplayNodes(GenApi::CNodePtr pINode);
-	/*
-	@brief 카메라 설정 파일 저장 함수
-	@param dstDir : 설정 파일을 저장할 디렉토리 경로
-	*/
+	/* @brief Save the current state of the node map to a directory
+	@param device : Pointer to the device whose node map is to be saved
+	@param dstDir : Directory where the node map will be saved */
 	static void Save(const CIStDevicePtr& device, const std::string& dstDir);
-	/*
-	@brief 카메라 설정 파일 불러오기 함수
-	@param srcDir : 설정 파일이 저장된 디렉토리 경로
-	*/
+	/* @brief Load the node map from a directory
+	@param device : Pointer to the device whose node map is to be loaded
+	@param srcDir : Directory from which the node map will be loaded */
 	static void Load(const CIStDevicePtr& device, const std::string& srcDir);
-
+	/* @brief Set the value of a node in the node map
+	@param pInodeMap : Pointer to the node map
+	@param szEnumerationName : Name of the enumeration node
+	@param szValueName : Name of the value to be set */
 	static void SetEnumeration(GenApi::INodeMap* pInodeMap, const char* szEnumerationName, const char* szValueName);
-
+	/* @brief Set the trigger mode for the camera
+	@param pINodeMap : Pointer to the node map
+	@param triggerSelector : Selector for the trigger type (e.g., FrameStart)
+	@param triggerMode : Mode of the trigger (e.g., On, Off)
+	@param triggerSource : Source of the trigger (e.g., Software, Action0, Line0) */
 	static void SetTriggerMode(GenApi::CNodeMapPtr& pINodeMap, const char* triggerSelector, const char* triggerMode, const char* triggerSource);
 protected:
 
