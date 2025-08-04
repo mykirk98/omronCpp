@@ -52,7 +52,7 @@ private:
 	/*	@brief Flag to indicate whether the GigEManager is running. */
 	std::atomic<bool> m_running;
 	/*	@brief Base path to save images. */
-	std::string m_strSaveRootDir;
+	std::string m_strRootDir;
 
 	/*	@brief Frame queue for managing image frames. */
 	std::shared_ptr<ThreadSafeQueue<FrameData>> m_pFrameQueue;

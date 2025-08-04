@@ -48,7 +48,7 @@ private:
 	GenApi::CCommandPtr pICommandTriggerSoftware;
 	std::shared_ptr<ThreadSafeQueue<FrameData>> m_pFrameQueue;
 
-	std::string m_strSaveRootDir;
+	std::string m_strRootDir;
 	std::string m_strSerialNumber;
 	std::string m_strUDFName;
 

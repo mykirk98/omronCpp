@@ -1,21 +1,21 @@
 #include "GigEManager.h"
 
 GigEManager::GigEManager(std::string saveRootDir)
-    : m_strSaveRootDir(saveRootDir)
+    : m_strRootDir(saveRootDir)
     , m_running(false)
 {
 	m_logger = std::make_shared<Logger>();
     m_pFrameQueue = std::make_shared<ThreadSafeQueue<FrameData>>();
-	m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strSaveRootDir, m_pFrameQueue, m_pPathQueue, m_logger);
+	m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strRootDir, m_pFrameQueue, m_pPathQueue, m_logger);
 }
 
 GigEManager::GigEManager(std::string saveRootDir, std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue)
-    : m_strSaveRootDir(saveRootDir)
+    : m_strRootDir(saveRootDir)
 	, m_running(false)
 	, m_pPathQueue(pathQueue)
 {
     m_pFrameQueue = std::make_shared<ThreadSafeQueue<FrameData>>();
-    m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strSaveRootDir, m_pFrameQueue, m_pPathQueue, m_logger);
+    m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strRootDir, m_pFrameQueue, m_pPathQueue, m_logger);
 }
 
 GigEManager::~GigEManager()
@@ -37,7 +37,7 @@ bool GigEManager::Initialize()
             m_logger->Log("---------------------------------------------------------------------------------------");
             for (uint32_t deviceIdx = 0; deviceIdx < pInterface->GetDeviceCount(); ++deviceIdx)
             {
-                std::shared_ptr<GigECamera> camera = std::make_shared<GigECamera>(m_strSaveRootDir, m_logger);
+                std::shared_ptr<GigECamera> camera = std::make_shared<GigECamera>(m_strRootDir, m_logger);
                 if (camera->Initialize(pInterface, deviceIdx))
                 {
 				    const std::string& cameraName = camera->GetUserDefinedName();    //TODO: 이 시점에서 cameraName이 어떻게 결정된 것인지 확인 필요

@@ -37,7 +37,7 @@ private:
 	/* @brief Flag to indicate whether the thread pool is running */
 	std::atomic<bool> m_running;
 	/* @brief Root directory where images will be saved */
-	std::string m_strSaveRootDir;
+	std::string m_strRootDir;
 
 	std::shared_ptr<ThreadSafeQueue<std::string>> m_pPathQueue;
 	std::shared_ptr<Logger> m_logger;

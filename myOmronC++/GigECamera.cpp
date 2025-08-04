@@ -2,7 +2,7 @@
 
 GigECamera::GigECamera(std::string saveRootDir, std::shared_ptr<Logger> logger)
 	: m_pInterface(nullptr)
-	, m_strSaveRootDir(saveRootDir)
+	, m_strRootDir(saveRootDir)
 	, pICommandTriggerSoftware(nullptr)
 	, m_strSerialNumber("")
 	, m_strUDFName("")
