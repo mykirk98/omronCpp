@@ -19,7 +19,7 @@ using namespace StApi;
 class GigECamera
 {
 public:
-	explicit GigECamera(std::string saveRootDir, std::shared_ptr<Logger> logger);
+	explicit GigECamera(std::string rootDir, std::shared_ptr<Logger> logger);
 	~GigECamera();
 
 	bool Initialize(IStInterface* pInterface, uint32_t iFaceDeviceIdx);

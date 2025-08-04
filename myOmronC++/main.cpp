@@ -27,7 +27,12 @@ int main()
 		manager.TriggerSingle("12MP_2");
         manager.TriggerSingle("2MP_1");
 		manager.TriggerSingle("2MP_2");
+#ifdef _WIN32
         Sleep(150);
+#else
+		usleep(150 * 1000);  // 150 ms
+#endif // _WIN32
+
     }
     Sleep(3000);
     manager.StopAll();

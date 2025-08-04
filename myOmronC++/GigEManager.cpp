@@ -1,7 +1,7 @@
 #include "GigEManager.h"
 
-GigEManager::GigEManager(std::string saveRootDir)
-    : m_strRootDir(saveRootDir)
+GigEManager::GigEManager(std::string rootDir)
+    : m_strRootDir(rootDir)
     , m_running(false)
 {
 	m_logger = std::make_shared<Logger>();
@@ -95,10 +95,10 @@ void GigEManager::StopAll()
         camera->StopAcquisition();
     }
 	m_pImageSaverThreadPool->Stop();
+	m_logger->Log("[GigEManager] All cameras stopped successfully.");
 	m_logger->Stop();
     m_threads.clear();
 
-	m_logger->Log("[GigEManager] All cameras stopped successfully.");
 }
 
 //void GigEManager::TriggerAll()
@@ -152,11 +152,11 @@ int main()
 {
     std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue = std::make_shared<ThreadSafeQueue<std::string>>();
     //std::shared_ptr<PathQueue> pathQueue = std::make_shared<PathQueue>();
-    std::string saveRootDir = "C:\\Users\\mykir\\Work\\Experiments\\"; // NOTE: LAB WINDOWS PC DIRECTORY
-    //std::string saveRootDir = "C:\\Users\\USER\\Pictures\\"; // NOTE: HOME PC DIRECTORY
-    //std::string saveRootDir = "/home/msis/Pictures/SentechExperiments/Experiments1/"; // NOTE: LAB LINUX PC DIRECTORY
-    //GigEManager manager(saveRootDir, pathQueue);
-    GigEManager manager(saveRootDir);
+    std::string rootDir = "C:\\Users\\mykir\\Work\\Experiments\\"; // NOTE: LAB WINDOWS PC DIRECTORY
+    //std::string rootDir = "C:\\Users\\USER\\Pictures\\"; // NOTE: HOME PC DIRECTORY
+    //std::string rootDir = "/home/msis/Pictures/SentechExperiments/Experiments1/"; // NOTE: LAB LINUX PC DIRECTORY
+    //GigEManager manager(rootDir, pathQueue);
+    GigEManager manager(rootDir);
 
     if (!manager.Initialize())
     {

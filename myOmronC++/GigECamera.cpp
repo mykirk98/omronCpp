@@ -1,8 +1,8 @@
 #include "GigECamera.h"
 
-GigECamera::GigECamera(std::string saveRootDir, std::shared_ptr<Logger> logger)
+GigECamera::GigECamera(std::string rootDir, std::shared_ptr<Logger> logger)
 	: m_pInterface(nullptr)
-	, m_strRootDir(saveRootDir)
+	, m_strRootDir(rootDir)
 	, pICommandTriggerSoftware(nullptr)
 	, m_strSerialNumber("")
 	, m_strUDFName("")
@@ -188,7 +188,11 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 
 				Mat mat = ImageProcess::ConvertToMat(pImage);
 				//m_logger->Log("[" + m_strUDFName + "] Image converted to OpenCV Mat.");
+#ifdef _WIN32
 				Sleep(75);
+#else
+				usleep(75 * 1000);  // 75 ms
+#endif
 			}
 			else
 			{

@@ -67,20 +67,20 @@ void ImageSaverThreadPool::WorkerLoop()
 				ImageProcess::ConvertPixelFormat(frame.pImage, frame.isMono, pBuffer);
 				GenICam::gcstring savePath = ImageProcess::SetSavePath(m_strRootDir, frame.cameraName, frame.serialNumber, frame.frameID);
 				//ImageProcess::SaveImage<BMP>(pBuffer, savePath);
-				ImageProcess::SaveImage<JPEG>(pBuffer, savePath);
+				ImageProcess::SaveImage<BMP>(pBuffer, savePath);
 
-				m_logger->Log("[ImageSaverThreadPool] Saved: " + std::string(savePath) + JPEG::extension + "\t after Queue size:" + std::to_string(m_pFrameQueue->Size()));
+				m_logger->Log("[ThreadPool] Saved: " + std::string(savePath) + "\t after Queue size:" + std::to_string(m_pFrameQueue->Size()));
 
 				// Notify the path queue that a new path has been added
 				//if (m_pathQueue)
 				//{
-				//	std::string fullMessage = frame.cameraName + " :" + savePath.c_str() + JPEG::extension;
+				//	std::string fullMessage = frame.cameraName + " :" + savePath.c_str();
 				//	m_pathQueue->Push(fullMessage);
 				//}
 			}
 			catch (const GenICam::GenericException& e)
 			{
-				m_logger->Log("[ImageSaverThreadPool] Worker error: " + std::string(e.GetDescription()));
+				m_logger->Log("[ThreadPool] Worker error: " + std::string(e.GetDescription()));
 			}
 		}
 	}

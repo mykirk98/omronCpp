@@ -14,8 +14,8 @@ class GigEManager
 {
 public:
 	/*  @brief Constructor for GigEManager. */
-	explicit GigEManager(std::string saveRootDir);
-	explicit GigEManager(std::string saveRootDir, std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue);
+	explicit GigEManager(std::string rootDir);
+	explicit GigEManager(std::string rootDir, std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue);
 	/*  @brief Destructor for GigEManager. */
 	~GigEManager();
 
