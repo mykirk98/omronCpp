@@ -1,7 +1,7 @@
 #pragma once
 #include <StApi_TL.h>	// TL : Transport Layer
 
-#include "CameraConfigurator.h"
+#include "NodeMapUtil.h"
 #include "ImageSaverThreadPool.h"
 
 using namespace StApi;

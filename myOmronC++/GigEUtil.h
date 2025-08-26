@@ -3,6 +3,7 @@
 #include <StApi_TL.h>
 #include <unordered_map>
 #include "config.h"
+#include "Logger.h"
 
 //#if defined(_WIN32_WINNT_WIN8) && (_WIN32_WINNT_WIN8 <= WINVER)
 //#include <WinSock2.h>	//AF_INET
@@ -14,21 +15,21 @@
 #ifdef _WIN32
 #include <WinSock2.h>     // AF_INET, inet_addr
 #include <ws2tcpip.h>     // inet_pton, etc.
-#pragma comment(lib, "Ws2_32.lib")  // Windows 전용 링커 지시문
+#pragma comment(lib, "Ws2_32.lib")  // Windows Sockets library
 #else
 #include <arpa/inet.h>    // inet_addr, inet_ntoa, htons, etc.
 #include <netinet/in.h>   // sockaddr_in
 #include <sys/socket.h>   // socket, bind, etc.
 #include <unistd.h>       // close()
-#include <cstring>        // memset, memcpy 등
+#include <cstring>        // memset, memcpy etc.
 #endif
 
 using namespace StApi;
 
-class GigEConfigurator
+class GigEUtil
 {
 public:
-	static void UpdateDeviceIPAddress(GenApi::INodeMap* pINodeMap, uint32_t deviceIndex, const GenICam::gcstring& serialNumber, std::string& cameraName);
+	static void UpdateDeviceIPAddress(IStInterface* pInterface, uint32_t deviceIndex, std::string& userDefinedName, std::shared_ptr<Logger> logger);
 
 	static void UpdateHeartbeatTimeout(GenApi::INodeMap* pINodeMap, GenICam::gcstring heartBeatTimeOut);
 
@@ -37,4 +38,5 @@ public:
 protected:
 
 private:
+
 };

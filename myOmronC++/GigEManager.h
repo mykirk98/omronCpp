@@ -1,27 +1,32 @@
 #pragma once
 
-#include "GigEWorker.h"
-#include "ImageSaverThreadPool.h"
+#include <thread>
 #include <vector>
 #include <map>
+#include <memory>
+#include "GigECamera.h"
+#include "ThreadSafeQueue.h"
+#include "ImageSaverThreadPool.h"
+#include "Logger.h"
 
 /*  @brief GigEManager class for managing multiple GigE Workers. */
 class GigEManager
 {
 public:
-    /*  @brief Constructor for GigEManager. */
-    explicit GigEManager(std::string saveRootDir);
+	/*  @brief Constructor for GigEManager. */
+	explicit GigEManager(std::string rootDir);
+	explicit GigEManager(std::string rootDir, std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue);
 	/*  @brief Destructor for GigEManager. */
-    ~GigEManager();
+	~GigEManager();
 
 	/*  @brief Initialize the GigEManager and its workers. */
-    bool Initialize();
+	bool Initialize();
 	/*  @brief Start all GigE Workers. */
-    void StartAll();
+	void StartAll();
 	/*  @brief Stop all GigE Workers. */
-    void StopAll();
+	void StopAll();
 	/*  @brief Trigger all GigE Workers to capture an image. */
-    void TriggerAll();
+	//void TriggerAll();		//TODO: Later, PTP support for parallel triggering
 	/*	@brief Trigger single GigE Worker by index.
 	@param index The index of the GigE Worker to trigger. */
 	void TriggerSingle(int index);
@@ -32,16 +37,29 @@ public:
 protected:
 
 private:
+	void CameraLoop(std::shared_ptr<GigECamera> camera);
 	/*	@brief Initialize StApi */
 	CStApiAutoInit m_stApiAutoInit;
 	/*  @brief Print the status of all GigE Workers. */
     CIStSystemPtr m_pSystem;
-	/*  @brief List of GigE Workers managing individual cameras. */
-    std::vector<std::shared_ptr<GigEWorker>> m_workers;
-	std::map<std::string, std::shared_ptr<GigEWorker>> m_workerMap;
+	/*	@brief vector of GigECamera objects representing the GigE cameras. */
+	std::vector<std::shared_ptr<GigECamera>> m_cameras;
+	/*	@brief Map of GigECamera objects indexed by camera name. */
+	std::map<std::string, std::shared_ptr<GigECamera>> m_cameraMap;
+	/*	@brief Vector of threads for running GigE camera loops.*/
+	std::vector<std::thread> m_threads;
 
-	std::string m_saveRootDir;
+	/*	@brief Flag to indicate whether the GigEManager is running. */
+	std::atomic<bool> m_running;
+	/*	@brief Base path to save images. */
+	std::string m_strRootDir;
 
-	std::shared_ptr<FrameQueue> m_frameQueue;
-	std::shared_ptr<ImageSaverThreadPool> m_ImageSaverThreadPool;
+	/*	@brief Frame queue for managing image frames. */
+	std::shared_ptr<ThreadSafeQueue<FrameData>> m_pFrameQueue;
+	/*	@brief Thread pool for saving images. */
+	std::shared_ptr<ImageSaverThreadPool> m_pImageSaverThreadPool;
+	/*	@brief Path queue for managing paths for communicate with other processes. */
+	std::shared_ptr<ThreadSafeQueue<std::string>> m_pPathQueue;
+	/*	@brief Logger thread for logging messages. */
+	std::shared_ptr<Logger> m_logger;
 };

@@ -5,12 +5,6 @@ VisualStudioVersion = 17.13.35919.96
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "myOmronC++", "myOmronC++\myOmronC++.vcxproj", "{522D8083-9D2A-43BD-8328-FF187020617C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GigEMulticast", "GigEMulticast\GigEMulticast.vcxproj", "{D963881B-5160-4201-8FDC-6F056172EA9F}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GigEConfigurations", "GigEConfigurations\GigEConfigurations.vcxproj", "{AC6589A1-5767-4510-937A-9859863E0572}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GigEActionCommand", "GigEActionCommand\GigEActionCommand.vcxproj", "{728768D6-18FD-49FD-822B-F4C3249DF8A0}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -27,30 +21,6 @@ Global
 		{522D8083-9D2A-43BD-8328-FF187020617C}.Release|Win32.Build.0 = Release|Win32
 		{522D8083-9D2A-43BD-8328-FF187020617C}.Release|x64.ActiveCfg = Release|x64
 		{522D8083-9D2A-43BD-8328-FF187020617C}.Release|x64.Build.0 = Release|x64
-		{D963881B-5160-4201-8FDC-6F056172EA9F}.Debug|Win32.ActiveCfg = Debug|Win32
-		{D963881B-5160-4201-8FDC-6F056172EA9F}.Debug|Win32.Build.0 = Debug|Win32
-		{D963881B-5160-4201-8FDC-6F056172EA9F}.Debug|x64.ActiveCfg = Debug|x64
-		{D963881B-5160-4201-8FDC-6F056172EA9F}.Debug|x64.Build.0 = Debug|x64
-		{D963881B-5160-4201-8FDC-6F056172EA9F}.Release|Win32.ActiveCfg = Release|Win32
-		{D963881B-5160-4201-8FDC-6F056172EA9F}.Release|Win32.Build.0 = Release|Win32
-		{D963881B-5160-4201-8FDC-6F056172EA9F}.Release|x64.ActiveCfg = Release|x64
-		{D963881B-5160-4201-8FDC-6F056172EA9F}.Release|x64.Build.0 = Release|x64
-		{AC6589A1-5767-4510-937A-9859863E0572}.Debug|Win32.ActiveCfg = Debug|Win32
-		{AC6589A1-5767-4510-937A-9859863E0572}.Debug|Win32.Build.0 = Debug|Win32
-		{AC6589A1-5767-4510-937A-9859863E0572}.Debug|x64.ActiveCfg = Debug|x64
-		{AC6589A1-5767-4510-937A-9859863E0572}.Debug|x64.Build.0 = Debug|x64
-		{AC6589A1-5767-4510-937A-9859863E0572}.Release|Win32.ActiveCfg = Release|Win32
-		{AC6589A1-5767-4510-937A-9859863E0572}.Release|Win32.Build.0 = Release|Win32
-		{AC6589A1-5767-4510-937A-9859863E0572}.Release|x64.ActiveCfg = Release|x64
-		{AC6589A1-5767-4510-937A-9859863E0572}.Release|x64.Build.0 = Release|x64
-		{728768D6-18FD-49FD-822B-F4C3249DF8A0}.Debug|Win32.ActiveCfg = Debug|Win32
-		{728768D6-18FD-49FD-822B-F4C3249DF8A0}.Debug|Win32.Build.0 = Debug|Win32
-		{728768D6-18FD-49FD-822B-F4C3249DF8A0}.Debug|x64.ActiveCfg = Debug|x64
-		{728768D6-18FD-49FD-822B-F4C3249DF8A0}.Debug|x64.Build.0 = Debug|x64
-		{728768D6-18FD-49FD-822B-F4C3249DF8A0}.Release|Win32.ActiveCfg = Release|Win32
-		{728768D6-18FD-49FD-822B-F4C3249DF8A0}.Release|Win32.Build.0 = Release|Win32
-		{728768D6-18FD-49FD-822B-F4C3249DF8A0}.Release|x64.ActiveCfg = Release|x64
-		{728768D6-18FD-49FD-822B-F4C3249DF8A0}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

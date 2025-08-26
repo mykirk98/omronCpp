@@ -33,8 +33,8 @@ bool BasicCamera::Initialize(const CIStSystemPtr& pSystem)
 		std::cout << "[BasicCamera] # of available data stream : " << m_pDevice->GetDataStreamCount() << std::endl;
 		
 		//std::string dstCfgDir = "C:\\Users\\USER\\Pictures\\Features.cfg";
-		//CameraConfigurator::Load(m_pDevice, dstCfgDir);
-		//CameraConfigurator::DisplayNodes(m_pDevice->GetRemoteIStPort()->GetINodeMap()->GetNode("Root"));
+		//NodeMapUtil::Load(m_pDevice, dstCfgDir);
+		//NodeMapUtil::DisplayNodes(m_pDevice->GetRemoteIStPort()->GetINodeMap()->GetNode("Root"));
 
 #ifdef LOGGING
 		std::cout << "[BasicCamera] Initialized" << std::endl;

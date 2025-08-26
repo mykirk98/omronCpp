@@ -1,73 +1,56 @@
 #pragma once
 
 #include <StApi_TL.h>
-#include <StApi_IP.h>
 
-#include "GigEConfigurator.h"
-#include "FrameQueue.h"
-//#include "ImageSaverThreadPool.h"
-
+#include "ThreadSafeQueue.h"
+#include "ImageProcess.h"
+#include "GigEUtil.h"
+#include "NodeMapUtil.h"
+#include "config.h"
+#include "Logger.h"
 #ifdef _WIN32
 #include <windows.h>  // for Sleep
 #else
 #include <unistd.h>   // for sleep/usleep
 #endif
 
-
 using namespace StApi;
 
 class GigECamera
 {
 public:
-	explicit GigECamera(std::string saveRootDir);
+	explicit GigECamera(std::string rootDir, std::shared_ptr<Logger> logger);
 	~GigECamera();
 
-	bool Initialize(IStInterface* pInterface, uint32_t interfaceDeviceIndex);
+	bool Initialize(IStInterface* pInterface, uint32_t iFaceDeviceIdx);
 	void StartAcquisition();
 	void StopAcquisition();
 
 	void SequentialCapture();
 
-	void SetFrameQueue(std::shared_ptr<FrameQueue> pFrameQueue);
+	void ExecuteTrigger();
 
-	GenApi::CCommandPtr pICommandTriggerSoftware;
+	void SetFrameQueue(std::shared_ptr<ThreadSafeQueue<FrameData>> pFrameQueue);
 
-	const std::string& GetCameraName() const { return m_cameraName; }
+	const std::string& GetUserDefinedName();
+	const std::string& GetSerialNumber();
 
 protected:
 
 private:
 	static void OnStCallbackMethod(IStCallbackParamBase* pIStCallbackParamBase, void* pvContext);
 	void OnCallback(IStCallbackParamBase* pCallbackParam);
-	void SetEnumeration(GenApi::INodeMap* pInodeMap, const char* szEnumerationName, const char* szValueName);
-	void SetTriggerMode(GenApi::CNodeMapPtr& pINodeMap, const char* triggerSelector, const char* triggerMode, const char* triggerSource);
-
-	void PrintFrameInfo(const CIStStreamBufferPtr& pStreamBuffer);
-	void ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStImageBufferPtr& pDstBuffer);
-	GenICam::gcstring SetSavePath(const uint64_t frameID);
-	template<typename FORMAT>
-	void SaveImage(CIStImageBufferPtr& pImageBuffer, GenICam::gcstring& dstDir)
-	{
-		try
-		{
-			dstDir.append(FORMAT::extension);
-
-			CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
-			pStillImageFiler->Save(pImageBuffer->GetIStImage(), FORMAT::fileFormat, dstDir);
-		}
-		catch (const GenICam::GenericException& e)
-		{
-			std::cerr << "[GigECamera] Saving image error: " << e.GetDescription() << std::endl;
-		}
-	}
 
 	IStInterface* m_pInterface; // GigE interface pointer
 	CIStDevicePtr m_pDevice; // Camera device pointer
 	CIStDataStreamPtr m_pDataStream; // Data stream pointer
 
-	std::string m_saveRootDir; // Directory to save images
-	GenICam::gcstring m_serialNumber;
-	std::shared_ptr<FrameQueue> m_queue;
-	std::string m_cameraName;
-};
+	GenApi::CCommandPtr pICommandTriggerSoftware;
+	std::shared_ptr<ThreadSafeQueue<FrameData>> m_pFrameQueue;
 
+	std::string m_strRootDir;
+	std::string m_strSerialNumber;
+	std::string m_strUDFName;
+
+	std::shared_ptr<Logger> m_logger; // Logger for logging camera events
+};

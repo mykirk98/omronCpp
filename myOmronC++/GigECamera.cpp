@@ -1,11 +1,12 @@
 #include "GigECamera.h"
 
-GigECamera::GigECamera(std::string saveRootDir)
+GigECamera::GigECamera(std::string rootDir, std::shared_ptr<Logger> logger)
 	: m_pInterface(nullptr)
-	, m_saveRootDir(saveRootDir)
+	, m_strRootDir(rootDir)
 	, pICommandTriggerSoftware(nullptr)
-	, m_serialNumber("")
-	, m_cameraName("")
+	, m_strSerialNumber("")
+	, m_strUDFName("")
+	, m_logger(logger)
 {
 }
 
@@ -14,14 +15,13 @@ GigECamera::~GigECamera()
 	StopAcquisition();
 }
 
-bool GigECamera::Initialize(IStInterface* pInterface, uint32_t interfaceDeviceIndex)
+bool GigECamera::Initialize(IStInterface* pInterface, uint32_t iFaceDeviceIdx)
 {
 	try
 	{
 		m_pInterface = pInterface;
-		std::cout << "[GigECamera] Interface: " << m_pInterface->GetIStInterfaceInfo()->GetDisplayName() << " initialized" << std::endl;
-
-		GigEConfigurator::UpdateDeviceIPAddress(m_pInterface->GetIStPort()->GetINodeMap(), interfaceDeviceIndex, m_pInterface->GetIStDeviceInfo(interfaceDeviceIndex)->GetSerialNumber(), m_cameraName);
+		m_logger->Log("Device " + std::to_string(iFaceDeviceIdx) + " : " + std::string(m_pInterface->GetIStDeviceInfo(iFaceDeviceIdx)->GetDisplayName()) + " connecting...\n");
+		GigEUtil::UpdateDeviceIPAddress(m_pInterface, iFaceDeviceIdx, m_strUDFName, m_logger);
 
 		GenApi::CIntegerPtr pGevDeviceForceIPAddress(m_pInterface->GetIStPort()->GetINodeMap()->GetNode(GEV_DEVICE_FORCE_IP_ADDRESS));
 		const int64_t nDeviceIPAddress = pGevDeviceForceIPAddress->GetValue();
@@ -31,10 +31,9 @@ bool GigECamera::Initialize(IStInterface* pInterface, uint32_t interfaceDeviceIn
 #ifdef _WIN32
 			Sleep(1000);  // 1000 ms
 #else
-			usleep(1000 * 1000);  // 1000ms = 1초 (usleep은 마이크로초 단위)
+			usleep(1000 * 1000);  // 1000 * 1000 us
 #endif
-			IStDeviceReleasable* pDeviceReleasable(GigEConfigurator::CreateIStDeviceByIPAddress(m_pInterface, nDeviceIPAddress));
-			//if (pDeviceReleasable != nullptr)
+			IStDeviceReleasable* pDeviceReleasable(GigEUtil::CreateIStDeviceByIPAddress(m_pInterface, nDeviceIPAddress));
 			if (pDeviceReleasable != NULL)
 			{
 				m_pDevice.Reset(pDeviceReleasable);
@@ -45,26 +44,26 @@ bool GigECamera::Initialize(IStInterface* pInterface, uint32_t interfaceDeviceIn
 		{
 			throw RUNTIME_EXCEPTION("A device with an IP address of %s could not be found.", pGevDeviceForceIPAddress->ToString().c_str());
 		}
-		std::cout << "[GigECamera] " << m_pDevice->GetIStDeviceInfo()->GetDisplayName() << ": connected" << std::endl;
-
-		m_serialNumber = m_pDevice->GetIStDeviceInfo()->GetSerialNumber();
+		m_logger->Log("Device " + std::to_string(iFaceDeviceIdx) + " : " + std::string(m_pDevice->GetIStDeviceInfo()->GetDisplayName()) + " connected." + " User define name is \"" + GetUserDefinedName() + "\"");
+		
+		m_strSerialNumber = m_pDevice->GetIStDeviceInfo()->GetSerialNumber().c_str();
 		// Get the INodeMap interface pointer for the camera settings.
 		GenApi::CNodeMapPtr pINodeMap(m_pDevice->GetRemoteIStPort()->GetINodeMap());
 		// Set the TriggerSelector to FrameStart.
-		SetTriggerMode(pINodeMap, TRIGGER_SELECTOR_FRAME_START, TRIGGER_MODE_ON, TRIGGER_SOURCE_SOFTWARE);
+		NodeMapUtil::SetTriggerMode(pINodeMap, TRIGGER_SELECTOR_FRAME_START, TRIGGER_MODE_ON, TRIGGER_SOURCE_SOFTWARE);
 		// Set the ICommand interface pointer for the TriggerSoftware node.
 		pICommandTriggerSoftware = pINodeMap->GetNode(TRIGGER_SOFTWARE);
 
 		m_pDataStream = m_pDevice->CreateIStDataStream(0);
-		std::cout << "[GigECamera] # of available data streams: " << m_pDevice->GetDataStreamCount() << std::endl;
 
 		RegisterCallback(m_pDataStream, &GigECamera::OnStCallbackMethod, this);
 
+		m_logger->Log("[" + m_strUDFName + "] initialized successfully.");
 		return true;
 	}
 	catch (const GenICam::GenericException& e)
 	{
-		std::cout << "[GigECamera] Initialization error: " << e.GetDescription() << std::endl;
+		m_logger->Log("[" + m_strUDFName + "] Initialization error: " + std::string(e.GetDescription()));
 		return false;
 	}
 }
@@ -77,10 +76,11 @@ void GigECamera::StartAcquisition()
 		m_pDataStream->StartAcquisition();
 		// Start the image acquisition of the camera side.
 		m_pDevice->AcquisitionStart();
+		m_logger->Log("[" + m_strUDFName + "] Acquisition started successfully.");
 	}
 	catch (const GenICam::GenericException& e)
 	{
-		std::cerr << "[GigECamera] Start acquisition error: " << e.GetDescription() << std::endl;
+		m_logger->Log("[" + m_strUDFName + "] Start acquisition error: " + std::string(e.GetDescription()));
 	}
 }
 
@@ -92,10 +92,11 @@ void GigECamera::StopAcquisition()
 		m_pDevice->AcquisitionStop();
 		// Stop the image acquisition of the host(PC) side.
 		m_pDataStream->StopAcquisition();
+		m_logger->Log("[" + m_strUDFName + "] Acquisition stopped successfully.");
 	}
 	catch (const GenICam::GenericException& e)
 	{
-		std::cerr << "[GigECamera] Stop acquisition error: " << e.GetDescription() << std::endl;
+		m_logger->Log("[" + m_strUDFName + "] Stop acquisition error: " + std::string(e.GetDescription()));
 	}
 }
 
@@ -112,19 +113,29 @@ void GigECamera::SequentialCapture()
 		{
 			// If yes, we create a IStImage object for further image handling.
 			IStImage* pImage = pStreamBuffer->GetIStImage();
-			PrintFrameInfo(pStreamBuffer);
-
-			//CIStImageBufferPtr pImageBuffer(CreateIStImageBuffer());
-			//ConvertPixelFormat(pImage, true, pImageBuffer);
-			//GenICam::gcstring savePath = SetSavePath(pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID());
-			//SaveImage<BMP>(pImageBuffer, savePath);
+			//ImageProcess::PrintFrameInfo(pStreamBuffer, m_strUDFName);
 		}
 	}
 }
 
-void GigECamera::SetFrameQueue(std::shared_ptr<FrameQueue> pFrameQueue)
+void GigECamera::ExecuteTrigger()
 {
-	m_queue = pFrameQueue;
+	pICommandTriggerSoftware->Execute();
+}
+
+void GigECamera::SetFrameQueue(std::shared_ptr<ThreadSafeQueue<FrameData>> pFrameQueue)
+{
+	m_pFrameQueue = pFrameQueue;
+}
+
+const std::string& GigECamera::GetUserDefinedName()
+{
+	return m_strUDFName;
+}
+
+const std::string& GigECamera::GetSerialNumber()
+{
+	return m_strSerialNumber;
 }
 
 void GigECamera::OnStCallbackMethod(IStCallbackParamBase* pIStCallbackParamBase, void* pvContext)
@@ -159,128 +170,41 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 			{
 				// If yes, we create a IStImage object for further image handling.
 				IStImage* pImage = pStreamBuffer->GetIStImage();
-				
-				PrintFrameInfo(pStreamBuffer);
+				const EStPixelFormatNamingConvention_t ePFNC = pImage->GetImagePixelFormat();
+				const IStPixelFormatInfo* const pPixelFormatInfo = GetIStPixelFormatInfo(ePFNC);
+
+				m_logger->Log(ImageProcess::PrintFrameInfo(pStreamBuffer, m_strUDFName));
 
 				FrameData frame;
 				frame.pImage = pImage;
-				frame.serialNumber = m_serialNumber;
+				frame.serialNumber = GetSerialNumber();
 				frame.frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
-				frame.cameraName = GetCameraName();
+				frame.cameraName = GetUserDefinedName();
+				frame.isMono = pPixelFormatInfo->IsMono();
 
 				// Push the frame data into the frame queue for further processing.
-				if (m_queue)
-					m_queue->Push(frame);
-				else
-					std::cerr << "[GigECamera] Frame queue is not set. Cannot push frame data." << std::endl;
+				if (m_pFrameQueue)
+					m_pFrameQueue->Push(frame);
 
-				Sleep(100);
+				Mat mat = ImageProcess::ConvertToMat(pImage);
+				//m_logger->Log("[" + m_strUDFName + "] Image converted to OpenCV Mat.");
+#ifdef _WIN32
+				Sleep(75);
+#else
+				usleep(75 * 1000);  // 75 ms
+#endif
 			}
 			else
 			{
-				std::cout << "[GigECamera] No image present in the buffer." << std::endl;
+				m_logger->Log("[" + m_strUDFName + "] No image present in the buffer.");
 			}
 		}
 	}
 	catch (const GenICam::GenericException& e)
 	{
-		std::cerr << "[GigECamera] Callback Exception: " << e.GetDescription() << std::endl;
+		m_logger->Log("[" + m_strUDFName + "] Callback Exception: " + std::string(e.GetDescription()));
 	}
 }
-
-void GigECamera::SetEnumeration(GenApi::INodeMap* pInodeMap, const char* szEnumerationName, const char* szValueName)
-{
-	try
-	{
-		// Get the IEnumeration interface pointer for the specified enumeration name.
-		GenApi::CEnumerationPtr pIEnumeration(pInodeMap->GetNode(szEnumerationName));
-
-		// Get the IEnumEntry interface pointer for the specified value name.
-		GenApi::CEnumEntryPtr pIEnumEntry(pIEnumeration->GetEntryByName(szValueName));
-
-		// Get the integer value corresponding to the set value name using the IEnumEntry interface pointer.
-		// Update the settings using the IEnumeration interface pointer.
-		pIEnumeration->SetIntValue(pIEnumEntry->GetValue());
-	}
-	catch (const GenICam::GenericException& e)
-	{
-		std::cerr << "[GigECamera] Setting enumeration failed: " << e.GetDescription() << std::endl;
-	}
-}
-
-void GigECamera::SetTriggerMode(GenApi::CNodeMapPtr& pINodeMap, const char* triggerSelector, const char* triggerMode, const char* triggerSource)
-{
-	try
-	{
-		// Set the TriggerSelector to FrameStart.
-		SetEnumeration(pINodeMap, TRIGGER_SELECTOR, triggerSelector);
-		// Set the TriggerMode to On.
-		SetEnumeration(pINodeMap, TRIGGER_MODE, triggerMode);
-		// Set the TriggerSource to Software.
-		SetEnumeration(pINodeMap, TRIGGER_SOURCE, triggerSource);
-	}
-	catch (const GenICam::GenericException& e)
-	{
-		std::cerr << "[GigECamera] Setting trigger mode failed: " << e.GetDescription() << std::endl;
-	}
-}
-
-void GigECamera::PrintFrameInfo(const CIStStreamBufferPtr& pStreamBuffer)
-{
-	try
-	{
-		std::cout << "[" << GetCameraName() << "] "
-			<< "Block ID: " << pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()
-			<< "\tSize: " << pStreamBuffer->GetIStImage()->GetImageWidth() << " x " << pStreamBuffer->GetIStImage()->GetImageHeight()
-			<< "\tFirst byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pStreamBuffer->GetIStImage()->GetImageBuffer()))
-			<< "\ttime stamp: " << pStreamBuffer->GetIStStreamBufferInfo()->GetTimestamp()
-			<< std::endl;
-	}
-	catch (const GenICam::GenericException& e)
-	{
-		std::cerr << "[GigECamera] Printing frame info error: " << e.GetDescription() << std::endl;
-	}
-}
-
-void GigECamera::ConvertPixelFormat(IStImage* pSrcImage, bool isColor, CIStImageBufferPtr& pDstBuffer)
-{
-	try
-	{
-		// Create a data converter object for pixel format conversion.
-		CIStPixelFormatConverterPtr pPixelFormatConverter(CreateIStConverter(StConverterType_PixelFormat));
-
-		if (isColor)
-		{
-			pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_BGR8);
-		}
-		else
-		{
-			pPixelFormatConverter->SetDestinationPixelFormat(StPFNC_Mono8);
-		}
-		// Convert the pixel format of the source image to the destination buffer.
-		pPixelFormatConverter->Convert(pSrcImage, pDstBuffer);
-	}
-	catch (const GenICam::GenericException& e)
-	{
-		std::cerr << "[GigECamera] Converting pixel format error: " << e.GetDescription() << std::endl;
-	}
-}
-
-GenICam::gcstring GigECamera::SetSavePath(const uint64_t frameID)
-{
-	try
-	{
-		std::string filePath = m_saveRootDir + m_serialNumber.c_str() + "-" + std::to_string(frameID);
-
-		return GenICam::gcstring(filePath.c_str());
-	}
-	catch (const GenICam::GenericException& e)
-	{
-		std::cerr << "[GigECamera] Setting save path error: " << e.GetDescription() << std::endl;
-	}
-	return GenICam::gcstring();
-}
-
 
 
 // Example usage of GigECamera class
