@@ -18,14 +18,15 @@ int main()
 
     manager.StartAll();
     
-    for (int i = 0; i < 10; ++i)
+    for (int i = 0; i < 5; ++i)
     {
-        manager.TriggerSingle("5MP_1");
+        //manager.TriggerSingle("5MP_1");
         manager.TriggerSingle("5MP_2");
-        manager.TriggerSingle("5MP_3");
+        //manager.TriggerSingle("5MP_3");
+		manager.TriggerSingle("5MP_4");
 		//manager.TriggerSingle("12MP_1");
 		manager.TriggerSingle("12MP_2");
-        manager.TriggerSingle("2MP_1");
+        //manager.TriggerSingle("2MP_1");
 		manager.TriggerSingle("2MP_2");
 #ifdef _WIN32
         Sleep(150);

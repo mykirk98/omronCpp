@@ -6,6 +6,7 @@ GigEManager::GigEManager(std::string rootDir)
 {
 	m_logger = std::make_shared<Logger>();
     m_pFrameQueue = std::make_shared<ThreadSafeQueue<FrameData>>();
+    m_pCVMatQueue = std::make_shared<ThreadSafeQueue<cv::Mat>>();
 	m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strRootDir, m_pFrameQueue, m_pPathQueue, m_logger);
 }
 
@@ -15,6 +16,7 @@ GigEManager::GigEManager(std::string saveRootDir, std::shared_ptr<ThreadSafeQueu
 	, m_pPathQueue(pathQueue)
 {
     m_pFrameQueue = std::make_shared<ThreadSafeQueue<FrameData>>();
+    m_pCVMatQueue = std::make_shared<ThreadSafeQueue<cv::Mat>>();
     m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strRootDir, m_pFrameQueue, m_pPathQueue, m_logger);
 }
 
@@ -42,6 +44,8 @@ bool GigEManager::Initialize()
                 {
 				    const std::string& cameraName = camera->GetUserDefinedName();    //TODO: 이 시점에서 cameraName이 어떻게 결정된 것인지 확인 필요
                     camera->SetFrameQueue(m_pFrameQueue);
+                    //TODO: opencv mat 큐 설정
+					camera->SetCVMatQueue(m_pCVMatQueue);
                     m_cameras.push_back(camera);
                     m_cameraMap[cameraName] = camera;
                 }

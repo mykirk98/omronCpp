@@ -128,6 +128,11 @@ void GigECamera::SetFrameQueue(std::shared_ptr<ThreadSafeQueue<FrameData>> pFram
 	m_pFrameQueue = pFrameQueue;
 }
 
+void GigECamera::SetCVMatQueue(std::shared_ptr<ThreadSafeQueue<cv::Mat>> pCVMatQueue)
+{
+	m_pCVMatQueue = pCVMatQueue;
+}
+
 const std::string& GigECamera::GetUserDefinedName()
 {
 	return m_strUDFName;
@@ -187,6 +192,10 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 					m_pFrameQueue->Push(frame);
 
 				Mat mat = ImageProcess::ConvertToMat(pImage);
+				if (m_pCVMatQueue)
+					m_pCVMatQueue->Push(mat);
+
+				m_logger->Log("[" + m_strUDFName + "] CV::Mat Queue size: " + std::to_string(m_pCVMatQueue->Size()));
 				//m_logger->Log("[" + m_strUDFName + "] Image converted to OpenCV Mat.");
 #ifdef _WIN32
 				Sleep(75);

@@ -32,6 +32,8 @@ public:
 
 	void SetFrameQueue(std::shared_ptr<ThreadSafeQueue<FrameData>> pFrameQueue);
 
+	void SetCVMatQueue(std::shared_ptr<ThreadSafeQueue<cv::Mat>> pCVMatQueue);
+
 	const std::string& GetUserDefinedName();
 	const std::string& GetSerialNumber();
 
@@ -47,6 +49,7 @@ private:
 
 	GenApi::CCommandPtr pICommandTriggerSoftware;
 	std::shared_ptr<ThreadSafeQueue<FrameData>> m_pFrameQueue;
+	std::shared_ptr<ThreadSafeQueue<cv::Mat>> m_pCVMatQueue;
 
 	std::string m_strRootDir;
 	std::string m_strSerialNumber;

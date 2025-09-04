@@ -36,8 +36,9 @@ void GigEUtil::UpdateDeviceIPAddress(IStInterface* pInterface, uint32_t deviceIn
 		{"25C7667", {"192.168.0.41", "5MP_1"}},
 		{"25A8829", {"192.168.0.42", "5MP_2"}},
 		{"25C7669", {"192.168.0.43", "5MP_3"}},
-		{"23F8382", {"192.168.0.32", "2MP_1"}},
-		{"25A9284", {"192.168.0.44", "2MP_2"}}
+		{"25AA120", {"192.168.0.44", "5MP_4"}},
+		{"23F8382", {"192.168.0.51", "2MP_1"}},
+		{"25A9284", {"192.168.0.52", "2MP_2"}}
 	};
 
 	std::unordered_map<std::string, std::pair<std::string, std::string>>::iterator it = cameraMap.find(serialNumber.c_str());
