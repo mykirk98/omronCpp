@@ -25,6 +25,9 @@
     <Filter Include="ThreadPool">
       <UniqueIdentifier>{963ac878-612d-472d-872d-8ba6ba85fe50}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Experiments">
+      <UniqueIdentifier>{c2552b55-1a97-4ed8-818c-c6c42d2dfd08}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -63,6 +66,9 @@
     </ClCompile>
     <ClCompile Include="Logger.cpp">
       <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Experiments.cpp">
+      <Filter>Experiments</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -107,6 +113,9 @@
     </ClInclude>
     <ClInclude Include="Logger.h">
       <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="CSVWriter.h">
+      <Filter>Experiments</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

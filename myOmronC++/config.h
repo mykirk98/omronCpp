@@ -1,7 +1,10 @@
 #pragma once
 
-//#define ENABLED_ST_GUI
+constexpr const char* HOME_PC_DIRECTORY = "C:\\Users\\USER\\Pictures\\";
+constexpr const char* LAB_WINDOW_PC_DIRECTORY = "C:\\Users\\mykir\\Work\\Experiments\\";
+constexpr const char* LAB_LINUX_PC_DIRECTORY = "/home/msis/Pictures/SentechExperiments/Experiments1/";
 
+#define ENABLED_ST_GUI
 constexpr const char* TRIGGER_SELECTOR = "TriggerSelector";
 constexpr const char* TRIGGER_SELECTOR_FRAME_START = "FrameStart";
 constexpr const char* TRIGGER_SELECTOR_EXPOSURE_START = "ExposureStart";
