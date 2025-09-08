@@ -26,7 +26,7 @@ public:
 	void StartAcquisition();
 	void StopAcquisition();
 
-	void SequentialCapture();
+	void FreeRunCapture1();
 
 	void ExecuteTrigger();
 

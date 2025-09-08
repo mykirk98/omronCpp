@@ -100,7 +100,7 @@ void GigECamera::StopAcquisition()
 	}
 }
 
-void GigECamera::SequentialCapture()
+void GigECamera::FreeRunCapture1()
 {
 	// A while loop for acquiring data and checking status.
 	// Here, the acquisition runs until it reaches the assigned numbers of frames.
@@ -182,7 +182,7 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 
 				FrameData frame;
 				frame.pImage = pImage;
-				frame.serialNumber = GetSerialNumber();
+				frame.serialNumber = GetSerialNumber(); 
 				frame.frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
 				frame.cameraName = GetUserDefinedName();
 				frame.isMono = pPixelFormatInfo->IsMono();
@@ -233,7 +233,7 @@ int main()
 	{
 		camera.StartAcquisition();
 
-		//camera.SequentialCapture(); // Capture images sequentially
+		//camera.FreeRunCapture1(); // Capture images sequentially
 		while (true)
 		{
 			std::cout << "Press 0 to trigger an image or 1 to exit: ";

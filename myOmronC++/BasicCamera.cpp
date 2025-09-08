@@ -19,7 +19,7 @@ bool BasicCamera::Initialize(const CIStSystemPtr& pSystem)
 	try
 	{
 		// Create a camrea device object and connect to the first detected device.
-		m_pDevice = pSystem->CreateFirstIStDevice();//TODO: find another way to connect to a specific camera
+		m_pDevice = pSystem->CreateFirstIStDevice();
 		std::cout << "[BasicCamera] " << m_pDevice->GetIStDeviceInfo()->GetDisplayName() << " : connected" << std::endl;
 		// Create a DataStream object for handling image stream data.
 		m_pDataStream = m_pDevice->CreateIStDataStream(0);
