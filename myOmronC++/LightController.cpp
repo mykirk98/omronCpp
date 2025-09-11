@@ -16,35 +16,42 @@ LightController::~LightController()
 	close();
 }
 
-bool LightController::open(const std::wstring& port, unsigned long baud)
+bool LightController::open(const std::string& port, unsigned long baud)
 {
 	close(); // 이미 열려있으면 닫기
 
 	// COM10 이상도 안전하게 열기 위해 \\.\ 사용 권장
 	//NOTE: COM : serial communication(직렬 통신)을 의미
 #ifdef _WIN32
-	std::wstring dev = port;
-	if (dev.rfind(L"\\\\.\\") != 0)
+	std::wstring wport(port.begin(), port.end());
+	if (wport.rfind(L"\\\\.\\", 0) != 0)
 	{
-		// 접두사가 없고, "COMx" 형태면 "\\.\" 접두사 추가
-		if (dev.rfind(L"COM", 0) == 0)
+		if (wport.rfind(L"COM", 0) == 0)
 		{
-			dev = L"\\\\.\\" + dev;
+			wport = L"\\\\.\\" + wport;
 		}
 	}
 
-	hSerial_ = CreateFileW(dev.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+	hSerial_ = CreateFileW(wport.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 	if (hSerial_ == INVALID_HANDLE_VALUE)
 	{
-		std::cerr << "[LightController] CreateFile failed. GetLastError=" << GetLastError() << "\n";
+		std::cerr << "[LightController] CreateFile failed. Error=" << GetLastError() << "\n";
 		return false;
 	}
 
-	if (!configureSerial(baud))
+	DCB dcb = { 0 };
+	dcb.DCBlength = sizeof(DCB);
+	if (!GetCommState(hSerial_, &dcb))
 	{
-		std::cerr << "[LightController] configureSerial failed.\n";
-		CloseHandle(hSerial_);
-		hSerial_ = INVALID_HANDLE_VALUE;
+		return false;
+	}
+	dcb.BaudRate = baud;
+	dcb.ByteSize = 8;
+	dcb.Parity = NOPARITY;
+	dcb.StopBits = ONESTOPBIT;
+
+	if (!SetCommState(hSerial_, &dcb))
+	{
 		return false;
 	}
 
@@ -93,7 +100,6 @@ bool LightController::open(const std::wstring& port, unsigned long baud)
 	}
 #endif // _WIN32
 
-
 	is_open_ = true;
 
 	return true;
@@ -115,33 +121,7 @@ void LightController::close()
 	}
 }
 
-bool LightController::configureSerial(unsigned long baud, BYTE byteSize, BYTE parity, BYTE stopBits) const
-{
-	DCB dcb = { 0 };		//NOTE: DCB: Device Control Block
-	dcb.DCBlength = sizeof(DCB);
-
-	if (!GetCommState(hSerial_, &dcb))
-	{
-		return false;
-	}
-
-	dcb.BaudRate = baud;
-	dcb.ByteSize = byteSize;
-	dcb.Parity = parity;
-	dcb.StopBits = stopBits;
-
-	// 흐름 제어 비활성
-	dcb.fOutxCtsFlow = FALSE;
-	dcb.fOutxDsrFlow = FALSE;
-	dcb.fOutX = dcb.fInX = FALSE;
-	dcb.fDtrControl = DTR_CONTROL_DISABLE;
-	dcb.fRtsControl = RTS_CONTROL_DISABLE;
-
-	// 설정 적용
-	return !!SetCommState(hSerial_, &dcb);
-}
-
-bool LightController::writeAll(const void* buf, unsigned long len)
+bool LightController::writeAll(const void* buf, unsigned long len) const
 {
 	if (!is_open_)
 	{

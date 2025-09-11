@@ -41,7 +41,7 @@ bool LCP24100SS::Trigger(char channel)
 	return writeAll(frame);
 }
 
-std::string LCP24100SS::makeFrame(char ch, char model, int value3) const
+std::string LCP24100SS::makeFrame(char ch, char model, int value3) const	// 뒤의 const는 멤버 변수를 변경하지 않음을 의미
 {
 	if (ch < '1' || ch > '6')
 	{
@@ -57,7 +57,7 @@ std::string LCP24100SS::makeFrame(char ch, char model, int value3) const
 	}
 
 	char data[4];
-	std::snprintf(data, sizeof(data), "%03d", value3);
+	std::snprintf(data, sizeof(data), "%03d", value3);	// zero-padded 3자리 ASCII
 
 	std::string s;
 	s.push_back('\x02'); // STX
@@ -69,3 +69,50 @@ std::string LCP24100SS::makeFrame(char ch, char model, int value3) const
 
 	return s;
 }
+
+/*	// Example usage
+#include "LCP24100SS.h"
+
+int main() {
+	std::unique_ptr<LightController> ctrl = std::make_unique<LCP24100SS>();
+
+#ifdef _WIN32
+	// COM10 이상이면 "\\\\.\\COM10" 형태 권장
+	if (!ctrl->open("COM3", 19200))
+	{
+		std::cerr << "open failed\n";
+		return 1;
+	}
+#else
+	// Ubuntu 예시: dmesg | grep tty 로 포트 확인 (/dev/ttyUSB0 등)
+	if (!ctrl->open("/dev/ttyUSB0", 19200))
+	{
+		std::cerr << "open failed\n";
+		return 1;
+	}
+#endif
+	ctrl->SetBrightness('1', 120);   // 밝기 120
+	ctrl->SetStrobeTime_ms('1', 2.00); // 2.00 ms
+	//ctrl->Trigger('1');              // 소프트 트리거
+
+	for (int i = 0; i < 10; i++)
+	{
+		ctrl->Trigger('1');
+		//Sleep(50); // 100ms 간격
+		ctrl->Trigger('2');
+		//Sleep(50); // 100ms 간격
+		ctrl->Trigger('3');
+		//Sleep(50); // 100ms 간격
+		ctrl->Trigger('4');
+		//Sleep(50); // 100ms 간격
+		//ctrl->Trigger('3');
+		//Sleep(50); // 100ms 간격
+		//ctrl->Trigger('2');
+		Sleep(500); // 100ms 간격
+	}
+	//ctrl->Trigger('1');
+	//Sleep(500); // 100ms 간격
+	ctrl->close();
+	return 0;
+}
+*/

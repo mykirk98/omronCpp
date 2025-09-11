@@ -100,7 +100,7 @@ void GigECamera::StopAcquisition()
 	}
 }
 
-void GigECamera::FreeRunCapture1()
+void GigECamera::FreeRunCapture()
 {
 	// A while loop for acquiring data and checking status.
 	// Here, the acquisition runs until it reaches the assigned numbers of frames.
@@ -233,7 +233,7 @@ int main()
 	{
 		camera.StartAcquisition();
 
-		//camera.FreeRunCapture1(); // Capture images sequentially
+		//camera.FreeRunCapture(); // Capture images sequentially
 		while (true)
 		{
 			std::cout << "Press 0 to trigger an image or 1 to exit: ";
