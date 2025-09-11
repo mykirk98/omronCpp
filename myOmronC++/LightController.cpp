@@ -1,9 +1,13 @@
 #include "LightController.h"
-#include <iostream>
 
 LightController::LightController()
+#ifdef _WIN32
 	: hSerial_(INVALID_HANDLE_VALUE)
 	, is_open_(false)
+#else
+	, fd_(-1)
+	, is_open_(false)
+#endif // _WIN32
 {
 }
 
@@ -18,6 +22,7 @@ bool LightController::open(const std::wstring& port, unsigned long baud)
 
 	// COM10 이상도 안전하게 열기 위해 \\.\ 사용 권장
 	//NOTE: COM : serial communication(직렬 통신)을 의미
+#ifdef _WIN32
 	std::wstring dev = port;
 	if (dev.rfind(L"\\\\.\\") != 0)
 	{
@@ -51,6 +56,43 @@ bool LightController::open(const std::wstring& port, unsigned long baud)
 	to.WriteTotalTimeoutConstant = 50;
 	to.WriteTotalTimeoutMultiplier = 10;
 	SetCommTimeouts(hSerial_, &to);
+#else
+	fd_ = ::open(port.c_str(), O_RDWR | O_NOCTTY | O_SYNC);
+	if (fd_ < 0)
+	{
+		std::cerr << "[LightController] open() failed: " << strerror(errno) << "\n";
+		return false;
+	}
+
+	struct termios tty;
+	memset(&tty, 0, sizeof tty);
+	if (tcgetattr(fd_, &tty) != 0)
+	{
+		std::cerr << "[LightController] tcgetattr failed\n";
+		return false;
+	}
+
+	cfsetospeed(&tty, baud == 19200 ? B19200 : B9600);
+	cfsetispeed(&tty, baud == 19200 ? B19200 : B9600);
+
+	tty.c_cflag = (tty.c_cflag & ~CSIZE) | CS8; // 8-bit chars
+	tty.c_iflag &= ~IGNBRK;
+	tty.c_lflag = 0;
+	tty.c_oflag = 0;
+	tty.c_cc[VMIN] = 0;
+	tty.c_cc[VTIME] = 5;
+	tty.c_cflag |= (CLOCAL | CREAD);
+	tty.c_cflag &= ~(PARENB | PARODD); // no parity
+	tty.c_cflag &= ~CSTOPB;
+	tty.c_cflag &= ~CRTSCTS;
+
+	if (tcsetattr(fd_, TCSANOW, &tty) != 0)
+	{
+		std::cerr << "[LightController] tcsetattr failed\n";
+		return false;
+	}
+#endif // _WIN32
+
 
 	is_open_ = true;
 
@@ -61,13 +103,19 @@ void LightController::close()
 {
 	if (is_open_)
 	{
+#ifdef _WIN32
 		CloseHandle(hSerial_);
 		hSerial_ = INVALID_HANDLE_VALUE;
+#else
+		::close(fd_);
+		fd_ = -1;
+#endif // _WIN32
+		
 		is_open_ = false;
 	}
 }
 
-bool LightController::configureSerial(unsigned long baud, BYTE byteSize, BYTE parity, BYTE stopBits)
+bool LightController::configureSerial(unsigned long baud, BYTE byteSize, BYTE parity, BYTE stopBits) const
 {
 	DCB dcb = { 0 };		//NOTE: DCB: Device Control Block
 	dcb.DCBlength = sizeof(DCB);
@@ -99,14 +147,17 @@ bool LightController::writeAll(const void* buf, unsigned long len)
 	{
 		return false;
 	}
+#ifdef _WIN32
 	DWORD written = 0;
-
 	if (!WriteFile(hSerial_, buf, len, &written, nullptr))
 	{
 		return false;
 	}
-
 	return (written == len);
+#else
+	ssize_t written = ::write(fd_, buf, len);
+	return (written == (ssize_t)len);
+#endif // _WIN32
 }
 
 bool LightController::writeAll(const std::string& bytes)

@@ -1,6 +1,13 @@
 #pragma once
 #include <string>
+#include <iostream>
+#ifdef _WIN32
 #include <windows.h>
+#else
+#include <fcntl.h>
+#include <termios.h>
+#include <unistd.h>
+#endif // _WIN32
 
 // 추상화된 조명 컨트롤러 인터페이스
 class LightController
@@ -37,10 +44,14 @@ protected:
 	}
 
 	// 타임아웃/라인세팅 재설정에 필요하면 파생 클래스에서 호출 가능
-	bool configureSerial(unsigned long baud, BYTE byteSize = 8, BYTE parity = NOPARITY, BYTE stopBits = ONESTOPBIT);
+	bool configureSerial(unsigned long baud, BYTE byteSize = 8, BYTE parity = NOPARITY, BYTE stopBits = ONESTOPBIT) const;
 
 private:
-	HANDLE hSerial_;
+	//HANDLE hSerial_;
+#ifdef _WIN32
+	HANDLE hSerial_;  // HANDLE
+#else
+	int fd_;         // file descriptor
+#endif // _WIN32
 	bool is_open_;
 };
-
