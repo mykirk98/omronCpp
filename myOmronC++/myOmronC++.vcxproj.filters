@@ -28,6 +28,9 @@
     <Filter Include="Experiments">
       <UniqueIdentifier>{c2552b55-1a97-4ed8-818c-c6c42d2dfd08}</UniqueIdentifier>
     </Filter>
+    <Filter Include="LightController">
+      <UniqueIdentifier>{f7bd7fdd-7c72-49bf-9271-647ebba67c3a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -69,6 +72,12 @@
     </ClCompile>
     <ClCompile Include="Experiments.cpp">
       <Filter>Experiments</Filter>
+    </ClCompile>
+    <ClCompile Include="LightController.cpp">
+      <Filter>LightController</Filter>
+    </ClCompile>
+    <ClCompile Include="LCP24100SS.cpp">
+      <Filter>LightController</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -116,6 +125,12 @@
     </ClInclude>
     <ClInclude Include="CSVWriter.h">
       <Filter>Experiments</Filter>
+    </ClInclude>
+    <ClInclude Include="LightController.h">
+      <Filter>LightController</Filter>
+    </ClInclude>
+    <ClInclude Include="LCP24100SS.h">
+      <Filter>LightController</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
