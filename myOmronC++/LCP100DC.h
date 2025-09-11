@@ -1,40 +1,91 @@
 #pragma once
-#include "LightController.h"
 #include <string>
 #include <chrono>
 #include <thread>
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
 
-// LCP100DC: RS-232로 밝기/ON/OFF 제어 (프로토콜은 매뉴얼 4. Protocol 참조)
-class LCP100DC : public LightController {
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <fcntl.h>
+#include <termios.h>
+#include <unistd.h>
+#include <errno.h>
+#endif
+
+/* @brief LCP100DC 조명 컨트롤러 RS-232 제어 클래스 */
+class LCP100DC {
 public:
-    // 대문자/소문자 모두 허용되지만 기본은 대문자 사용
     struct Options {
-        bool useLowercase = false; // true면 'd','o','f' 사용
+        bool useLowercase = false; // true면 'd','o','f'로 전송
     };
 
-    explicit LCP100DC(const Options& opt = {}) : opt_(opt) {}
+	/* @brief LCP100DC 생성자 */
+    explicit LCP100DC(const Options& opt = {});
+	/* @brief LCP100DC 소멸자 */
+    ~LCP100DC();
 
-    // base 인터페이스 구현
-    bool setBrightness(char channel, int percent_0_100) override; // "0000"~"0100"으로 전송
-    bool setStrobeTime_ms(char, double) override { return false; } // 이 모델은 스트로브 시간 명령 없음
-    bool trigger(char channel) override { return trigger_ms(channel, 5.0); } // ON→지연→OFF(소프트 트리거)
+	/* @brief 시리얼 포트 열기 메소드
+	@param port 시리얼 포트 이름
+	@param baud 보레이트 (기본값: 19200) */
+    bool open(const std::string& port, unsigned long baud = 19200);
+	/* @brief 시리얼 포트 닫기 메소드 */
+    void close();
+	/* @brief 시리얼 포트 열림 여부 */
+    bool isOpen() const;
 
-    // 명시적 제어
+	/* @brief 밝기 설정 메소드
+	@param channel 채널 설정 ('1'~'2', 'Z'/'z':전체)
+	@param data 밝기 값 (0~100) */
+    bool setBrightness(char channel, int data);
+
+	/* @brief turnOn 조명 ON 메소드
+	@param channel 채널 설정 ('1'~'2', 'Z'/'z':전체) */
     bool turnOn(char channel);
+	/* @brief turnOff 조명 OFF 메소드
+	@param channel 채널 설정 ('1'~'2', 'Z'/'z':전체) */
     bool turnOff(char channel);
-    bool trigger_ms(char channel, double ms);
 
-    // (선택) 현재 밝기 리턴 요청 (문서 예시의 'W'가 “밝기 리턴”으로 보임)
-    bool requestBrightness(char channel);
+	/* @brief 조명 ON -> 대기(ms) -> OFF 메소드 */
+    bool trigger_ms(char channel, double ms);
+	/* @brief trigger_ms()의 ms 기본값 5.0ms 버전 */
+    bool trigger(char channel)
+    {
+        return trigger_ms(channel, 5.0);
+    }
 
 private:
     Options opt_;
 
-    // 프레임 빌더
-    std::string makeFrame8(char ch, char cmd, int data0000_0100) const; // STX CH CMD DATA(4) ETX
-    std::string makeFrame4(char ch, char cmd) const;                   // STX CH CMD ETX
+#ifdef _WIN32
+    void* hSerial_;  // HANDLE
+#else
+    int   fd_;       // file descriptor
+#endif
+    bool  open_;
 
-    // 유틸
-    static inline char upDown(char upper, char lower, bool lowerMode) { return lowerMode ? lower : upper; }
-    static inline int  clamp(int v, int lo, int hi) { return v < lo ? lo : (v > hi ? hi : v); }
+	/* @brief 시리얼 포트에 모든 데이터를 쓸 때까지 반복해서 쓰는 함수
+	@param buf 쓸 데이터 버퍼
+	@param len 버퍼 길이 (바이트 단위) */
+    bool writeAll(const void* buf, unsigned long len);
+	/* @brief 시리얼 포트에 문자열 데이터를 쓸 때까지 반복해서 쓰는 함수
+	@param bytes 쓸 문자열 데이터 */
+    bool writeAll(const std::string& bytes);
+	/* @brief 8바이트 프레임 생성 (STX CH CMD DATA(4) ETX)
+	@param ch 채널 ('1'~'2', 'Z'/'z':전체)
+	@param cmd 명령 문자 ('D'/'d':밝기설정) */
+    std::string makeFrame8(char ch, char cmd, int data) const;
+	/* @brief 4바이트 프레임 생성 (STX CH CMD ETX)
+	@param ch 채널 ('1'~'2', 'Z'/'z':전체)
+	@param cmd 명령 문자 ('O'/'o':ON, 'F'/'f':OFF) */
+    std::string makeFrame4(char ch, char cmd) const;
+#ifndef _WIN32
+	/* @brief POSIX termios 설정 함수
+	@param baud 보레이트 */
+    bool setupTermios(unsigned long baud);
+#endif
+
+    static inline char upDown(char U, char L, bool lower) { return lower ? L : U; }
 };

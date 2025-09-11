@@ -73,10 +73,10 @@
     <ClCompile Include="Experiments.cpp">
       <Filter>Experiments</Filter>
     </ClCompile>
-    <ClCompile Include="LightController.cpp">
+    <ClCompile Include="LCP24100SS.cpp">
       <Filter>LightController</Filter>
     </ClCompile>
-    <ClCompile Include="LCP24100SS.cpp">
+    <ClCompile Include="LCP100DC.cpp">
       <Filter>LightController</Filter>
     </ClCompile>
   </ItemGroup>
@@ -126,10 +126,10 @@
     <ClInclude Include="CSVWriter.h">
       <Filter>Experiments</Filter>
     </ClInclude>
-    <ClInclude Include="LightController.h">
+    <ClInclude Include="LCP24100SS.h">
       <Filter>LightController</Filter>
     </ClInclude>
-    <ClInclude Include="LCP24100SS.h">
+    <ClInclude Include="LCP100DC.h">
       <Filter>LightController</Filter>
     </ClInclude>
   </ItemGroup>
