@@ -1,14 +1,14 @@
 #include "LCP100DC.h"
 
-LCP100DC::LCP100DC(const Options& opt)
+LCP100DC::LCP100DC(bool useLowercase)
 #ifdef _WIN32
-    : opt_(opt)
-    , hSerial_(INVALID_HANDLE_VALUE)
+    : hSerial_(INVALID_HANDLE_VALUE)
     , open_(false)
+	, lowercase_(useLowercase)
 #else
-    : opt_(opt)
-    , fd_(-1)
+    : fd_(-1)
     , open_(false)
+	, lowercase_(useLowercase)
 #endif
 {
 }
@@ -35,7 +35,9 @@ bool LCP100DC::open(const std::string& port, unsigned long baud)
     }
     hSerial_ = CreateFileW(wport.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
     if (hSerial_ == INVALID_HANDLE_VALUE)
+    {
         return false;
+    }
 
     DCB dcb = { 0 };
     dcb.DCBlength = sizeof(DCB);
@@ -167,21 +169,21 @@ std::string LCP100DC::makeFrame4(char ch, char cmd) const
 
 bool LCP100DC::setBrightness(char channel, int data)
 {
-    char cmd = upDown('D', 'd', opt_.useLowercase);
+    const char cmd = pickCase('D', 'd', lowercase_);
 
     return writeAll(makeFrame8(channel, cmd, data));
 }
 
 bool LCP100DC::turnOn(char channel)
 {
-    char cmd = upDown('O', 'o', opt_.useLowercase);
+    const char cmd = pickCase('O', 'o', lowercase_);
 
     return writeAll(makeFrame4(channel, cmd));
 }
 
 bool LCP100DC::turnOff(char channel)
 {
-    char cmd = upDown('F', 'f', opt_.useLowercase);
+    const char cmd = pickCase('F', 'f', lowercase_);
 
     return writeAll(makeFrame4(channel, cmd));
 }

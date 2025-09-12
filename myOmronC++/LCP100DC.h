@@ -18,12 +18,8 @@
 /* @brief LCP100DC 조명 컨트롤러 RS-232 제어 클래스 */
 class LCP100DC {
 public:
-    struct Options {
-        bool useLowercase = false; // true면 'd','o','f'로 전송
-    };
-
 	/* @brief LCP100DC 생성자 */
-    explicit LCP100DC(const Options& opt = {});
+    explicit LCP100DC(bool useLowercase = false);
 	/* @brief LCP100DC 소멸자 */
     ~LCP100DC();
 
@@ -35,7 +31,8 @@ public:
     void close();
 	/* @brief 시리얼 포트 열림 여부 */
     bool isOpen() const;
-
+	/* @brief 소문자/대문자 명령 전환 */
+	void setUseLowercase(bool v) { lowercase_ = v; }
 	/* @brief 밝기 설정 메소드
 	@param channel 채널 설정 ('1'~'2', 'Z'/'z':전체)
 	@param data 밝기 값 (0~100) */
@@ -57,14 +54,13 @@ public:
     }
 
 private:
-    Options opt_;
-
 #ifdef _WIN32
     void* hSerial_;  // HANDLE
 #else
     int   fd_;       // file descriptor
 #endif
     bool  open_;
+	bool lowercase_;
 
 	/* @brief 시리얼 포트에 모든 데이터를 쓸 때까지 반복해서 쓰는 함수
 	@param buf 쓸 데이터 버퍼
@@ -87,5 +83,8 @@ private:
     bool setupTermios(unsigned long baud);
 #endif
 
-    static inline char upDown(char U, char L, bool lower) { return lower ? L : U; }
+	static inline char pickCase(char upper, char lower, bool useLower)
+	{
+		return useLower ? lower : upper;
+	}
 };
