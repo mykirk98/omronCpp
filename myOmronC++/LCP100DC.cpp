@@ -39,7 +39,7 @@ bool LCP100DC::open(const std::string& port, unsigned long baud)
         return false;
     }
 
-    DCB dcb = { 0 };
+	DCB dcb = { 0 };    // Device Control Block
     dcb.DCBlength = sizeof(DCB);
     if (!GetCommState(hSerial_, &dcb))
     {
@@ -49,6 +49,7 @@ bool LCP100DC::open(const std::string& port, unsigned long baud)
     dcb.ByteSize = 8;
     dcb.Parity = NOPARITY;
     dcb.StopBits = ONESTOPBIT;
+    // No flow control
     dcb.fOutxCtsFlow = FALSE;
     dcb.fOutxDsrFlow = FALSE;
     dcb.fOutX = dcb.fInX = FALSE;
@@ -60,24 +61,21 @@ bool LCP100DC::open(const std::string& port, unsigned long baud)
         return false;
     }
 
-    COMMTIMEOUTS to = { 0 };
-    to.ReadIntervalTimeout = 50;
-    to.ReadTotalTimeoutConstant = 50;
-    to.ReadTotalTimeoutMultiplier = 10;
-    to.WriteTotalTimeoutConstant = 50;
-    to.WriteTotalTimeoutMultiplier = 10;
-    SetCommTimeouts(hSerial_, &to);
+    COMMTIMEOUTS timeouts = { 0 };
+    timeouts.ReadIntervalTimeout = 50;
+    timeouts.ReadTotalTimeoutConstant = 50;
+    timeouts.ReadTotalTimeoutMultiplier = 10;
+    timeouts.WriteTotalTimeoutConstant = 50;
+    timeouts.WriteTotalTimeoutMultiplier = 10;
+    SetCommTimeouts(hSerial_, &timeouts);
 #else
 fd_ = ::open(port.c_str(), O_RDWR | O_NOCTTY /* | O_SYNC */);
     if (fd_ < 0)
     {
-        fprintf(stderr, "[LCP100DC] ::open('%s') failed: %s (errno=%d)\n", port.c_str(), strerror(errno), errno);
-        
         return false;
     }
     if (!setupTermios(baud))
     {
-        fprintf(stderr, "[LCP100DC] setupTermios(%lu) failed: %s (errno=%d)\n", baud, strerror(errno), errno);
         ::close(fd_);
         fd_ = -1;
 
@@ -114,15 +112,15 @@ bool LCP100DC::writeAll(const void* buffer, unsigned long len)
     }
 
 #ifdef _WIN32
-    DWORD wr = 0;
-    if (!WriteFile(hSerial_, buffer, len, &wr, nullptr))
+    DWORD bytes_written = 0;
+    if (!WriteFile(hSerial_, buffer, len, &bytes_written, nullptr))
     {
         return false;
     }
-    return wr == len;
+    return bytes_written == len;
 #else
-    ssize_t wr = ::write(fd_, buffer, len);
-    return (wr == (ssize_t)len);
+    ssize_t bytes_written = ::write(fd_, buffer, len);
+    return (bytes_written == (ssize_t)len);
 #endif
 }
 bool LCP100DC::writeAll(const std::string& bytes)
@@ -150,10 +148,10 @@ std::string LCP100DC::makeFrame8(char ch, char cmd, int data) const
     char d[5];
     std::snprintf(d, sizeof(d), "%04d", data);
     std::string s;
-    s.push_back('\x02');  // STX
-    s.push_back(ch);      // CH
-    s.push_back(cmd);     // CMD (D/d)
-    s.append(d, 4);    // DATA "0000"~"0100"
+    s.push_back('\x02');    // STX
+    s.push_back(ch);        // CH
+    s.push_back(cmd);       // CMD (D/d)
+    s.append(d, 4);         // DATA "0000"~"0100"
     s.push_back('\x03');  // ETX
 
     return s;

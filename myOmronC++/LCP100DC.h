@@ -44,7 +44,6 @@ public:
 	/* @brief turnOff 조명 OFF 메소드
 	@param channel 채널 설정 ('1'~'2', 'Z'/'z':전체) */
     bool turnOff(char channel);
-
 	/* @brief 조명 ON -> 대기(ms) -> OFF 메소드 */
     bool trigger_ms(char channel, double ms);
 
