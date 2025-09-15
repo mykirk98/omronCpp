@@ -18,34 +18,44 @@ int main() {
         return 1;
     }
 #else
-    if (!LCP24.open("/dev/ttyUSB0", 19200))
+    // if (!LCP24.open("/dev/ttyUSB1", 19200))
+    // {
+    //     std::cerr << "open fail\n";
+    //     return 1;
+    // }
+    // std::cout << "LCP24 opened\n";
+    if (!LCP100.open("/dev/ttyUSB0", 19200))
     {
         std::cerr << "open fail\n";
         return 1;
     }
-    if (!LCP100.open("/dev/ttyUSB1", 19200))
-    {
-        std::cerr << "open fail\n";
-        return 1;
-    }
+    std::cout << "LCP100 opened\n";
 #endif
 
-    // Ã¤³Î1: ¹à±â 120, ½ºÆ®·Îºê 2.00ms, Æ®¸®°Å 1È¸
-    //LCP24.setBrightness('1', 120);
-    //LCP24.setStrobeTime_ms('1', 2.00);
-    
+    // ì±„ë„1: ë°ê¸° 120, ìŠ¤íŠ¸ë¡œë¸Œ íƒ€ìž„ 2.00ms, íŠ¸ë¦¬ê±° 1íšŒ
+    // LCP24.setBrightness('1', 120);
+    // LCP24.setStrobeTime_ms('1', 2.00);
+
+    LCP100.setBrightness('1', 10);
+    // LCP100.trigger_ms('1', 30.0);
+
     for (int i = 0; i < 10; i++)
     {
-        LCP24.trigger('1');
-        Sleep(100);
-        LCP24.trigger('2');
-        Sleep(100);
-        LCP24.trigger('3');
-        Sleep(100);
-        LCP24.trigger('4');
-		Sleep(100);
+        // LCP24.trigger('1');
+        // Sleep(100);
+        // usleep(100000);
+        // LCP24.trigger('2');
+        // Sleep(100);
+        // usleep(100000);
+        // LCP24.trigger('3');
+        // Sleep(100);
+        // usleep(100000);
+        // LCP24.trigger('4');
+        // Sleep(100);
+		// usleep(100000);
         LCP100.trigger_ms('1', 30.0);
-        Sleep(100);
+        // Sleep(100);
+        usleep(100000);
         }
 
     LCP24.close();

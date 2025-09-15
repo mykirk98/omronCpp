@@ -59,6 +59,7 @@ bool LCP24100SS::open(const std::string& port, unsigned long baud)
     dcb.fOutX = dcb.fInX = FALSE;
     dcb.fDtrControl = DTR_CONTROL_DISABLE;
     dcb.fRtsControl = RTS_CONTROL_DISABLE;
+    
     if (!SetCommState(hSerial_, &dcb))
     {
         return false;
@@ -198,19 +199,31 @@ bool LCP24100SS::setupTermios(unsigned long baud)
 {
     struct termios tty;
     memset(&tty, 0, sizeof tty);
-    if (tcgetattr(fd_, &tty) != 0) return false;
+    
+    if (tcgetattr(fd_, &tty) != 0)
+    {
+        return false;
+    }
 
     // 1) 완전 raw 모드로 초기화
     cfmakeraw(&tty);
 
     // 2) 속도 설정
     speed_t spd = B19200;
-    switch (baud) {
-        case 9600:  spd = B9600; break;
-        case 19200: spd = B19200; break;
+    switch (baud)
+    {
+        case 9600:
+            spd = B9600;
+            break;
+        case 19200:
+            spd = B19200;
+            break;
         // 필요 시 다른 속도도 추가
-        default:    spd = B19200; break;
+        default:
+            spd = B19200;
+            break;
     }
+
     cfsetospeed(&tty, spd);
     cfsetispeed(&tty, spd);
 
@@ -230,7 +243,10 @@ bool LCP24100SS::setupTermios(unsigned long baud)
     tty.c_cc[VTIME] = 5;  // 0.5초
 
     // 6) 즉시 적용
-    if (tcsetattr(fd_, TCSANOW, &tty) != 0) return false;
+    if (tcsetattr(fd_, TCSANOW, &tty) != 0)
+    {
+        return false;
+    }
 
     // 7) 버퍼 비우기 (열자마자 남은 쓰레기 제거)
     tcflush(fd_, TCIOFLUSH);
