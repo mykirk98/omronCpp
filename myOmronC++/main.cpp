@@ -33,29 +33,29 @@ int main() {
 #endif
 
     // 채널1: 밝기 120, 스트로브 타임 2.00ms, 트리거 1회
-    // LCP24.setBrightness('1', 120);
-    // LCP24.setStrobeTime_ms('1', 2.00);
+    LCP24.setBrightness('1', 120);
+    LCP24.setStrobeTime_ms('1', 2.00);
 
     LCP100.setBrightness('1', 10);
     // LCP100.trigger_ms('1', 30.0);
 
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 3; i++)
     {
-        // LCP24.trigger('1');
-        // Sleep(100);
-        // usleep(100000);
-        // LCP24.trigger('2');
-        // Sleep(100);
-        // usleep(100000);
-        // LCP24.trigger('3');
-        // Sleep(100);
-        // usleep(100000);
-        // LCP24.trigger('4');
-        // Sleep(100);
-		// usleep(100000);
+        LCP24.trigger('1');
+        Sleep(100);
+        //usleep(100000);
+        LCP24.trigger('2');
+        Sleep(100);
+        //usleep(100000);
+        LCP24.trigger('3');
+        Sleep(100);
+        //usleep(100000);
+        LCP24.trigger('4');
+        Sleep(100);
+		//usleep(100000);
         LCP100.trigger_ms('1', 30.0);
-        // Sleep(100);
-        usleep(100000);
+        Sleep(100);
+        //usleep(100000);
         }
 
     LCP24.close();

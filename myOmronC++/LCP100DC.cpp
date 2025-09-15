@@ -69,16 +69,18 @@ bool LCP100DC::open(const std::string& port, unsigned long baud)
     SetCommTimeouts(hSerial_, &to);
 #else
 fd_ = ::open(port.c_str(), O_RDWR | O_NOCTTY /* | O_SYNC */);
-    if (fd_ < 0) {
-        fprintf(stderr, "[LCP100DC] ::open('%s') failed: %s (errno=%d)\n",
-                port.c_str(), strerror(errno), errno);
+    if (fd_ < 0)
+    {
+        fprintf(stderr, "[LCP100DC] ::open('%s') failed: %s (errno=%d)\n", port.c_str(), strerror(errno), errno);
+        
         return false;
     }
-    if (!setupTermios(baud)) {
-        fprintf(stderr, "[LCP100DC] setupTermios(%lu) failed: %s (errno=%d)\n",
-                baud, strerror(errno), errno);
+    if (!setupTermios(baud))
+    {
+        fprintf(stderr, "[LCP100DC] setupTermios(%lu) failed: %s (errno=%d)\n", baud, strerror(errno), errno);
         ::close(fd_);
         fd_ = -1;
+
         return false;
     }
 #endif
@@ -90,7 +92,9 @@ fd_ = ::open(port.c_str(), O_RDWR | O_NOCTTY /* | O_SYNC */);
 void LCP100DC::close()
 {
     if (!open_)
+    {
         return;
+    }
 
 #ifdef _WIN32
     CloseHandle(hSerial_);
@@ -102,7 +106,7 @@ void LCP100DC::close()
     open_ = false;
 }
 
-bool LCP100DC::writeAll(const void* buf, unsigned long len)
+bool LCP100DC::writeAll(const void* buffer, unsigned long len)
 {
     if (!open_)
     {
@@ -111,13 +115,13 @@ bool LCP100DC::writeAll(const void* buf, unsigned long len)
 
 #ifdef _WIN32
     DWORD wr = 0;
-    if (!WriteFile(hSerial_, buf, len, &wr, nullptr))
+    if (!WriteFile(hSerial_, buffer, len, &wr, nullptr))
     {
         return false;
     }
     return wr == len;
 #else
-    ssize_t wr = ::write(fd_, buf, len);
+    ssize_t wr = ::write(fd_, buffer, len);
     return (wr == (ssize_t)len);
 #endif
 }
@@ -128,7 +132,7 @@ bool LCP100DC::writeAll(const std::string& bytes)
 
 std::string LCP100DC::makeFrame8(char ch, char cmd, int data) const
 {
-    // CH ��ȿ�� ('1'~'2' or 'Z'/'z')
+	// CH : '1'~'2', 'Z'/'z':전체
     if (!((ch >= '1' && ch <= '2') || ch == 'Z' || ch == 'z'))
     {
         ch = '1';

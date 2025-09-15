@@ -1,8 +1,5 @@
 #include "LCP24100SS.h"
 
-using std::max;
-using std::min;
-
 LCP24100SS::LCP24100SS()
 #ifdef _WIN32
     : hSerial_(INVALID_HANDLE_VALUE)

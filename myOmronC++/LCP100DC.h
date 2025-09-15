@@ -61,11 +61,11 @@ private:
 #endif
     bool  open_;
 	bool lowercase_;
-
+	
 	/* @brief 시리얼 포트에 모든 데이터를 쓸 때까지 반복해서 쓰는 함수
-	@param buf 쓸 데이터 버퍼
+	@param buffer 쓸 데이터 버퍼
 	@param len 버퍼 길이 (바이트 단위) */
-    bool writeAll(const void* buf, unsigned long len);
+    bool writeAll(const void* buffer, unsigned long len);
 	/* @brief 시리얼 포트에 문자열 데이터를 쓸 때까지 반복해서 쓰는 함수
 	@param bytes 쓸 문자열 데이터 */
     bool writeAll(const std::string& bytes);

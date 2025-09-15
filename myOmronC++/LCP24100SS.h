@@ -15,34 +15,32 @@
 #include <errno.h>
 #endif
 
-/* @brief LCP24100SS ���� ��Ʈ�ѷ� RS-232 ���� Ŭ���� */
+/* @brief LCP24100SS 조명 컨트롤러 RS-232 제어 클래스 */
 class LCP24100SS {
 public:
-	/* @brief LCP24100SS ������ */
+	/* @brief LCP24100SS 생성자 */
     LCP24100SS();
-	/* @brief LCP24100SS �Ҹ��� */
+	/* @brief LCP24100SS 소멸자 */
     ~LCP24100SS();
 
-	/* @brief �ø��� ��Ʈ ���� �޼ҵ�
-	@param port �ø��� ��Ʈ �̸�
-	@param baud ������Ʈ (�⺻��: 19200) */
+	/* @brief 포트 열기
+	@param port 포트 이름
+	@param baud 보레이트 (기본값: 19200) */
     bool open(const std::string& port, unsigned long baud = 19200);
-	/* @brief �ø��� ��Ʈ �ݱ� �޼ҵ� */
+	/* @brief 포트 닫기 */
     void close();
-	/* @brief �ø��� ��Ʈ ���� ���� */
+	/* @brief 포트 열림 여부 */
     bool isOpen() const;
-
-	/* @brief ��� ���� �޼ҵ�
-	@param channel ä�� ����
-	@param data ��� �� (0~255) */
-    bool setBrightness(char channel, int data);
-	/* @brief ��Ʈ�κ� �ð� ���� �޼ҵ�
-	@param channel ä�� ����
-	@param data ��Ʈ�κ� �ð� (0.00~9.99 ms) */
-    bool setStrobeTime_ms(char channel, double data);
-	/* @brief Ʈ���� ��ȣ �߻� �޼ҵ�
-	@param channel ä�� ���� */
-    bool trigger(char channel);
+	/* @brief 조명 밝기 설정 메소드
+	@param channel 채널 설정 ('1'~'6')
+	@param data 밝기 값 (0~255) */
+	bool setBrightness(char channel, int data);
+	/* @brief 스트로브 타임 설정 메소드
+	@param channel 채널 설정 ('1'~'6')
+	@param data 스트로브 타임 (0.00~9.99ms) */
+	bool setStrobeTime_ms(char channel, double data);
+	/* @brief 트리거 메소드 */
+	bool trigger(char channel);
 
 private:
 #ifdef _WIN32
@@ -52,22 +50,14 @@ private:
 #endif // _WIN32
     bool  open_;
 
-	/* @brief �ø��� ��Ʈ�� ��� �����͸� �� ������ �ݺ��ؼ� ���� �Լ�
-	@param buf �� ������ ����
-	@param len ���� ���� (����Ʈ ����) */
-    bool writeAll(const void* buf, unsigned long len);
-	/* @brief �ø��� ��Ʈ�� ���ڿ� �����͸� �� ������ �ݺ��ؼ� ���� �Լ�
-	@param bytes �� ���ڿ� ������ */
-    bool writeAll(const std::string& bytes);
-	/* @brief ������ ������
-	@param ch ä�� ����
-	@param mode1 ���� ���
-	@param data3 ������ �� */
-    std::string makeFrame(char ch, char mode1, int data3) const;
+	/*
+	@brief 
+	*/
+	bool writeAll(const void* buf, unsigned long len);
+	bool writeAll(const std::string& bytes);
+	std::string makeFrame(char ch, char mode1, int data3) const;
 
 #ifndef _WIN32
-	/* @brief termios ���� �޼ҵ�
-	@param baud ������Ʈ */
-    bool setupTermios(unsigned long baud);
+	bool setupTermios(unsigned long baud);
 #endif
 };
