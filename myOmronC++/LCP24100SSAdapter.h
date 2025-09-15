@@ -1,19 +1,19 @@
 ﻿#pragma once
 
 #include "ILightController.h"
-#include "LCP100DC.h"
+#include "LCP24100SS.h"
 
-/* @brief LCP100DC 어댑터 클래스 */
-class LCP100DCAdapter : public ILightController
+/* @brief LCP24100SS 어댑터 클래스 */
+class LCP24100SSAdapter : public ILightController
 {
 public:
-	/* @brief LCP100DCAdapter 생성자 */
-	explicit LCP100DCAdapter(bool lowercase = false)
-		: pImplementation(std::make_unique<LCP100DC>(lowercase))
+	/* @brief LCP24100SSAdapter 생성자 */
+	explicit LCP24100SSAdapter()
+		: pImplementation(std::make_unique<LCP24100SS>())
 	{
 	}
-	/* @brief LCP100DCAdapter 소멸자 */
-	~LCP100DCAdapter() override
+	/* @brief LCP24100SSAdapter 소멸자 */
+	~LCP24100SSAdapter() override
 	{
 		close();
 	}
@@ -34,24 +34,28 @@ public:
 	{
 		return pImplementation->isOpen();
 	}
-
 	/* @brief 밝기 설정 메소드
-	@param channel 채널 설정 ('1'~'2', 'Z'/'z':전체)
-	@param value 밝기 값 (0~100) */
+	@param channel 채널 설정 ('1'~'6')
+	@param value 밝기 값 (0~240) */
 	bool setBrightness(char channel, int value) override
 	{
 		return pImplementation->setBrightness(channel, value);
 	}
 	/* @brief 트리거 메소드
-	@param channel 채널 설정 ('1'~'2', 'Z'/'z':전체)
+	@param channel 채널 설정 ('1'~'6')
 	@param ms 대기 시간 (밀리초 단위) */
 	bool trigger_ms(char channel, double ms) override
 	{
-		return pImplementation->trigger_ms(channel, ms);
+		if (!pImplementation->setStrobeTime_ms(channel, ms))
+		{
+			return false;
+		}
+		return pImplementation->trigger(channel);
 	}
+
 protected:
 
 private:
-	/* @brief 실제 LCP100DC 구현체 */
-	std::unique_ptr<LCP100DC> pImplementation;
+	/* @brief 실제 LCP24100SS 구현체 */
+	std::unique_ptr<LCP24100SS> pImplementation;
 };
