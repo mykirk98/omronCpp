@@ -1,4 +1,4 @@
-#include "LCP24100SS.h"
+﻿#include "LCP24100SS.h"
 
 LCP24100SS::LCP24100SS()
 #ifdef _WIN32
@@ -40,7 +40,7 @@ bool LCP24100SS::open(const std::string& port, unsigned long baud)
         return false;
     }
 
-    DCB dcb = { 0 };
+	DCB dcb = { 0 };    // Device Control Block
     dcb.DCBlength = sizeof(DCB);
     if (!GetCommState(hSerial_, &dcb))
     {
@@ -62,13 +62,13 @@ bool LCP24100SS::open(const std::string& port, unsigned long baud)
         return false;
     }
 
-    COMMTIMEOUTS to = { 0 };
-    to.ReadIntervalTimeout = 50;
-    to.ReadTotalTimeoutConstant = 50;
-    to.ReadTotalTimeoutMultiplier = 10;
-    to.WriteTotalTimeoutConstant = 50;
-    to.WriteTotalTimeoutMultiplier = 10;
-    SetCommTimeouts(hSerial_, &to);
+    COMMTIMEOUTS timeouts = { 0 };
+    timeouts.ReadIntervalTimeout = 50;
+    timeouts.ReadTotalTimeoutConstant = 50;
+    timeouts.ReadTotalTimeoutMultiplier = 10;
+    timeouts.WriteTotalTimeoutConstant = 50;
+    timeouts.WriteTotalTimeoutMultiplier = 10;
+    SetCommTimeouts(hSerial_, &timeouts);
 
 #else
     fd_ = ::open(port.c_str(), O_RDWR | O_NOCTTY | O_SYNC);
@@ -102,21 +102,21 @@ void LCP24100SS::close()
     open_ = false;
 }
 
-bool LCP24100SS::writeAll(const void* buf, unsigned long len)
+bool LCP24100SS::writeAll(const void* buffer, unsigned long len)
 {
     if (!open_)
         return false;
 
 #ifdef _WIN32
-    DWORD wr = 0;
-    if (!WriteFile(hSerial_, buf, len, &wr, nullptr))
+    DWORD bytes_written = 0;
+    if (!WriteFile(hSerial_, buffer, len, &bytes_written, nullptr))
         return false;
     
-    return wr == len;
+    return bytes_written == len;
 #else
-    ssize_t wr = ::write(fd_, buf, len);
+    ssize_t bytes_written = ::write(fd_, buffer, len);
 
-    return (wr == (ssize_t)len);
+    return (bytes_written == (ssize_t)len);
 #endif
 }
 
@@ -125,8 +125,9 @@ bool LCP24100SS::writeAll(const std::string& bytes)
     return writeAll(bytes.data(), (unsigned long)bytes.size());
 }
 
-std::string LCP24100SS::makeFrame(char ch, char mode1, int data3) const {
-    // ä��/������ ���� ����
+std::string LCP24100SS::makeFrame(char ch, char mode1, int data3) const
+{
+	// 채널은 '1'~'6'
     if (ch < '1' || ch > '6')
         ch = '1';
 	if (data3 < 0)
@@ -142,12 +143,12 @@ std::string LCP24100SS::makeFrame(char ch, char mode1, int data3) const {
     std::snprintf(d, sizeof(d), "%03d", data3);
 
     std::string s;
-    s.push_back('\x02'); // STX
-    s.push_back(ch);
-    s.push_back(mode1);  // 'P','T','F'
-    s.append(d, 3);
-    s.push_back('R');    // Mode2
-    s.push_back('\x03'); // ETX
+    s.push_back('\x02');    // STX
+	s.push_back(ch);        // CH
+	s.push_back(mode1);     // MODE1 (P, T, F)
+	s.append(d, 3);         // DATA3 "000"~"999"
+	s.push_back('R');       // Mode2 (항상 'R')
+    s.push_back('\x03');    // ETX
     return s;
 }
 
@@ -162,9 +163,9 @@ bool LCP24100SS::setBrightness(char channel, int data)
         data = 240;
     }
 
-    std::string f = makeFrame(channel, 'P', data);
+    std::string frame = makeFrame(channel, 'P', data);
 
-    return writeAll(f);
+    return writeAll(frame);
 }
 
 bool LCP24100SS::setStrobeTime_ms(char channel, double data)
@@ -178,17 +179,16 @@ bool LCP24100SS::setStrobeTime_ms(char channel, double data)
         data = 9.99;
     }
 
-    int ticks = (int)std::lround(data * 100.0); // 0.01ms ���� �� 0~999
-    std::string f = makeFrame(channel, 'T', ticks);
+	int ticks = (int)std::lround(data * 100.0); // 0.01ms 단위 -> 0~999
 
-    return writeAll(f);
+    std::string frame = makeFrame(channel, 'T', ticks);
+    return writeAll(frame);
 }
 
 bool LCP24100SS::trigger(char channel)
 {
-    std::string f = makeFrame(channel, 'F', 0);
-
-    return writeAll(f);
+    std::string frame = makeFrame(channel, 'F', 0);
+    return writeAll(frame);
 }
 
 #ifndef _WIN32
@@ -272,7 +272,6 @@ int main() {
     }
 #endif
 
-    // ä��1: ��� 120, ��Ʈ�κ� 2.00ms, Ʈ���� 1ȸ
     ctrl.setBrightness('1', 120);
     ctrl.setStrobeTime_ms('1', 2.00);
     ctrl.trigger('1');
