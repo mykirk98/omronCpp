@@ -1,4 +1,4 @@
-#include "LCP100DC.h"
+﻿#include "LCP100DC.h"
 
 LCP100DC::LCP100DC(bool useLowercase)
 #ifdef _WIN32
@@ -256,9 +256,8 @@ struct termios tty;
     tty.c_cflag &= ~CRTSCTS;                     // HW flow off
     tty.c_iflag &= ~(IXON | IXOFF | IXANY);      // SW flow off
 
-    // 5) 읽기 타임아웃 (필요시 조정). 여기서는 비차단/짧은 타임아웃
-    tty.c_cc[VMIN]  = 0;  // read 최소 바이트 수
-    tty.c_cc[VTIME] = 5;  // 0.5초
+    tty.c_cc[VMIN]  = 0;
+    tty.c_cc[VTIME] = 5;
 
     // 6) 즉시 적용
     if (tcsetattr(fd_, TCSANOW, &tty) != 0)
@@ -278,7 +277,7 @@ struct termios tty;
 #include <iostream>
 
 int main() {
-    LCP100DC ctrl; // �⺻: �빮�� ���� ���
+    LCP100DC ctrl;
 
 #ifdef _WIN32
     if (!ctrl.open("COM5", 19200))
@@ -293,12 +292,11 @@ int main() {
         return 1;
     }
 #endif
-
-    // ä�� 1 ��� 60% �� ON �� 3ms �� OFF
+	// 60% 밝기 설정 후 30ms 트리거
     ctrl.setBrightness('1', 60);
     ctrl.trigger_ms('1', 30.0);
 
-    // ��ü ä�� OFF
+	// 전체 끄기
     ctrl.turnOff('Z');
 
     ctrl.close();
