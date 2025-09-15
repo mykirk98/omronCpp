@@ -134,6 +134,8 @@
     <ClCompile Include="Experiments.cpp" />
     <ClCompile Include="LCP100DC.cpp" />
     <ClCompile Include="LCP24100SS.cpp" />
+    <ClCompile Include="LightFactory.cpp" />
+    <ClCompile Include="LightManager.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="NodeMapUtil.cpp" />
     <ClCompile Include="CameraManager.cpp">
@@ -162,8 +164,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CSVWriter.h" />
+    <ClInclude Include="ILightController.h" />
     <ClInclude Include="LCP100DC.h" />
+    <ClInclude Include="LCP100DCAdapter.h" />
     <ClInclude Include="LCP24100SS.h" />
+    <ClInclude Include="LCP24100SSAdapter.h" />
+    <ClInclude Include="LightFactory.h" />
+    <ClInclude Include="LightManager.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="NodeMapUtil.h" />
     <ClInclude Include="CameraManager.h">
