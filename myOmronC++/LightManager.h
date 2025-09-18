@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <mutex>
+#include <iostream>
 #include "ILightController.h"
 #include "LightFactory.h"
 
@@ -23,7 +24,7 @@ public:
 
 public:
 	/* @brief 생성자 */
-    LightManager();
+	explicit LightManager();
     /* @brief 소멸자 */
     ~LightManager();
 
@@ -65,7 +66,7 @@ private:
 private:
 	/* @brief 컨트롤러 맵 (식별자 -> 컨트롤러) */
     std::unordered_map<std::string, std::shared_ptr<ILightController>> controller_map_;
-	/* @brief 컨트롤러 사양 맵 (식별자 -> 사양) */
+	/* @brief 컨트롤러 설정 정보 맵 (식별자 -> 사양) */
     std::unordered_map<std::string, ControllerSpec> controller_spec_map_;
 	/* @brief 동시 접근 보호 뮤텍스 */
     std::mutex mutex_;
