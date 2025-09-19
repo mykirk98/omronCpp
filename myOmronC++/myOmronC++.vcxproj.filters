@@ -67,7 +67,7 @@
     <ClCompile Include="PathToGuiAdapter.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Logger.cpp">
+    <ClCompile Include="CamLogger.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="Experiments.cpp">
@@ -114,10 +114,10 @@
     <ClInclude Include="PathToGuiAdapter.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ThreadSafeQueue.h">
+    <ClInclude Include="YCQueue.h">
       <Filter>Queue</Filter>
     </ClInclude>
-    <ClInclude Include="Logger.h">
+    <ClInclude Include="CamLogger.h">
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="CSVWriter.h">

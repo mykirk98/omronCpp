@@ -1,6 +1,6 @@
-#include "GigEUtil.h"
+ï»¿#include "GigEUtil.h"
 
-void GigEUtil::UpdateDeviceIPAddress(IStInterface* pInterface, uint32_t deviceIndex, std::string& userDefinedName, std::shared_ptr<Logger> logger)
+void GigEUtil::UpdateDeviceIPAddress(IStInterface* pInterface, uint32_t deviceIndex, std::string& userDefinedName, std::shared_ptr<CamLogger> logger)
 {
 	GenApi::CNodeMapPtr pINodeMap(pInterface->GetIStPort()->GetINodeMap());
 	std::string serialNumber = pInterface->GetIStDeviceInfo(deviceIndex)->GetSerialNumber().c_str();
@@ -64,7 +64,7 @@ void GigEUtil::UpdateDeviceIPAddress(IStInterface* pInterface, uint32_t deviceIn
 		nNewDeviceIPAddress = ntohl(nNewDeviceIPAddress);
 	}
 #else
-	// POSIX ½Ã½ºÅÛ (Linux µî)¿¡¼­´Â inet_addr() + ntohl() »ç¿ë
+	// POSIX ì‹œìŠ¤í…œ (Linux ë“±)ì—ì„œëŠ” inet_addr() + ntohl() ì‚¬ìš©
 	uint32_t nNewDeviceIPAddress = ntohl(inet_addr(strInput.c_str()));
 #endif
 

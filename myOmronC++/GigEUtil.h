@@ -1,9 +1,9 @@
-#pragma once
+﻿#pragma once
 
 #include <StApi_TL.h>
 #include <unordered_map>
 #include "config.h"
-#include "Logger.h"
+#include "CamLogger.h"
 
 //#if defined(_WIN32_WINNT_WIN8) && (_WIN32_WINNT_WIN8 <= WINVER)
 //#include <WinSock2.h>	//AF_INET
@@ -29,7 +29,7 @@ using namespace StApi;
 class GigEUtil
 {
 public:
-	static void UpdateDeviceIPAddress(IStInterface* pInterface, uint32_t deviceIndex, std::string& userDefinedName, std::shared_ptr<Logger> logger);
+	static void UpdateDeviceIPAddress(IStInterface* pInterface, uint32_t deviceIndex, std::string& userDefinedName, std::shared_ptr<CamLogger> logger);
 
 	static void UpdateHeartbeatTimeout(GenApi::INodeMap* pINodeMap, GenICam::gcstring heartBeatTimeOut);
 

@@ -1,25 +1,25 @@
-#include "Logger.h"
+﻿#include "CamLogger.h"
 
-Logger::Logger()
+CamLogger::CamLogger()
 	: m_running(false)
 {
 }
 
-Logger::~Logger()
+CamLogger::~CamLogger()
 {
 	Stop();
 }
 
-void Logger::Start()
+void CamLogger::Start()
 {
 	if (m_running)
 		return;
 
 	m_running = true;
-	m_thread = std::thread(&Logger::Run, this);
+	m_thread = std::thread(&CamLogger::Run, this);
 }
 
-void Logger::Stop()
+void CamLogger::Stop()
 {
 	if (!m_running)
 		return;
@@ -34,12 +34,12 @@ void Logger::Stop()
 	}
 }
 
-void Logger::Log(const std::string& message)
+void CamLogger::Log(const std::string& message)
 {
 	m_logQueue.Push(message);
 }
 
-void Logger::Run()
+void CamLogger::Run()
 {
 	while (m_running)
 	{

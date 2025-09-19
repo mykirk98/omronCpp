@@ -1,13 +1,13 @@
-#pragma once
+﻿#pragma once
 
 #include <StApi_TL.h>
 
-#include "ThreadSafeQueue.h"
+#include "YCQueue.h"
 #include "ImageProcess.h"
 #include "GigEUtil.h"
 #include "NodeMapUtil.h"
 #include "config.h"
-#include "Logger.h"
+#include "CamLogger.h"
 #ifdef _WIN32
 #include <windows.h>  // for Sleep
 #else
@@ -19,7 +19,7 @@ using namespace StApi;
 class GigECamera
 {
 public:
-	explicit GigECamera(std::string rootDir, std::shared_ptr<Logger> logger);
+	explicit GigECamera(std::string rootDir, std::shared_ptr<CamLogger> logger);
 	~GigECamera();
 
 	bool Initialize(IStInterface* pInterface, uint32_t iFaceDeviceIdx);
@@ -30,9 +30,9 @@ public:
 
 	void ExecuteTrigger();
 
-	void SetFrameQueue(std::shared_ptr<ThreadSafeQueue<FrameData>> pFrameQueue);
+	void SetFrameQueue(std::shared_ptr<YCQueue<FrameData>> pFrameQueue);
 
-	void SetCVMatQueue(std::shared_ptr<ThreadSafeQueue<cv::Mat>> pCVMatQueue);
+	void SetCVMatQueue(std::shared_ptr<YCQueue<cv::Mat>> pCVMatQueue);
 
 	const std::string& GetUserDefinedName();
 	const std::string& GetSerialNumber();
@@ -48,12 +48,12 @@ private:
 	CIStDataStreamPtr m_pDataStream; // Data stream pointer
 
 	GenApi::CCommandPtr pICommandTriggerSoftware;
-	std::shared_ptr<ThreadSafeQueue<FrameData>> m_pFrameQueue;
-	std::shared_ptr<ThreadSafeQueue<cv::Mat>> m_pCVMatQueue;
+	std::shared_ptr<YCQueue<FrameData>> m_pFrameQueue;
+	std::shared_ptr<YCQueue<cv::Mat>> m_pCVMatQueue;
 
 	std::string m_strRootDir;
 	std::string m_strSerialNumber;
 	std::string m_strUDFName;
 
-	std::shared_ptr<Logger> m_logger; // Logger for logging camera events
+	std::shared_ptr<CamLogger> m_logger; // Logger for logging camera events
 };

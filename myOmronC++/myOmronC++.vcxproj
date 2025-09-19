@@ -136,7 +136,7 @@
     <ClCompile Include="LCP24100SS.cpp" />
     <ClCompile Include="LightFactory.cpp" />
     <ClCompile Include="LightManager.cpp" />
-    <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="CamLogger.cpp" />
     <ClCompile Include="NodeMapUtil.cpp" />
     <ClCompile Include="BasicCamera.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
@@ -162,7 +162,7 @@
     <ClInclude Include="LCP24100SSAdapter.h" />
     <ClInclude Include="LightFactory.h" />
     <ClInclude Include="LightManager.h" />
-    <ClInclude Include="Logger.h" />
+    <ClInclude Include="CamLogger.h" />
     <ClInclude Include="NodeMapUtil.h" />
     <ClInclude Include="BasicCamera.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
@@ -175,7 +175,7 @@
     <ClInclude Include="PathToGuiAdapter.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="ThreadSafeQueue.h" />
+    <ClInclude Include="YCQueue.h" />
     <ClInclude Include="config.h" />
   </ItemGroup>
   <ItemGroup>

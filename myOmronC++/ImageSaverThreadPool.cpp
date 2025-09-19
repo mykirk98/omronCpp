@@ -1,6 +1,6 @@
-#include "ImageSaverThreadPool.h"
+﻿#include "ImageSaverThreadPool.h"
 
-ImageSaverThreadPool::ImageSaverThreadPool(size_t threadCount, const std::string& saveRootDir, std::shared_ptr<ThreadSafeQueue<FrameData>> pQueue, std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue, std::shared_ptr<Logger> logger)
+ImageSaverThreadPool::ImageSaverThreadPool(size_t threadCount, const std::string& saveRootDir, std::shared_ptr<YCQueue<FrameData>> pQueue, std::shared_ptr<YCQueue<std::string>> pathQueue, std::shared_ptr<CamLogger> logger)
 	: m_running(false)
 	, m_strRootDir(saveRootDir)
 	, m_pFrameQueue(pQueue)

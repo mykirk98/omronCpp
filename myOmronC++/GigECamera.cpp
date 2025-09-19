@@ -1,6 +1,6 @@
-#include "GigECamera.h"
+﻿#include "GigECamera.h"
 
-GigECamera::GigECamera(std::string rootDir, std::shared_ptr<Logger> logger)
+GigECamera::GigECamera(std::string rootDir, std::shared_ptr<CamLogger> logger)
 	: m_pInterface(nullptr)
 	, m_strRootDir(rootDir)
 	, pICommandTriggerSoftware(nullptr)
@@ -45,7 +45,7 @@ bool GigECamera::Initialize(IStInterface* pInterface, uint32_t iFaceDeviceIdx)
 			throw RUNTIME_EXCEPTION("A device with an IP address of %s could not be found.", pGevDeviceForceIPAddress->ToString().c_str());
 		}
 		m_logger->Log("Device " + std::to_string(iFaceDeviceIdx) + " : " + std::string(m_pDevice->GetIStDeviceInfo()->GetDisplayName()) + " connected." + " User define name is \"" + GetUserDefinedName() + "\"");
-		
+
 		m_strSerialNumber = m_pDevice->GetIStDeviceInfo()->GetSerialNumber().c_str();
 		// Get the INodeMap interface pointer for the camera settings.
 		GenApi::CNodeMapPtr pINodeMap(m_pDevice->GetRemoteIStPort()->GetINodeMap());
@@ -123,12 +123,12 @@ void GigECamera::ExecuteTrigger()
 	pICommandTriggerSoftware->Execute();
 }
 
-void GigECamera::SetFrameQueue(std::shared_ptr<ThreadSafeQueue<FrameData>> pFrameQueue)
+void GigECamera::SetFrameQueue(std::shared_ptr<YCQueue<FrameData>> pFrameQueue)
 {
 	m_pFrameQueue = pFrameQueue;
 }
 
-void GigECamera::SetCVMatQueue(std::shared_ptr<ThreadSafeQueue<cv::Mat>> pCVMatQueue)
+void GigECamera::SetCVMatQueue(std::shared_ptr<YCQueue<cv::Mat>> pCVMatQueue)
 {
 	m_pCVMatQueue = pCVMatQueue;
 }
@@ -182,7 +182,7 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 
 				FrameData frame;
 				frame.pImage = pImage;
-				frame.serialNumber = GetSerialNumber(); 
+				frame.serialNumber = GetSerialNumber();
 				frame.frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
 				frame.cameraName = GetUserDefinedName();
 				frame.isMono = pPixelFormatInfo->IsMono();
@@ -192,8 +192,10 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 					m_pFrameQueue->Push(frame);
 
 				Mat mat = ImageProcess::ConvertToMat(pImage);
-				if (m_pCVMatQueue)
+				if (m_pCVMatQueue && m_strUDFName == "Sleeve_A_Camera")
+				{
 					m_pCVMatQueue->Push(mat);
+				}
 
 				m_logger->Log("[" + m_strUDFName + "] CV::Mat Queue size: " + std::to_string(m_pCVMatQueue->Size()));
 				//m_logger->Log("[" + m_strUDFName + "] Image converted to OpenCV Mat.");
@@ -233,7 +235,7 @@ int main()
 	{
 		camera.StartAcquisition();
 
-		//camera.FreeRunCapture(); // Capture images sequentially
+		//camera.SequentialCapture(); // Capture images sequentially
 		while (true)
 		{
 			std::cout << "Press 0 to trigger an image or 1 to exit: ";

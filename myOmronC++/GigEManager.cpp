@@ -1,23 +1,32 @@
-#include "GigEManager.h"
+Ôªø#include "GigEManager.h"
 
 GigEManager::GigEManager(std::string rootDir)
     : m_strRootDir(rootDir)
     , m_running(false)
 {
-	m_logger = std::make_shared<Logger>();
-    m_pFrameQueue = std::make_shared<ThreadSafeQueue<FrameData>>();
-    m_pCVMatQueue = std::make_shared<ThreadSafeQueue<cv::Mat>>();
-	m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strRootDir, m_pFrameQueue, m_pPathQueue, m_logger);
+    m_logger = std::make_shared<CamLogger>();
+    m_pFrameQueue = std::make_shared<YCQueue<FrameData>>();
+    //m_pCVMatQueue = std::make_shared<YCQueue<cv::Mat>>();
+    m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strRootDir, m_pFrameQueue, m_pPathQueue, m_logger);
 }
 
-GigEManager::GigEManager(std::string saveRootDir, std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue)
+GigEManager::GigEManager(std::string saveRootDir, std::shared_ptr<YCQueue<std::string>> pathQueue)
     : m_strRootDir(saveRootDir)
-	, m_running(false)
-	, m_pPathQueue(pathQueue)
+    , m_running(false)
+    , m_pPathQueue(pathQueue)
+    //, m_pCVMatQueue(pCVMatQueue)
+	, m_pSleeveACameraQueue(std::make_shared<YCQueue<cv::Mat>>())
+	, m_pEndoscopeSideCameraQueue(std::make_shared<YCQueue<cv::Mat>>())
+	, m_pEndoscopeRobotCameraQueue(std::make_shared<YCQueue<cv::Mat>>())
+	, m_pEndoscopeRobotEndoscopeCameraQueue(std::make_shared<YCQueue<cv::Mat>>())
 {
-    m_pFrameQueue = std::make_shared<ThreadSafeQueue<FrameData>>();
-    m_pCVMatQueue = std::make_shared<ThreadSafeQueue<cv::Mat>>();
-    m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strRootDir, m_pFrameQueue, m_pPathQueue, m_logger);
+    m_logger = std::make_shared<CamLogger>();
+    m_pFrameQueue = std::make_shared<YCQueue<FrameData>>();
+    // m_pCVMatQueue = std::make_shared<YCQueue<cv::Mat>>();       //TODO: Ïù¥ ÏΩîÎìú ÏóÜÏï†Í≥†, GigEManager Ïô∏Î∂ÄÏóêÏÑú Í∞ùÏ≤¥Î•º ÎßåÎì§Ïñ¥ÏÑú Ï£ºÏûÖÌïòÎäî Î∞©ÏãùÏúºÎ°ú Î≥ÄÍ≤Ω
+    m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(2, m_strRootDir, m_pFrameQueue, m_pPathQueue, m_logger);
+    m_LCP24100SS = std::make_shared<LCP24100SS>();
+    m_LCP100DC = std::make_shared<LCP100DC>();
+
 }
 
 GigEManager::~GigEManager()
@@ -29,7 +38,7 @@ bool GigEManager::Initialize()
 {
     try {
         m_logger->Start();
-		m_pImageSaverThreadPool->Start();
+        m_pImageSaverThreadPool->Start();
 
         m_pSystem = CreateIStSystem(StSystemVendor_Default, StInterfaceType_GigEVision);
         for (uint32_t ifaceIdx = 0; ifaceIdx < m_pSystem->GetInterfaceCount(); ++ifaceIdx)
@@ -42,26 +51,72 @@ bool GigEManager::Initialize()
                 std::shared_ptr<GigECamera> camera = std::make_shared<GigECamera>(m_strRootDir, m_logger);
                 if (camera->Initialize(pInterface, deviceIdx))
                 {
-				    const std::string& cameraName = camera->GetUserDefinedName();    //TODO: ¿Ã Ω√¡°ø°º≠ cameraName¿Ã æÓ∂ª∞‘ ∞·¡§µ» ∞Õ¿Œ¡ˆ »Æ¿Œ « ø‰
+                    const std::string& cameraName = camera->GetUserDefinedName();    //TODO:             cameraName    Ó∂ª                 »Æ     ø 
                     camera->SetFrameQueue(m_pFrameQueue);
-                    //TODO: opencv mat ≈• º≥¡§
-					camera->SetCVMatQueue(m_pCVMatQueue);
+                    if (cameraName == "Sleeve_A_Camera")
+                    {
+						camera->SetCVMatQueue(m_pSleeveACameraQueue);
+                    }
+                    else if (cameraName == "Endoscope_Side_Camera")
+                    {
+                        camera->SetCVMatQueue(m_pEndoscopeSideCameraQueue);
+                    }
+                    else if (cameraName == "Endoscope_Robot_Camera")
+                    {
+                        camera->SetCVMatQueue(m_pEndoscopeRobotCameraQueue);
+                    }
+                    else if (cameraName == "Endoscope_Robot_Endoscope_Camera")
+                    {
+                        camera->SetCVMatQueue(m_pEndoscopeRobotEndoscopeCameraQueue);
+                    }
                     m_cameras.push_back(camera);
                     m_cameraMap[cameraName] = camera;
                 }
                 else
                 {
-					m_logger->Log("[GigEManager] Failed to initialize camera " + std::to_string(deviceIdx));
+                    m_logger->Log("[GigEManager] Failed to initialize camera " + std::to_string(deviceIdx));
                 }
                 m_logger->Log("---------------------------------------------------------------------------------------");
             }
         }
-		m_logger->Log("[GigEManager] Total " + std::to_string(m_cameras.size()) + " cameras initialized.");
+        m_logger->Log("[GigEManager] Total " + std::to_string(m_cameras.size()) + " cameras initialized.");
+
+        if (m_LCP24100SS->open("/dev/ttyUSB0", 19200))
+        {
+            for (char ch = '1'; ch <= '6'; ++ch)
+            {
+                if (ch == '6') // Side camera
+                {
+                    m_LCP24100SS->setBrightness(ch, 120);
+                    m_LCP24100SS->setStrobeTime_ms(ch, 10.00);
+                    continue;
+                }
+                m_LCP24100SS->setBrightness(ch, 120);
+                m_LCP24100SS->setStrobeTime_ms(ch, 100.00);
+            }
+            m_logger->Log("[GigEManager] LCP24100SS initialized.");
+        }
+        else
+        {
+            m_logger->Log("[GigEManager] Failed to open LCP24100SS on /dev/ttyUSB0");
+        }
+
+        if (m_LCP100DC->open("/dev/ttyUSB1", 19200))
+        {
+            m_LCP100DC->setBrightness('1', 50);
+            m_LCP100DC->turnOff('1');
+            m_logger->Log("[GigEManager] LCP100DC initialized.");
+        }
+        else
+        {
+            m_logger->Log("[GigEManager] Failed to open LCP100DC on /dev/ttyUSB1");
+        }
+
         return !m_cameras.empty();
     }
     catch (const GenICam::GenericException& e)
     {
-		m_logger->Log("[GigEManager] Initialization error: " + std::string(e.GetDescription()));
+        m_logger->Log("[GigEManager] Initialization error: " + std::string(e.GetDescription()));
         return false;
     }
 }
@@ -74,19 +129,24 @@ void GigEManager::StartAll()
         try
         {
             camera->StartAcquisition();
-			m_threads.emplace_back(&GigEManager::CameraLoop, this, camera);
+            m_threads.emplace_back(&GigEManager::CameraLoop, this, camera);
         }
         catch (const std::exception& e)
         {
-			m_logger->Log("[GigEManager] Worker failed to start: " + std::string(e.what()));
+            m_logger->Log("[GigEManager] Worker failed to start: " + std::string(e.what()));
         }
     }
-	m_logger->Log("[GigEManager] All cameras started successfully.");
+    m_logger->Log("[GigEManager] All cameras started successfully.");
 }
 
 void GigEManager::StopAll()
 {
     m_running = false;
+
+    m_LCP100DC->turnOff('1');
+    m_LCP24100SS->close();
+    m_LCP100DC->close();
+
     for (std::thread& thread : m_threads)
     {
         if (thread.joinable())
@@ -98,9 +158,9 @@ void GigEManager::StopAll()
     {
         camera->StopAcquisition();
     }
-	m_pImageSaverThreadPool->Stop();
-	m_logger->Log("[GigEManager] All cameras stopped successfully.");
-	m_logger->Stop();
+    m_pImageSaverThreadPool->Stop();
+    m_logger->Log("[GigEManager] All cameras stopped successfully.");
+    m_logger->Stop();
     m_threads.clear();
 
 }
@@ -121,31 +181,48 @@ void GigEManager::TriggerSingle(int index)
     }
     else
     {
-		m_logger->Log("[GigEManager] Invalid worker index: " + std::to_string(index));
+        m_logger->Log("[GigEManager] Invalid worker index: " + std::to_string(index));
     }
 }
 
 void GigEManager::TriggerSingle(const std::string& cameraName)
 {
-	std::map<std::string, std::shared_ptr<GigECamera>>::iterator it = m_cameraMap.find(cameraName);
+    std::map<std::string, std::shared_ptr<GigECamera>>::iterator it = m_cameraMap.find(cameraName);
     if (it != m_cameraMap.end())
     {
         it->second->ExecuteTrigger();
+
+        if (cameraName == "Endoscope_Robot_Camera")
+        {
+            m_LCP24100SS->trigger('1');
+            m_LCP24100SS->trigger('2');
+            m_LCP24100SS->trigger('3');
+            m_LCP24100SS->trigger('4');
+            m_LCP24100SS->trigger('5');
+        }
+        else if (cameraName == "Endoscope_Side_Camera")
+        {
+            m_LCP24100SS->trigger('6');
+        }
+        else if (cameraName == "Sleeve_A_Camera")
+        {
+            m_LCP100DC->trigger_ms('1', 100); // Channel 1, ON for 100 ms
+        }
     }
     else
     {
-		m_logger->Log("[GigEManager] Camera not found: " + cameraName);
-	}
+        m_logger->Log("[GigEManager] Camera not found: " + cameraName);
+    }
 }
 
 void GigEManager::CameraLoop(std::shared_ptr<GigECamera> camera)
 {
     while (m_running)
     {
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         // Here you can add any additional logic for the camera loop if needed;
-		// e.g., checking camera status, temperature, heartbeat, etc.
-	}
+        // e.g., checking camera status, temperature, heartbeat, etc.
+    }
 }
 
 // Example usage of GigEManager class
@@ -154,8 +231,11 @@ void GigEManager::CameraLoop(std::shared_ptr<GigECamera> camera)
 
 int main()
 {
-    std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue = std::make_shared<ThreadSafeQueue<std::string>>();
+    std::shared_ptr<YCQueue<std::string>> pathQueue = std::make_shared<YCQueue<std::string>>();
     //std::shared_ptr<PathQueue> pathQueue = std::make_shared<PathQueue>();
+    std::string saveRootDir = "C:\\Users\\mykir\\Work\\Experiments\\"; // NOTE: LAB WINDOWS PC DIRECTORY
+    //std::string saveRootDir = "C:\\Users\\USER\\Pictures\\"; // NOTE: HOME PC DIRECTORY
+    //std::string saveRootDir = "/home/msis/Pictures/SentechExperiments/Experiments1/"; // NOTE: LAB LINUX PC DIRECTORY
     //GigEManager manager(saveRootDir, pathQueue);
     GigEManager manager(saveRootDir);
 
@@ -167,24 +247,16 @@ int main()
 
     manager.StartAll();
 
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < 10; ++i)
     {
-        //manager.TriggerSingle("5MP_1");
+        manager.TriggerSingle("5MP_1");
         manager.TriggerSingle("5MP_2");
-        //manager.TriggerSingle("5MP_3");
-        manager.TriggerSingle("5MP_4");
-        //manager.TriggerSingle("12MP_1");
+        manager.TriggerSingle("5MP_3");
+        manager.TriggerSingle("12MP_1");
         manager.TriggerSingle("12MP_2");
-        //manager.TriggerSingle("2MP_1");
-        manager.TriggerSingle("2MP_2");
-#ifdef _WIN32
         Sleep(150);
-#else
-        usleep(150 * 1000);  // 150 ms
-#endif // _WIN32
-
     }
-    Sleep(3000);
+    Sleep(1000);
     manager.StopAll();
     return 0;
 }

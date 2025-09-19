@@ -1,16 +1,16 @@
-#pragma once
+﻿#pragma once
 
-#include "ThreadSafeQueue.h"
+#include "YCQueue.h"
 #include <string>
 #include <thread>
 #include <atomic>
 #include <memory>
 
-class Logger
+class CamLogger
 {
 public:
-	Logger();
-	~Logger();
+	CamLogger();
+	~CamLogger();
 
 	void Start();
 	void Stop();
@@ -24,5 +24,5 @@ private:
 
 	std::atomic<bool> m_running;
 	std::thread m_thread;
-	ThreadSafeQueue<std::string> m_logQueue;
+	YCQueue<std::string> m_logQueue;
 };

@@ -1,13 +1,15 @@
-#pragma once
+﻿#pragma once
 
 #include <thread>
 #include <vector>
 #include <map>
 #include <memory>
 #include "GigECamera.h"
-#include "ThreadSafeQueue.h"
+#include "YCQueue.h"
 #include "ImageSaverThreadPool.h"
-#include "Logger.h"
+#include "LCP24100SS.h"
+#include "LCP100DC.h"
+#include "CamLogger.h"
 
 /*  @brief GigEManager class for managing multiple GigE Workers. */
 class GigEManager
@@ -15,7 +17,7 @@ class GigEManager
 public:
 	/*  @brief Constructor for GigEManager. */
 	explicit GigEManager(std::string rootDir);
-	explicit GigEManager(std::string rootDir, std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue);
+	explicit GigEManager(std::string rootDir, std::shared_ptr<YCQueue<std::string>> pathQueue);
 	/*  @brief Destructor for GigEManager. */
 	~GigEManager();
 
@@ -41,7 +43,7 @@ private:
 	/*	@brief Initialize StApi */
 	CStApiAutoInit m_stApiAutoInit;
 	/*  @brief Print the status of all GigE Workers. */
-    CIStSystemPtr m_pSystem;
+	CIStSystemPtr m_pSystem;
 	/*	@brief vector of GigECamera objects representing the GigE cameras. */
 	std::vector<std::shared_ptr<GigECamera>> m_cameras;
 	/*	@brief Map of GigECamera objects indexed by camera name. */
@@ -55,13 +57,20 @@ private:
 	std::string m_strRootDir;
 
 	/*	@brief Frame queue for managing image frames. */
-	std::shared_ptr<ThreadSafeQueue<FrameData>> m_pFrameQueue;
-	/* @brief CVMat queue for managing OpenCV Mat images. */ 
-	std::shared_ptr<ThreadSafeQueue<cv::Mat>> m_pCVMatQueue;
+	std::shared_ptr<YCQueue<FrameData>> m_pFrameQueue;
+	/* @brief CVMat queue for managing OpenCV Mat images. */
+	//std::shared_ptr<YCQueue<cv::Mat>> m_pCVMatQueue;
 	/*	@brief Thread pool for saving images. */
 	std::shared_ptr<ImageSaverThreadPool> m_pImageSaverThreadPool;
 	/*	@brief Path queue for managing paths for communicate with other processes. */
-	std::shared_ptr<ThreadSafeQueue<std::string>> m_pPathQueue;
+	std::shared_ptr<YCQueue<std::string>> m_pPathQueue;
+	std::shared_ptr<LCP24100SS> m_LCP24100SS;
+	std::shared_ptr<LCP100DC> m_LCP100DC;
 	/*	@brief Logger thread for logging messages. */
-	std::shared_ptr<Logger> m_logger;
+	std::shared_ptr<CamLogger> m_logger;
+
+	std::shared_ptr<YCQueue<cv::Mat>> m_pSleeveACameraQueue;
+	std::shared_ptr<YCQueue<cv::Mat>> m_pEndoscopeSideCameraQueue;
+	std::shared_ptr<YCQueue<cv::Mat>> m_pEndoscopeRobotCameraQueue;
+	std::shared_ptr<YCQueue<cv::Mat>> m_pEndoscopeRobotEndoscopeCameraQueue;
 };

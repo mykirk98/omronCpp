@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <queue>
 #include <mutex>
@@ -18,14 +18,14 @@ struct FrameData
 };
 
 template <typename T>
-class ThreadSafeQueue
+class YCQueue
 {
 public:
-	ThreadSafeQueue()
+	YCQueue()
 	{
 	}
 
-	~ThreadSafeQueue()
+	~YCQueue()
 	{
 	}
 
