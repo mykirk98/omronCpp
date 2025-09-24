@@ -38,6 +38,7 @@ bool GigEManager::Initialize()
         m_pImageSaverThreadPool->Start();
 
         m_pSystem = CreateIStSystem(StSystemVendor_Default, StInterfaceType_GigEVision);
+		// Initialize all interfaces and cameras
         for (uint32_t ifaceIdx = 0; ifaceIdx < m_pSystem->GetInterfaceCount(); ++ifaceIdx)
         {
             IStInterface* pInterface = m_pSystem->GetIStInterface(ifaceIdx);
@@ -50,6 +51,7 @@ bool GigEManager::Initialize()
                 {
                     const std::string& cameraName = camera->GetUserDefinedName();    //TODO:             cameraName                     Ȯ    ʿ 
                     camera->SetFrameQueue(m_pFrameQueue);
+
                     if (cameraName == "Sleeve_A_Camera")
                     {
 						camera->SetCVMatQueue(m_pSleeveACameraQueue);
@@ -66,6 +68,7 @@ bool GigEManager::Initialize()
                     {
                         camera->SetCVMatQueue(m_pEndoscopeRobotEndoscopeCameraQueue);
                     }
+
                     m_cameras.push_back(camera);
                     m_cameraMap[cameraName] = camera;
                 }
@@ -78,6 +81,7 @@ bool GigEManager::Initialize()
         }
         m_logger->Log("[GigEManager] Total " + std::to_string(m_cameras.size()) + " cameras initialized.");
 
+		// Initialize LCP24100SS light controller
         if (m_LCP24100SS->open("/dev/ttyUSB0", 19200))
         {
             for (char ch = '1'; ch <= '6'; ++ch)
@@ -98,6 +102,7 @@ bool GigEManager::Initialize()
             m_logger->Log("[GigEManager] Failed to open LCP24100SS on /dev/ttyUSB0");
         }
 
+		// Initialize LCP100DC light controller
         if (m_LCP100DC->open("/dev/ttyUSB1", 19200))
         {
             m_LCP100DC->setBrightness('1', 50);

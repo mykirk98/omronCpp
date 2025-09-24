@@ -28,9 +28,10 @@ void GigEUtil::UpdateDeviceIPAddress(IStInterface* pInterface, uint32_t deviceIn
 	std::string strInput;
 
 	std::unordered_map<std::string, std::pair<std::string, std::string>> cameraMap = {
-		{"24K9080", {"192.168.6.16", "Endoscope_Side_Camera"}},
-		{"23F8383", {"192.168.7.17", "Endoscope_Robot_Endoscope_Camera"}},
-		{"25E9152", {"192.168.5.15", "Endoscope_Robot_Camera"}},
+		{"25J7712", {"192.168.6.16", "Endoscope_Side_Camera"}},
+		{"25A9284", {"192.168.7.17", "Endoscope_Robot_Endoscope_Camera"}},
+		{"25G8727", {"192.168.5.15", "Endoscope_Robot_Camera"}},
+		{"25J7723", {"192.168.5.18", "Sleeve_A_Camera"}},
 		{"25C7812", {"192.168.0.31", "12MP_1"}},
 		{"25E9151", {"192.168.0.21", "12MP_2"}},
 		{"25C7667", {"192.168.0.41", "5MP_1"}},
