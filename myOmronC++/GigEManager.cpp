@@ -217,6 +217,23 @@ void GigEManager::TriggerSingle(const std::string& cameraName)
     }
 }
 
+void GigEManager::TriggerSingle(const std::string& camneraName, const std::string detailInfo)
+{
+    if (detailInfo != "TOP" && detailInfo != "BOTTOM" &&
+        detailInfo != "1" && detailInfo != "2" && detailInfo != "3" && detailInfo != "4" && detailInfo != "5" &&
+		detailInfo != "6" && detailInfo != "7" && detailInfo != "8" && detailInfo != "9" && detailInfo != "10")
+    {
+        m_logger->Log("[GigEManager] Invalid detail info: " + detailInfo);
+        return;
+	}
+
+    std::map<std::string, std::shared_ptr<GigECamera>>::iterator it = m_cameraMap.find(camneraName);
+    if (it != m_cameraMap.end())
+    {
+        it->second->ExecuteTrigger(detailInfo);
+    }
+}
+
 std::shared_ptr<YCQueue<cv::Mat>> GigEManager::GetSleeveACameraQueue()
 {
     return m_pSleeveACameraQueue;
@@ -255,11 +272,8 @@ int main()
 {
     std::shared_ptr<YCQueue<std::string>> pathQueue = std::make_shared<YCQueue<std::string>>();
     //std::shared_ptr<PathQueue> pathQueue = std::make_shared<PathQueue>();
-    std::string saveRootDir = "C:\\Users\\mykir\\Work\\Experiments\\"; // NOTE: LAB WINDOWS PC DIRECTORY
-    //std::string saveRootDir = "C:\\Users\\USER\\Pictures\\"; // NOTE: HOME PC DIRECTORY
-    //std::string saveRootDir = "/home/msis/Pictures/SentechExperiments/Experiments1/"; // NOTE: LAB LINUX PC DIRECTORY
-    //GigEManager manager(saveRootDir, pathQueue);
-    GigEManager manager(saveRootDir);
+    //GigEManager manager(DEVELOPMENT_PC_DIRECTORY, pathQueue);
+    GigEManager manager(DEVELOPMENT_PC_DIRECTORY);
 
     if (!manager.Initialize())
     {

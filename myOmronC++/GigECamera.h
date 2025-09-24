@@ -39,6 +39,9 @@ public:
 	void FreeRunCapture();
 	/* @brief 소프트웨어 트리거 실행 */
 	void ExecuteTrigger();
+	/* @brief 소프트웨어 트리거 실행 (상세 정보 포함)
+	@param detailInfo 이미지 저장 시 사용할 상세 정보 (예: "TOP", "BOTTOM", "hole1", ..., "hole10") */
+	void ExecuteTrigger(const std::string& detailInfo);
 
 	/* @brief 프레임 큐 설정
 	@param pFrameQueue 프레임 데이터를 위한 YCQueue 포인터 */
@@ -70,6 +73,7 @@ private:
 	std::string m_strRootDir;
 	std::string m_strSerialNumber;
 	std::string m_strUDFName;
+	std::string m_strDetailInfo; // detail information for saving images (e.g., "TOP", "BOTTOM", "hole1", ..., "hole10")
 
 	std::shared_ptr<CamLogger> m_logger; // Logger for logging camera events
 };

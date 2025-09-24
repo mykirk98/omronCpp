@@ -3,6 +3,7 @@
 GigECamera::GigECamera(std::string rootDir, std::shared_ptr<CamLogger> logger)
 	: m_pInterface(nullptr)
 	, m_strRootDir(rootDir)
+	, m_strDetailInfo("")
 	, pICommandTriggerSoftware(nullptr)
 	, m_strSerialNumber("")
 	, m_strUDFName("")
@@ -123,6 +124,19 @@ void GigECamera::ExecuteTrigger()
 	pICommandTriggerSoftware->Execute();
 }
 
+void GigECamera::ExecuteTrigger(const std::string& detailInfo)
+{
+	pICommandTriggerSoftware->Execute();
+	if (detailInfo == "TOP" || detailInfo == "BOTTOM")
+	{
+		m_strDetailInfo = detailInfo;
+	}
+	else
+	{
+		m_strDetailInfo = "hole" + detailInfo;	// i.e., "hole1", "hole2", ..., "hole10"
+	}
+}
+
 void GigECamera::SetFrameQueue(std::shared_ptr<YCQueue<FrameData>> pFrameQueue)
 {
 	m_pFrameQueue = pFrameQueue;
@@ -184,7 +198,16 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 				frame.pImage = pImage;
 				frame.serialNumber = GetSerialNumber();
 				frame.frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
-				frame.cameraName = GetUserDefinedName();
+				if (m_strDetailInfo == "")
+				{
+					frame.cameraName = GetUserDefinedName();
+				}
+				else
+				{
+					frame.cameraName = GetUserDefinedName() + "/" + m_strDetailInfo;
+					m_strDetailInfo = ""; // reset after using
+				}
+				//frame.cameraName = GetUserDefinedName();
 				frame.isMono = pPixelFormatInfo->IsMono();
 
 				// Push the frame data into the frame queue for further processing.

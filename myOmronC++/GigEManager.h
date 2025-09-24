@@ -30,11 +30,15 @@ public:
 	/*  @brief Trigger all GigE Workers to capture an image. */
 	//void TriggerAll();		//TODO: Later, PTP support for parallel triggering
 	/*	@brief Trigger single GigE Worker by index.
-	@param index The index of the GigE Worker to trigger. */
+	@param index The index of the GigE camera by index. */
 	void TriggerSingle(int index);
-	/*	@brief Trigger single GigE Worker by camera name.
+	/*	@brief Trigger single GigE camera by camera name.
 	@param cameraName The name of the camera to trigger. */
 	void TriggerSingle(const std::string& cameraName);
+	/* @brief Trigger single GigE camera by camera name
+	@param cameraName The name of the camera to trigger.
+	@param detailInfo Additional info for saving images (e.g., "TOP", "BOTTOM", "hole1", ..., "hole10") */
+	void TriggerSingle(const std::string& cameraName, const std::string detailInfo);
 
 	/* @brief Get the Sleeve A Camera queue */
 	std::shared_ptr<YCQueue<cv::Mat>> GetSleeveACameraQueue();
