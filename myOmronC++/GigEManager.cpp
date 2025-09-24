@@ -6,7 +6,6 @@ GigEManager::GigEManager(std::string rootDir)
 {
     m_logger = std::make_shared<CamLogger>();
     m_pFrameQueue = std::make_shared<YCQueue<FrameData>>();
-    //m_pCVMatQueue = std::make_shared<YCQueue<cv::Mat>>();
     m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strRootDir, m_pFrameQueue, m_pPathQueue, m_logger);
 }
 
@@ -14,7 +13,6 @@ GigEManager::GigEManager(std::string saveRootDir, std::shared_ptr<YCQueue<std::s
     : m_strRootDir(saveRootDir)
     , m_running(false)
     , m_pPathQueue(pathQueue)
-    //, m_pCVMatQueue(pCVMatQueue)
 	, m_pSleeveACameraQueue(std::make_shared<YCQueue<cv::Mat>>())
 	, m_pEndoscopeSideCameraQueue(std::make_shared<YCQueue<cv::Mat>>())
 	, m_pEndoscopeRobotCameraQueue(std::make_shared<YCQueue<cv::Mat>>())
@@ -22,7 +20,6 @@ GigEManager::GigEManager(std::string saveRootDir, std::shared_ptr<YCQueue<std::s
 {
     m_logger = std::make_shared<CamLogger>();
     m_pFrameQueue = std::make_shared<YCQueue<FrameData>>();
-    // m_pCVMatQueue = std::make_shared<YCQueue<cv::Mat>>();       //TODO: 이 코드 없애고, GigEManager 외부에서 객체를 만들어서 주입하는 방식으로 변경
     m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(2, m_strRootDir, m_pFrameQueue, m_pPathQueue, m_logger);
     m_LCP24100SS = std::make_shared<LCP24100SS>();
     m_LCP100DC = std::make_shared<LCP100DC>();
@@ -213,6 +210,26 @@ void GigEManager::TriggerSingle(const std::string& cameraName)
     {
         m_logger->Log("[GigEManager] Camera not found: " + cameraName);
     }
+}
+
+std::shared_ptr<YCQueue<cv::Mat>> GigEManager::GetSleeveACameraQueue()
+{
+    return m_pSleeveACameraQueue;
+}
+
+std::shared_ptr<YCQueue<cv::Mat>> GigEManager::GetEndoscopeSideCameraQueue()
+{
+    return m_pEndoscopeSideCameraQueue;
+}
+
+std::shared_ptr<YCQueue<cv::Mat>> GigEManager::GetEndoscopeRobotCameraQueue()
+{
+    return m_pEndoscopeRobotCameraQueue;
+}
+
+std::shared_ptr<YCQueue<cv::Mat>> GigEManager::GetEndoscopeRobotEndoscopeCameraQueue()
+{
+    return m_pEndoscopeRobotEndoscopeCameraQueue;
 }
 
 void GigEManager::CameraLoop(std::shared_ptr<GigECamera> camera)

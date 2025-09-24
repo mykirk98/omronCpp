@@ -36,6 +36,15 @@ public:
 	@param cameraName The name of the camera to trigger. */
 	void TriggerSingle(const std::string& cameraName);
 
+	/* @brief Get the Sleeve A Camera queue */
+	std::shared_ptr<YCQueue<cv::Mat>> GetSleeveACameraQueue();
+	/* @brief Get the Endoscope Side Camera queue */
+	std::shared_ptr<YCQueue<cv::Mat>> GetEndoscopeSideCameraQueue();
+	/* @brief Get the Endoscope Robot Camera queue */
+	std::shared_ptr<YCQueue<cv::Mat>> GetEndoscopeRobotCameraQueue();
+	/* @brief Get the Endoscope Robot-Endoscope Camera queue */
+	std::shared_ptr<YCQueue<cv::Mat>> GetEndoscopeRobotEndoscopeCameraQueue();
+
 protected:
 
 private:
