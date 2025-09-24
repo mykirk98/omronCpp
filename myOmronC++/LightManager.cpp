@@ -133,6 +133,10 @@ std::shared_ptr<ILightController> LightManager::get(const std::string& id)
 }
 
 /* 
+#include "LightManager.h"
+#include "LCP100DCAdapter.h"
+#include "LCP24100SSAdapter.h"
+
 int main()
 {
     LightManager mgr;

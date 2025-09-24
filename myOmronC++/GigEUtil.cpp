@@ -1,4 +1,4 @@
-#include "GigEUtil.h"
+Ôªø#include "GigEUtil.h"
 
 void GigEUtil::UpdateDeviceIPAddress(IStInterface* pInterface, uint32_t deviceIndex, std::string& userDefinedName, std::shared_ptr<Logger> logger)
 {
@@ -27,21 +27,7 @@ void GigEUtil::UpdateDeviceIPAddress(IStInterface* pInterface, uint32_t deviceIn
 
 	std::string strInput;
 
-	std::unordered_map<std::string, std::pair<std::string, std::string>> cameraMap = {
-		{"24K9080", {"192.168.6.16", "Endoscope_Side_Camera"}},
-		{"23F8383", {"192.168.7.17", "Endoscope_Robot_Endoscope_Camera"}},
-		{"25E9152", {"192.168.5.15", "Endoscope_Robot_Camera"}},
-		{"25C7812", {"192.168.0.31", "12MP_1"}},
-		{"25E9151", {"192.168.0.21", "12MP_2"}},
-		{"25C7667", {"192.168.0.41", "5MP_1"}},
-		{"25A8829", {"192.168.0.42", "5MP_2"}},
-		{"25C7669", {"192.168.0.43", "5MP_3"}},
-		{"25AA120", {"192.168.0.44", "5MP_4"}},
-		{"23F8382", {"192.168.0.51", "2MP_1"}},
-		{"25A9284", {"192.168.0.52", "2MP_2"}}
-	};
-
-	std::unordered_map<std::string, std::pair<std::string, std::string>>::iterator it = cameraMap.find(serialNumber.c_str());
+	std::unordered_map<std::string, std::pair<std::string, std::string>>::const_iterator it = cameraMap.find(serialNumber.c_str());
 	if (it != cameraMap.end())
 	{
 		strInput = it->second.first;
@@ -64,7 +50,7 @@ void GigEUtil::UpdateDeviceIPAddress(IStInterface* pInterface, uint32_t deviceIn
 		nNewDeviceIPAddress = ntohl(nNewDeviceIPAddress);
 	}
 #else
-	// POSIX Ω√Ω∫≈€ (Linux µÓ)ø°º≠¥¬ inet_addr() + ntohl() ªÁøÎ
+	// POSIX ÏãúÏä§ÌÖú (Linux Îì±)ÏóêÏÑúÎäî inet_addr() + ntohl() ÏÇ¨Ïö©
 	uint32_t nNewDeviceIPAddress = ntohl(inet_addr(strInput.c_str()));
 #endif
 
