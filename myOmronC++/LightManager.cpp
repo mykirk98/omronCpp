@@ -133,6 +133,10 @@ std::shared_ptr<ILightController> LightManager::get(const std::string& id)
 }
 
 /* 
+#include "LightManager.h"
+#include "LCP100DCAdapter.h"
+#include "LCP24100SSAdapter.h"
+
 int main()
 {
     LightManager mgr;
@@ -153,7 +157,7 @@ int main()
     // 제어
     mgr.setBrightness("light1", '1', 80);
     mgr.trigger("light2", '1', 5.0);
-    mgr.trigger("light1", '1', 20.0);
+	mgr.trigger("light1", '1', 20.0);
 
     // 닫기
     mgr.closeAll();

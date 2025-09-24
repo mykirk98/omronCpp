@@ -49,7 +49,7 @@ bool GigEManager::Initialize()
                 std::shared_ptr<GigECamera> camera = std::make_shared<GigECamera>(m_strRootDir, m_logger);
                 if (camera->Initialize(pInterface, deviceIdx))
                 {
-                    const std::string& cameraName = camera->GetUserDefinedName();    //TODO:             cameraName                     Ȯ    ʿ 
+                    const std::string& cameraName = camera->GetUserDefinedName();
                     camera->SetFrameQueue(m_pFrameQueue);
 
                     if (cameraName == "Sleeve_A_Camera")
