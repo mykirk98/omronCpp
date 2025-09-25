@@ -131,7 +131,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Experiments.cpp" />
+    <ClCompile Include="Experiments.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="LCP100DC.cpp" />
     <ClCompile Include="LCP24100SS.cpp" />
     <ClCompile Include="LightFactory.cpp" />
@@ -139,7 +141,7 @@
     <ClCompile Include="CamLogger.cpp" />
     <ClCompile Include="NodeMapUtil.cpp" />
     <ClCompile Include="BasicCamera.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="GigECamera.cpp" />
     <ClCompile Include="GigEUtil.cpp" />
@@ -165,7 +167,7 @@
     <ClInclude Include="CamLogger.h" />
     <ClInclude Include="NodeMapUtil.h" />
     <ClInclude Include="BasicCamera.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="GigECamera.h" />
     <ClInclude Include="GigEUtil.h" />

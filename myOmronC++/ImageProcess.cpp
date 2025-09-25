@@ -1,4 +1,4 @@
-#include "ImageProcess.h"
+﻿#include "ImageProcess.h"
 
 std::string ImageProcess::PrintFrameInfo(const CIStStreamBufferPtr& pStreamBuffer, std::string userDefinedName)
 {
@@ -18,18 +18,23 @@ std::string ImageProcess::PrintFrameInfo(const CIStStreamBufferPtr& pStreamBuffe
 	}
 }
 
-GenICam::gcstring ImageProcess::SetSavePath(const std::string& baseDir, const std::string& cameraName, const std::string& serialNumber, const uint64_t frameID)
+GenICam::gcstring ImageProcess::SetSavePath(const std::string& baseDir, const std::string& cameraName, const std::string& detailInfo, const uint64_t frameID)
 {
 	try
 	{
 		// Change frameID to string
 		std::string strFrameID = std::to_string(frameID);
 
-#ifdef _WIN32
-		std::string filePath = baseDir + cameraName + "\\" + serialNumber + "-" + strFrameID;
-#else
-		std::string filePath = baseDir + cameraName + "/" + serialNumber + "-" + strFrameID;
-#endif
+		std::string filePath;
+		// if detail info is not empty, use make child folder with detail info
+		if (!detailInfo.empty())
+		{
+			filePath = baseDir + cameraName + "/" + detailInfo + "/" + detailInfo + "-" + strFrameID;
+		}
+		else
+		{
+			filePath = baseDir + cameraName + "/" + strFrameID;
+		}
 
 		return GenICam::gcstring(filePath.c_str());
 	}

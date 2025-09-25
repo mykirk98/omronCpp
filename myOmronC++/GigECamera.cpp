@@ -196,19 +196,22 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 
 				FrameData frame;
 				frame.pImage = pImage;
-				frame.serialNumber = GetSerialNumber();
+				//frame.serialNumber = GetSerialNumber();
+				frame.detailInfo = m_strDetailInfo;	// "TOP", "BOTTOM", "hole1", ..., "hole10"
 				frame.frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
-				if (m_strDetailInfo == "")
-				{
-					frame.cameraName = GetUserDefinedName();
-				}
-				else
-				{
-					frame.cameraName = GetUserDefinedName() + "/" + m_strDetailInfo;
-					m_strDetailInfo = ""; // reset after using
-				}
-				//frame.cameraName = GetUserDefinedName();
+				//if (m_strDetailInfo == "")
+				//{
+				//	frame.cameraName = GetUserDefinedName();
+				//}
+				//else
+				//{
+				//	frame.cameraName = GetUserDefinedName() + "/" + m_strDetailInfo;
+				//	m_strDetailInfo = ""; // reset after using
+				//}
+				frame.cameraName = GetUserDefinedName();
 				frame.isMono = pPixelFormatInfo->IsMono();
+
+				m_strDetailInfo = ""; // reset after using
 
 				// Push the frame data into the frame queue for further processing.
 				if (m_pFrameQueue)

@@ -11,7 +11,8 @@ using namespace StApi;
 struct FrameData
 {
 	IStImage* pImage = nullptr;
-	std::string serialNumber;
+	//std::string serialNumber;
+	std::string detailInfo;
 	uint64_t frameID = 0;
 	std::string cameraName;
 	bool isMono = false;

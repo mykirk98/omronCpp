@@ -1,4 +1,4 @@
-#include "BasicCamera.h"
+ï»¿#include "BasicCamera.h"
 
 inline long long now_ns()
 {
@@ -105,7 +105,7 @@ void BasicCamera::FreeRunCapture1()
 {
 	while (m_pDataStream->IsGrabbing())
 	{
-		// ÇÁ·¹ÀÓ ¼ö½Å ´ë±â Å¸ÀÓ½ºÅÆÇÁ
+		// í”„ë ˆìž„ ìˆ˜ì‹  ëŒ€ê¸° íƒ€ìž„ìŠ¤íƒ¬í”„
 		const long long t_before_acq = now_ns();
 		// Retrieve the buffer pointer of image data with a timeout of 5000ms.
 		CIStStreamBufferPtr pStreamBuffer(m_pDataStream->RetrieveBuffer(5000));

@@ -13,10 +13,10 @@ GigEManager::GigEManager(std::string saveRootDir, std::shared_ptr<YCQueue<std::s
     : m_strRootDir(saveRootDir)
     , m_running(false)
     , m_pPathQueue(pathQueue)
-	, m_pSleeveACameraQueue(std::make_shared<YCQueue<cv::Mat>>())
-	, m_pEndoscopeSideCameraQueue(std::make_shared<YCQueue<cv::Mat>>())
-	, m_pEndoscopeRobotCameraQueue(std::make_shared<YCQueue<cv::Mat>>())
-	, m_pEndoscopeRobotEndoscopeCameraQueue(std::make_shared<YCQueue<cv::Mat>>())
+    , m_pSleeveACameraQueue(std::make_shared<YCQueue<cv::Mat>>())
+    , m_pEndoscopeSideCameraQueue(std::make_shared<YCQueue<cv::Mat>>())
+    , m_pEndoscopeRobotCameraQueue(std::make_shared<YCQueue<cv::Mat>>())
+    , m_pEndoscopeRobotEndoscopeCameraQueue(std::make_shared<YCQueue<cv::Mat>>())
 {
     m_logger = std::make_shared<CamLogger>();
     m_pFrameQueue = std::make_shared<YCQueue<FrameData>>();
@@ -38,7 +38,7 @@ bool GigEManager::Initialize()
         m_pImageSaverThreadPool->Start();
 
         m_pSystem = CreateIStSystem(StSystemVendor_Default, StInterfaceType_GigEVision);
-		// Initialize all interfaces and cameras
+        // Initialize all interfaces and cameras
         for (uint32_t ifaceIdx = 0; ifaceIdx < m_pSystem->GetInterfaceCount(); ++ifaceIdx)
         {
             IStInterface* pInterface = m_pSystem->GetIStInterface(ifaceIdx);
@@ -54,7 +54,7 @@ bool GigEManager::Initialize()
 
                     if (cameraName == "Sleeve_A_Camera")
                     {
-						camera->SetCVMatQueue(m_pSleeveACameraQueue);
+                        camera->SetCVMatQueue(m_pSleeveACameraQueue);
                     }
                     else if (cameraName == "Endoscope_Side_Camera")
                     {
@@ -81,7 +81,7 @@ bool GigEManager::Initialize()
         }
         m_logger->Log("[GigEManager] Total " + std::to_string(m_cameras.size()) + " cameras initialized.");
 
-		// Initialize LCP24100SS light controller
+        // Initialize LCP24100SS light controller
         if (m_LCP24100SS->open("/dev/ttyUSB0", 19200))
         {
             for (char ch = '1'; ch <= '6'; ++ch)
@@ -102,7 +102,7 @@ bool GigEManager::Initialize()
             m_logger->Log("[GigEManager] Failed to open LCP24100SS on /dev/ttyUSB0");
         }
 
-		// Initialize LCP100DC light controller
+        // Initialize LCP100DC light controller
         if (m_LCP100DC->open("/dev/ttyUSB1", 19200))
         {
             m_LCP100DC->setBrightness('1', 50);
@@ -217,20 +217,37 @@ void GigEManager::TriggerSingle(const std::string& cameraName)
     }
 }
 
-void GigEManager::TriggerSingle(const std::string& camneraName, const std::string detailInfo)
+void GigEManager::TriggerSingle(const std::string& cameraName, const std::string detailInfo)
 {
-    if (detailInfo != "TOP" && detailInfo != "BOTTOM" &&
+    if (detailInfo != "TOP" && detailInfo != "BOTTOM" && detailInfo != "TAP" &&
         detailInfo != "1" && detailInfo != "2" && detailInfo != "3" && detailInfo != "4" && detailInfo != "5" &&
-		detailInfo != "6" && detailInfo != "7" && detailInfo != "8" && detailInfo != "9" && detailInfo != "10")
+        detailInfo != "6" && detailInfo != "7" && detailInfo != "8" && detailInfo != "9" && detailInfo != "10")
     {
         m_logger->Log("[GigEManager] Invalid detail info: " + detailInfo);
         return;
-	}
+    }
 
-    std::map<std::string, std::shared_ptr<GigECamera>>::iterator it = m_cameraMap.find(camneraName);
+    std::map<std::string, std::shared_ptr<GigECamera>>::iterator it = m_cameraMap.find(cameraName);
     if (it != m_cameraMap.end())
     {
         it->second->ExecuteTrigger(detailInfo);
+
+        if (cameraName == "Endoscope_Robot_Camera")
+        {
+            m_LCP24100SS->trigger('1');
+            m_LCP24100SS->trigger('2');
+            m_LCP24100SS->trigger('3');
+            m_LCP24100SS->trigger('4');
+            m_LCP24100SS->trigger('5');
+        }
+        else if (cameraName == "Endoscope_Side_Camera")
+        {
+            m_LCP24100SS->trigger('6');
+        }
+        else if (cameraName == "Sleeve_A_Camera")
+        {
+            m_LCP100DC->trigger_ms('1', 100); // Channel 1, ON for 100 ms
+        }
     }
 }
 

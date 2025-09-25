@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <StApi_TL.h>
 #include <StApi_IP.h>
 #include <opencv2/opencv.hpp>
@@ -47,10 +47,10 @@ public:
 	/*	@brief Set the save path for the image
 	@param baseDir : Base directory where images will be saved
 	@param cameraName : Name of the camera
-	@param serialNumber : Serial number of the camera
+	@param detailInfo : Serial number of the camera
 	@param frameID : Frame ID of the image to be saved
 	@return : Returns the full path where the image will be saved */
-	static GenICam::gcstring SetSavePath(const std::string& baseDir, const std::string& cameraName, const std::string& serialNumber, const uint64_t frameID);
+	static GenICam::gcstring SetSavePath(const std::string& baseDir, const std::string& cameraName, const std::string& detailInfo, const uint64_t frameID);
 	/*	@brief Convert pixel format of the image to the buffer
 	@param pSrcImage : Source image pointer to be converted
 	@param isMono : Flag indicating if the image is monochrome
