@@ -215,7 +215,7 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 					m_pFrameQueue->Push(frame);
 
 				Mat mat = ImageProcess::ConvertToMat(pImage);
-				if (m_pCVMatQueue && m_strUDFName == "Sleeve_A_Camera")
+				if (m_pCVMatQueue)
 				{
 					m_pCVMatQueue->Push(mat);
 				}
