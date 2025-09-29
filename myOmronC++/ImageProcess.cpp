@@ -26,14 +26,17 @@ GenICam::gcstring ImageProcess::SetSavePath(const std::string& baseDir, const st
 		std::string strFrameID = std::to_string(frameID);
 
 		std::string filePath;
+
+
+
 		// if detail info is not empty, use make child folder with detail info
 		if (!detailInfo.empty())
 		{
-			filePath = baseDir + cameraName + "/" + detailInfo + "/" + detailInfo + "-" + strFrameID;
+			filePath = baseDir + cameraName + "/" + detailInfo + "/images/frame-" + strFrameID;
 		}
 		else
 		{
-			filePath = baseDir + cameraName + "/" + strFrameID;
+			filePath = baseDir + cameraName + "/images/frame-" + strFrameID;
 		}
 
 		return GenICam::gcstring(filePath.c_str());

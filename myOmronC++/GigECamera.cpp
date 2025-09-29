@@ -127,14 +127,15 @@ void GigECamera::ExecuteTrigger()
 void GigECamera::ExecuteTrigger(const std::string& detailInfo)
 {
 	pICommandTriggerSoftware->Execute();
-	if (detailInfo == "TOP" || detailInfo == "BOTTOM")
-	{
-		m_strDetailInfo = detailInfo;
-	}
-	else
-	{
-		m_strDetailInfo = "hole" + detailInfo;	// i.e., "hole1", "hole2", ..., "hole10"
-	}
+	//if (detailInfo == "TOP" || detailInfo == "BOTTOM")
+	//{
+	//	m_strDetailInfo = detailInfo;
+	//}
+	//else
+	//{
+	//	m_strDetailInfo = detailInfo;	// i.e., "hole1", "hole2", ..., "hole10"
+	//}
+	m_strDetailInfo = detailInfo;
 }
 
 void GigECamera::SetFrameQueue(std::shared_ptr<YCQueue<FrameData>> pFrameQueue)

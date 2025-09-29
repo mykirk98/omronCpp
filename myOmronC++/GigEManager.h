@@ -38,7 +38,7 @@ public:
 	/* @brief Trigger single GigE camera by camera name
 	@param cameraName The name of the camera to trigger.
 	@param detailInfo Additional info for saving images (e.g., "TOP", "BOTTOM", "hole1", ..., "hole10") */
-	void TriggerSingle(const std::string& cameraName, const std::string detailInfo);
+	void TriggerSingle(const std::string& cameraName, const std::string detailInfo, bool isTAP = false);
 
 	/* @brief Get the Sleeve A Camera queue */
 	std::shared_ptr<YCQueue<cv::Mat>> GetSleeveACameraQueue();

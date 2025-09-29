@@ -68,20 +68,13 @@ void ImageSaverThreadPool::WorkerLoop()
 				CIStImageBufferPtr pBuffer(CreateIStImageBuffer());
 				ImageProcess::ConvertPixelFormat(frame.pImage, frame.isMono, pBuffer);
 				GenICam::gcstring savePath = ImageProcess::SetSavePath(m_strRootDir, frame.cameraName, frame.detailInfo, frame.frameID);
-				//ImageProcess::SaveImage<BMP>(pBuffer, savePath);
 				ImageProcess::SaveImage<BMP>(pBuffer, savePath);
-				// ImageProcess::SaveImage<JPEG>(pBuffer, savePath);
 
 				m_logger->Log("[ImageSaverThreadPool] Saved: " + std::string(savePath) + "\t after Queue size:" + std::to_string(m_pFrameQueue->Size()) + "\ttime: " + std::to_string(std::chrono::system_clock::now().time_since_epoch().count()));
 
 				// Notify the path queue that a new path has been added
 				if (m_pPathQueue)
 				{
-					//// if cameraName contains "/", remove after "/"
-					//if (frame.cameraName.find("/") != std::string::npos)
-					//{
-					//	frame.cameraName = frame.cameraName.substr(0, frame.cameraName.find("/"));
-					//}
 					std::string fullMessage = frame.cameraName + " :" + std::string(savePath.c_str());
 					m_pPathQueue->Push(fullMessage);
 					m_logger->Log("[ImageSaverThreadPool] Send path to GUI by queue: " + fullMessage);

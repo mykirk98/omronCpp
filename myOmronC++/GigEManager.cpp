@@ -217,9 +217,9 @@ void GigEManager::TriggerSingle(const std::string& cameraName)
     }
 }
 
-void GigEManager::TriggerSingle(const std::string& cameraName, const std::string detailInfo)
+void GigEManager::TriggerSingle(const std::string& cameraName, const std::string detailInfo, bool isTAP)
 {
-    if (detailInfo != "TOP" && detailInfo != "BOTTOM" && detailInfo != "TAP" &&
+    if (detailInfo != "TOP" && detailInfo != "BOTTOM" &&
         detailInfo != "1" && detailInfo != "2" && detailInfo != "3" && detailInfo != "4" && detailInfo != "5" &&
         detailInfo != "6" && detailInfo != "7" && detailInfo != "8" && detailInfo != "9" && detailInfo != "10")
     {
@@ -230,7 +230,14 @@ void GigEManager::TriggerSingle(const std::string& cameraName, const std::string
     std::map<std::string, std::shared_ptr<GigECamera>>::iterator it = m_cameraMap.find(cameraName);
     if (it != m_cameraMap.end())
     {
-        it->second->ExecuteTrigger(detailInfo);
+        if (isTAP)
+        {
+            it->second->ExecuteTrigger("TAP/" + detailInfo);
+        }
+		else
+        {
+            it->second->ExecuteTrigger(detailInfo);
+        }
 
         if (cameraName == "Endoscope_Robot_Camera")
         {
