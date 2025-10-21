@@ -1,4 +1,4 @@
-#include "NodeMapUtil.h"
+﻿#include "NodeMapUtil.h"
 
 void NodeMapUtil::DisplayNodes(CNodePtr pINode)
 {
@@ -40,7 +40,7 @@ void NodeMapUtil::DisplayNodes(CNodePtr pINode)
 	}
 }
 
-void NodeMapUtil::Save(const CIStDevicePtr& device, const std::string& dstDir)
+void NodeMapUtil::SaveNodeMap(const CIStDevicePtr& device, const std::string& dstDir)
 {
 	try
 	{
@@ -63,7 +63,7 @@ void NodeMapUtil::Save(const CIStDevicePtr& device, const std::string& dstDir)
 	}
 }
 
-void NodeMapUtil::Load(const CIStDevicePtr& device, const std::string& srcDir)
+void NodeMapUtil::LoadNodeMap(const CIStDevicePtr& device, const std::string& srcDir)
 {
 	try
 	{

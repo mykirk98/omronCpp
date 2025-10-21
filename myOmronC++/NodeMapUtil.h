@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "config.h"
 
 #include <StApi_TL.h>
@@ -19,11 +19,11 @@ public:
 	/* @brief Save the current state of the node map to a directory
 	@param device : Pointer to the device whose node map is to be saved
 	@param dstDir : Directory where the node map will be saved */
-	static void Save(const CIStDevicePtr& device, const std::string& dstDir);
+	static void SaveNodeMap(const CIStDevicePtr& device, const std::string& dstDir);
 	/* @brief Load the node map from a directory
 	@param device : Pointer to the device whose node map is to be loaded
 	@param srcDir : Directory from which the node map will be loaded */
-	static void Load(const CIStDevicePtr& device, const std::string& srcDir);
+	static void LoadNodeMap(const CIStDevicePtr& device, const std::string& srcDir);
 	/* @brief Set the value of a node in the node map
 	@param pInodeMap : Pointer to the node map
 	@param szEnumerationName : Name of the enumeration node
