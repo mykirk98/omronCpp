@@ -30,7 +30,7 @@ bool GigECamera::Initialize(IStInterface* pInterface, uint32_t iFaceDeviceIdx)
 		for (size_t i = 0; i < 30; ++i)
 		{
 #ifdef _WIN32
-			Sleep(1000);  // 1000 ms
+			Sleep(100);  // 1000 ms
 #else
 			usleep(1000 * 1000);  // 1000 * 1000 us
 #endif
@@ -46,6 +46,18 @@ bool GigECamera::Initialize(IStInterface* pInterface, uint32_t iFaceDeviceIdx)
 			throw RUNTIME_EXCEPTION("A device with an IP address of %s could not be found.", pGevDeviceForceIPAddress->ToString().c_str());
 		}
 		m_logger->Log("Device " + std::to_string(iFaceDeviceIdx) + " : " + std::string(m_pDevice->GetIStDeviceInfo()->GetDisplayName()) + " connected." + " User define name is \"" + GetUserDefinedName() + "\"");
+
+		// Load camera configuration from file
+		std::unordered_map<std::string, std::string>::const_iterator it = cameraConfigMap.find(m_strUDFName);
+		if (it != cameraConfigMap.end())
+		{
+			NodeMapUtil::LoadNodeMap(m_pDevice, it->second);
+			m_logger->Log("[" + m_strUDFName + "] Camera configuration loaded from " + it->second);
+		}
+		else
+		{
+			m_logger->Log("[" + m_strUDFName + "] No camera configuration file found.");
+		}
 
 		m_strSerialNumber = m_pDevice->GetIStDeviceInfo()->GetSerialNumber().c_str();
 		// Get the INodeMap interface pointer for the camera settings.

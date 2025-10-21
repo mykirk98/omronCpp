@@ -6,7 +6,7 @@ GigEManager::GigEManager(std::string rootDir)
 {
     m_logger = std::make_shared<CamLogger>();
     m_pFrameQueue = std::make_shared<YCQueue<FrameData>>();
-    m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strRootDir, m_pFrameQueue, m_pPathQueue, m_logger);
+    m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(IMAGE_SAVER_THREAD_POOL_SIZE, m_strRootDir, m_pFrameQueue, m_pPathQueue, m_logger);
 }
 
 GigEManager::GigEManager(std::string saveRootDir, std::shared_ptr<YCQueue<std::string>> pathQueue)
@@ -20,10 +20,15 @@ GigEManager::GigEManager(std::string saveRootDir, std::shared_ptr<YCQueue<std::s
 {
     m_logger = std::make_shared<CamLogger>();
     m_pFrameQueue = std::make_shared<YCQueue<FrameData>>();
-    m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(2, m_strRootDir, m_pFrameQueue, m_pPathQueue, m_logger);
+    m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(IMAGE_SAVER_THREAD_POOL_SIZE, m_strRootDir, m_pFrameQueue, m_pPathQueue, m_logger);
     m_LCP24100SS = std::make_shared<LCP24100SS>();
     m_LCP100DC = std::make_shared<LCP100DC>();
 
+    // Initialize CVMat queues map
+    m_cvMatQueueMap["Sleeve_A_Camera"] = m_pSleeveACameraQueue;
+    m_cvMatQueueMap["Endoscope_Side_Camera"] = m_pEndoscopeSideCameraQueue;
+    m_cvMatQueueMap["Endoscope_Robot_Camera"] = m_pEndoscopeRobotCameraQueue;
+    m_cvMatQueueMap["Endoscope_Robot_Endoscope_Camera"] = m_pEndoscopeRobotEndoscopeCameraQueue;
 }
 
 GigEManager::~GigEManager()
@@ -50,23 +55,26 @@ bool GigEManager::Initialize()
                 if (camera->Initialize(pInterface, deviceIdx))
                 {
                     const std::string& cameraName = camera->GetUserDefinedName();
-                    camera->SetFrameQueue(m_pFrameQueue);
 
-                    if (cameraName == "Sleeve_A_Camera")
+					std::unordered_map<std::string, std::pair<bool, bool>>::const_iterator it = cameraQueueMap.find(cameraName);
+                    if (it != cameraQueueMap.end())
                     {
-                        camera->SetCVMatQueue(m_pSleeveACameraQueue);
-                    }
-                    else if (cameraName == "Endoscope_Side_Camera")
-                    {
-                        camera->SetCVMatQueue(m_pEndoscopeSideCameraQueue);
-                    }
-                    else if (cameraName == "Endoscope_Robot_Camera")
-                    {
-                        camera->SetCVMatQueue(m_pEndoscopeRobotCameraQueue);
-                    }
-                    else if (cameraName == "Endoscope_Robot_Endoscope_Camera")
-                    {
-                        camera->SetCVMatQueue(m_pEndoscopeRobotEndoscopeCameraQueue);
+                        // Set frame queue
+                        if (it->second.first)
+                        {
+                            camera->SetFrameQueue(m_pFrameQueue);
+						}
+
+						// Set CVMat queue
+                        if (it->second.second)
+                        {
+							// Find the corresponding CVMat queue from the map
+							std::unordered_map<std::string, std::shared_ptr<YCQueue<cv::Mat>>>::iterator cvIt = m_cvMatQueueMap.find(cameraName);
+                            if (cvIt != m_cvMatQueueMap.end())
+                            {
+								camera->SetCVMatQueue(cvIt->second);
+                            }
+                        }
                     }
 
                     m_cameras.push_back(camera);
@@ -88,12 +96,12 @@ bool GigEManager::Initialize()
             {
                 if (ch == '6') // Side camera
                 {
-                    m_LCP24100SS->setBrightness(ch, 120);
-                    m_LCP24100SS->setStrobeTime_ms(ch, 10.00);
+                    m_LCP24100SS->setBrightness(ch, REARCOVER_SIDE_LIGHT_BRIGHTNESS);
+                    m_LCP24100SS->setStrobeTime_ms(ch, REARCOVER_SIDE_LIGHT_STROBE_MS);
                     continue;
                 }
-                m_LCP24100SS->setBrightness(ch, 120);
-                m_LCP24100SS->setStrobeTime_ms(ch, 100.00);
+                m_LCP24100SS->setBrightness(ch, REARCOVER_TOP_LIGHT_BRIGHTNESS);
+                m_LCP24100SS->setStrobeTime_ms(ch, REARCOVOER_TOP_LIGHT_STROBE_MS);
             }
             m_logger->Log("[GigEManager] LCP24100SS initialized.");
         }
@@ -105,8 +113,12 @@ bool GigEManager::Initialize()
         // Initialize LCP100DC light controller
         if (m_LCP100DC->open("/dev/ttyUSB1", 19200))
         {
-            m_LCP100DC->setBrightness('1', 50);
+			// Channel 1 for Sleeve A
+            m_LCP100DC->setBrightness('1', SLEEVE_A_LIGHT_BRIGHTNESS);
             m_LCP100DC->turnOff('1');
+            // Channel 2 for Sleeve B
+            m_LCP100DC->setBrightness('2', SLEEVE_B_LIGHT_BRIGHTNESS);
+			m_LCP100DC->turnOff('2');
             m_logger->Log("[GigEManager] LCP100DC initialized.");
         }
         else
@@ -146,6 +158,7 @@ void GigEManager::StopAll()
     m_running = false;
 
     m_LCP100DC->turnOff('1');
+	m_LCP100DC->turnOff('2');
     m_LCP24100SS->close();
     m_LCP100DC->close();
 
@@ -208,7 +221,11 @@ void GigEManager::TriggerSingle(const std::string& cameraName)
         }
         else if (cameraName == "Sleeve_A_Camera")
         {
-            m_LCP100DC->trigger_ms('1', 100); // Channel 1, ON for 100 ms
+            m_LCP100DC->trigger_ms('1', SLEEVE_A_LIGHT_STROBE_MS);
+        }
+        else if (cameraName == "Sleeve_B_Camera")
+        {
+			m_LCP100DC->trigger_ms('2', SLEEVE_B_LIGHT_STROBE_MS);
         }
     }
     else
@@ -253,7 +270,11 @@ void GigEManager::TriggerSingle(const std::string& cameraName, const std::string
         }
         else if (cameraName == "Sleeve_A_Camera")
         {
-            m_LCP100DC->trigger_ms('1', 100); // Channel 1, ON for 100 ms
+            m_LCP100DC->trigger_ms('1', SLEEVE_A_LIGHT_STROBE_MS);
+        }
+        else if (cameraName == "Sleeve_B_Camera")
+        {
+            m_LCP100DC->trigger_ms('2', SLEEVE_B_LIGHT_STROBE_MS);
         }
     }
 }

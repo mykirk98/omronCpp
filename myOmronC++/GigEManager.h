@@ -53,6 +53,8 @@ protected:
 
 private:
 	void CameraLoop(std::shared_ptr<GigECamera> camera);
+
+private:
 	/*	@brief Initialize StApi */
 	CStApiAutoInit m_stApiAutoInit;
 	/*  @brief Print the status of all GigE Workers. */
@@ -69,10 +71,15 @@ private:
 	/*	@brief Base path to save images. */
 	std::string m_strRootDir;
 
-	/*	@brief Frame queue for managing image frames. */
+	/*	@brief Frame queue for managing image frames */
 	std::shared_ptr<YCQueue<FrameData>> m_pFrameQueue;
-	/* @brief CVMat queue for managing OpenCV Mat images. */
-	//std::shared_ptr<YCQueue<cv::Mat>> m_pCVMatQueue;
+	/* CVMat queues for specific cameras */
+	std::shared_ptr<YCQueue<cv::Mat>> m_pSleeveACameraQueue;
+	std::shared_ptr<YCQueue<cv::Mat>> m_pEndoscopeSideCameraQueue;
+	std::shared_ptr<YCQueue<cv::Mat>> m_pEndoscopeRobotCameraQueue;
+	std::shared_ptr<YCQueue<cv::Mat>> m_pEndoscopeRobotEndoscopeCameraQueue;
+	/* CVMat queues map for different cameras */
+	std::unordered_map<std::string, std::shared_ptr<YCQueue<cv::Mat>>> m_cvMatQueueMap;
 	/*	@brief Thread pool for saving images. */
 	std::shared_ptr<ImageSaverThreadPool> m_pImageSaverThreadPool;
 	/*	@brief Path queue for managing paths for communicate with other processes. */
@@ -81,9 +88,4 @@ private:
 	std::shared_ptr<LCP100DC> m_LCP100DC;
 	/*	@brief Logger thread for logging messages. */
 	std::shared_ptr<CamLogger> m_logger;
-
-	std::shared_ptr<YCQueue<cv::Mat>> m_pSleeveACameraQueue;
-	std::shared_ptr<YCQueue<cv::Mat>> m_pEndoscopeSideCameraQueue;
-	std::shared_ptr<YCQueue<cv::Mat>> m_pEndoscopeRobotCameraQueue;
-	std::shared_ptr<YCQueue<cv::Mat>> m_pEndoscopeRobotEndoscopeCameraQueue;
 };

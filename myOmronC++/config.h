@@ -5,26 +5,53 @@
 
 
 //----------------------------------------CAMERA CONFIGURATION---------------------------------------//
-//				data standardization
-//				{"camera serial number", {"camera IP address", "user defined(UDF) camera name"}}
 const std::unordered_map<std::string, std::pair<std::string, std::string>> cameraMap = {
-	{"25G8727", {"192.168.5.15", "rearcover_top_camera"}},
-	{"25J7712", {"192.168.6.16", "rearcover_top_camera"}},
-	{"25A9284", {"192.168.7.17", "endoscope_camera"}},
-	{"25J7723", {"192.168.5.18", "sleeve_A_camera"}},
-	//{"25J7712", {"192.168.0.16", "Endoscope_Side_Camera"}},
-	//{"25A9284", {"192.168.0.17", "Endoscope_Robot_Endoscope_Camera"}},
-	//{"25G8727", {"192.168.0.15", "Endoscope_Robot_Camera"}},
-	//{"25J7723", {"192.168.0.18", "Sleeve_A_Camera"}},
-	{"25C7812", {"192.168.0.31", "12MP_1"}},
-	{"25E9151", {"192.168.0.21", "12MP_2"}},
-	{"25C7667", {"192.168.0.41", "5MP_1"}},
-	{"25A8829", {"192.168.0.42", "5MP_2"}},
-	{"25C7669", {"192.168.0.43", "5MP_3"}},
-	{"25AA120", {"192.168.0.44", "5MP_4"}},
-	{"23F8382", {"192.168.0.51", "2MP_1"}},
-	{"25A9284", {"192.168.0.52", "2MP_2"}}
+//	{"camera serial number",	{"camera IP address",	"user defined(UDF) camera name"}}
+	{"25J7712",					{"192.168.0.16",		"Endoscope_Side_Camera"}},		// LINE-B
+	{"25A9284",					{"192.168.0.17",		"Endoscope_Robot_Endoscope_Camera"}},	// LINE-B
+	{"25G8727",					{"192.168.0.15",		"Endoscope_Robot_Camera"}},		// LINE-B
+	{"25J7723",					{"192.168.0.18",		"Sleeve_A_Camera"}},		// LINE-B
+	//TODO: Add Sleeve_B_Camera later
 };
+
+const std::unordered_map<std::string, std::string> cameraConfigMap = {
+//	{"user defined(UDF) camera name",		"camera configuration file path"}
+	{"Endoscope_Side_Camera",				"/home/msis/cameraConfigs/NodeMaps/Endoscope_Side_Camera_config.cfg"},		// LINE-B
+	{"Endoscope_Robot_Endoscope_Camera",	"/home/msis/cameraConfigs/NodeMaps/Endoscope_Robot_Endoscope_Camera_config.cfg"},	// LINE-B
+	{"Endoscope_Robot_Camera",				"/home/msis/cameraConfigs/NodeMaps/Endoscope_Robot_Camera_config.cfg"},		// LINE-B
+	{"Sleeve_A_Camera",						"/home/msis/cameraConfigs/NodeMaps/Sleeve_A_Camera_config.cfg"},		// LINE-B
+	//TODO: Add Sleeve_B_Camera later
+};
+
+const std::unordered_map <std::string, std::pair<bool, bool>> cameraQueueMap = {
+//	{"user defined(UDF) camera name",		{	enable saving image,	enable forwarding cvMat	}}
+	{"Endoscope_Side_Camera",				{	true,					true	}},		// LINE-B
+	{"Endoscope_Robot_Endoscope_Camera",	{	true,					true	}},		// LINE-B
+	{"Endoscope_Robot_Camera",				{	true,					true	}},		// LINE-B
+	{"Sleeve_A_Camera",						{	true,					true	}},		// LINE-B
+	//TODO: Add Sleeve_B_Camera later
+};
+
+constexpr int IMAGE_SAVER_THREAD_POOL_SIZE = 2;	// 1 ~ 6
+//---------------------------------------------------------------------------------------------------//
+
+
+
+
+
+//----------------------------------------LIGHT CONFIGURATION----------------------------------------//
+// rear cover top light
+constexpr int REARCOVER_TOP_LIGHT_BRIGHTNESS = 120;		// 0 ~ 240
+constexpr double REARCOVOER_TOP_LIGHT_STROBE_MS = 9.99;	// 0.01 ~ 9.99 ms
+// rear cover side light
+constexpr int REARCOVER_SIDE_LIGHT_BRIGHTNESS = 120;		// 0 ~ 240
+constexpr double REARCOVER_SIDE_LIGHT_STROBE_MS = 9.99;	// 0.01 ~ 9.99 ms
+// sleeve A light
+constexpr int SLEEVE_A_LIGHT_BRIGHTNESS = 50;			// 0 ~ 100
+constexpr double SLEEVE_A_LIGHT_STROBE_MS = 9.99;		// 0.01 ~ 9.99 ms
+// sleeve B light
+constexpr int SLEEVE_B_LIGHT_BRIGHTNESS = 50;			// 0 ~ 100
+constexpr double SLEEVE_B_LIGHT_STROBE_MS = 9.99;		// 0.01 ~ 9.99 ms
 //---------------------------------------------------------------------------------------------------//
 
 
@@ -32,10 +59,9 @@ const std::unordered_map<std::string, std::pair<std::string, std::string>> camer
 
 
 //----------------------------DIRECTORY PATH WHICH YOU WANT TO SAVE IMAGES---------------------------//
-constexpr const char* HOME_PC_DIRECTORY = "C:\\Users\\USER\\Pictures\\";
-constexpr const char* LAB_WINDOW_PC_DIRECTORY = "C:\\Users\\mykir\\Work\\Experiments\\";
-constexpr const char* LAB_LINUX_PC_DIRECTORY = "/home/msis/Pictures/SentechExperiments/Experiments1/";
 constexpr const char* DEVELOPMENT_PC_DIRECTORY = "home/msis/Pictures/dataset/";
+constexpr const char* LINE_A_SERVER = "home/msis/Pictures/dataset/";
+constexpr const char* LINE_B_SERVER = "home/msis/Pictures/dataset/";
 //---------------------------------------------------------------------------------------------------//
 
 
