@@ -146,9 +146,6 @@
     <ClCompile Include="GigEManager.cpp" />
     <ClCompile Include="ImageProcess.cpp" />
     <ClCompile Include="ImageSaverThreadPool.cpp" />
-    <ClCompile Include="PathToGuiAdapter.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>

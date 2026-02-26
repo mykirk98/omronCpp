@@ -182,7 +182,7 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 
 				FrameData frame;
 				frame.pImage = pImage;
-				frame.serialNumber = GetSerialNumber(); 
+				frame.serialNumber = GetSerialNumber();
 				frame.frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
 				frame.cameraName = GetUserDefinedName();
 				frame.isMono = pPixelFormatInfo->IsMono();

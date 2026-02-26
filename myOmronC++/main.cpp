@@ -1,18 +1,35 @@
-﻿#include "BasicCamera.h"
+﻿#include "GigEManager.h"
 
 int main()
 {
-	int numImages = 100;
-	CStApiAutoInit objStApiAutoInit; // Initialize StApi
-	CIStSystemPtr pSystem(CreateIStSystem());
+    GigEManager manager(HOME_PC_DIRECTORY);
 
-	BasicCamera camera(HOME_PC_DIRECTORY);
+    if (!manager.Initialize())
+    {
+        std::cerr << "Failed to initialize cameras.\n";
+        return -1;
+    }
 
-	if (camera.Initialize(pSystem))
-	{
-		camera.StartAcquisition(numImages);
-		camera.FreeRunCapture0();
+    manager.StartAll();
 
-		camera.StopAcquisition();
-	}
+    for (int i = 0; i < 5; ++i)
+    {
+        manager.TriggerSingle("TOP");
+        manager.TriggerSingle("BOTTOM");
+        //manager.TriggerSingle("5MP_3");
+        //manager.TriggerSingle("5MP_4");
+        //manager.TriggerSingle("12MP_1");
+        //manager.TriggerSingle("12MP_2");
+        //manager.TriggerSingle("2MP_1");
+        //manager.TriggerSingle("2MP_2");
+#ifdef _WIN32
+        Sleep(150);
+#else
+        usleep(150 * 1000);  // 150 ms
+#endif // _WIN32
+
+    }
+    Sleep(3000);
+    manager.StopAll();
+    return 0;
 }

@@ -15,7 +15,6 @@ class GigEManager
 public:
 	/*  @brief Constructor for GigEManager. */
 	explicit GigEManager(std::string rootDir);
-	explicit GigEManager(std::string rootDir, std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue);
 	/*  @brief Destructor for GigEManager. */
 	~GigEManager();
 
@@ -60,8 +59,6 @@ private:
 	std::shared_ptr<ThreadSafeQueue<cv::Mat>> m_pCVMatQueue;
 	/*	@brief Thread pool for saving images. */
 	std::shared_ptr<ImageSaverThreadPool> m_pImageSaverThreadPool;
-	/*	@brief Path queue for managing paths for communicate with other processes. */
-	std::shared_ptr<ThreadSafeQueue<std::string>> m_pPathQueue;
 	/*	@brief Logger thread for logging messages. */
 	std::shared_ptr<Logger> m_logger;
 };

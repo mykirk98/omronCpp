@@ -15,7 +15,7 @@ public:
 	/*	@brief ImageSaverThreadPool constructor
 		@param threadCount : Number of threads in the pool
 		@brief rootDir : Root directory where images will be saved */
-	ImageSaverThreadPool(size_t threadCount, const std::string& rootDir, std::shared_ptr<ThreadSafeQueue<FrameData>> pQueue, std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue, std::shared_ptr<Logger> logger);
+	ImageSaverThreadPool(size_t threadCount, const std::string& rootDir, std::shared_ptr<ThreadSafeQueue<FrameData>> pQueue, std::shared_ptr<Logger> logger);
 	/* @brief ImageSaverThreadPool destructor */
 	~ImageSaverThreadPool();
 
@@ -39,6 +39,5 @@ private:
 	/* @brief Root directory where images will be saved */
 	std::string m_strRootDir;
 
-	std::shared_ptr<ThreadSafeQueue<std::string>> m_pPathQueue;
 	std::shared_ptr<Logger> m_logger;
 };

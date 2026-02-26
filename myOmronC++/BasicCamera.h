@@ -5,7 +5,6 @@
 #include "NodeMapUtil.h"
 #include "ImageSaverThreadPool.h"
 #include "config.h" 
-#include "CSVWriter.h"
 
 using namespace StApi;
 

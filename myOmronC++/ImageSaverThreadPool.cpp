@@ -1,10 +1,9 @@
 #include "ImageSaverThreadPool.h"
 
-ImageSaverThreadPool::ImageSaverThreadPool(size_t threadCount, const std::string& saveRootDir, std::shared_ptr<ThreadSafeQueue<FrameData>> pQueue, std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue, std::shared_ptr<Logger> logger)
+ImageSaverThreadPool::ImageSaverThreadPool(size_t threadCount, const std::string& saveRootDir, std::shared_ptr<ThreadSafeQueue<FrameData>> pQueue, std::shared_ptr<Logger> logger)
 	: m_running(false)
 	, m_strRootDir(saveRootDir)
 	, m_pFrameQueue(pQueue)
-	, m_pPathQueue(pathQueue)
 {
 	// Reserve space for the specified number of threads to avoid frequent reallocations
 	m_workers.reserve(threadCount);
@@ -70,13 +69,6 @@ void ImageSaverThreadPool::WorkerLoop()
 				ImageProcess::SaveImage<BMP>(pBuffer, savePath);
 
 				m_logger->Log("[ThreadPool] Saved: " + std::string(savePath) + "\t after Queue size:" + std::to_string(m_pFrameQueue->Size()));
-
-				// Notify the path queue that a new path has been added
-				//if (m_pathQueue)
-				//{
-				//	std::string fullMessage = frame.cameraName + " :" + savePath.c_str();
-				//	m_pathQueue->Push(fullMessage);
-				//}
 			}
 			catch (const GenICam::GenericException& e)
 			{

@@ -7,17 +7,7 @@ GigEManager::GigEManager(std::string rootDir)
 	m_logger = std::make_shared<Logger>();
     m_pFrameQueue = std::make_shared<ThreadSafeQueue<FrameData>>();
     m_pCVMatQueue = std::make_shared<ThreadSafeQueue<cv::Mat>>();
-	m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strRootDir, m_pFrameQueue, m_pPathQueue, m_logger);
-}
-
-GigEManager::GigEManager(std::string saveRootDir, std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue)
-    : m_strRootDir(saveRootDir)
-	, m_running(false)
-	, m_pPathQueue(pathQueue)
-{
-    m_pFrameQueue = std::make_shared<ThreadSafeQueue<FrameData>>();
-    m_pCVMatQueue = std::make_shared<ThreadSafeQueue<cv::Mat>>();
-    m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strRootDir, m_pFrameQueue, m_pPathQueue, m_logger);
+	m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strRootDir, m_pFrameQueue, m_logger);
 }
 
 GigEManager::~GigEManager()

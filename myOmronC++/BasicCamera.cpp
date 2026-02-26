@@ -137,7 +137,7 @@ int main()
 	if (camera.Initialize(pSystem))
 	{
 		camera.StartAcquisition(numImages);
-		camera.FreeRunCapture1();
+		camera.FreeRunCapture0();
 
 		camera.StopAcquisition();
 	}
