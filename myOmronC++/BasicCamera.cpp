@@ -1,10 +1,5 @@
 #include "BasicCamera.h"
 
-inline long long now_ns()
-{
-	return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
-}
-
 BasicCamera::BasicCamera(std::string rootDir)
 	: m_strRootDir(rootDir)
 {
@@ -30,14 +25,6 @@ bool BasicCamera::Initialize(const CIStSystemPtr& pSystem)
 
 		m_strCameraName = m_pDevice->GetIStDeviceInfo()->GetDisplayName().c_str();
 		m_strSerialNumber = m_pDevice->GetIStDeviceInfo()->GetSerialNumber().c_str();
-
-		std::string csvPath = m_strRootDir + "log.csv";
-
-		m_csv = std::make_unique<CSVWriter>(csvPath);
-		if (!m_csv->is_open())
-		{
-			std::cerr << "[BasicCamera] Warning: Failed to open CSV file: " << csvPath << std::endl;
-		}
 
 		return true;
 	}
@@ -82,22 +69,20 @@ void BasicCamera::FreeRunCapture0()
 {
 	while (m_pDataStream->IsGrabbing())
 	{
-		const long long t_before_acq = now_ns();
 		CIStStreamBufferPtr pStreamBuffer(m_pDataStream->RetrieveBuffer(5000));
-		const long long t_after_acq = now_ns();
 
 		uint64_t frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
 
 		if (pStreamBuffer->GetIStStreamBufferInfo()->IsImagePresent())
 		{
 			IStImage* pImage = pStreamBuffer->GetIStImage();
-		}
 
-		if (m_csv && m_csv->is_open())
-		{
-			m_csv->WriteRow(frameID, t_before_acq, t_after_acq);
-		}
+			// Display the information of the acquired image data.
+			std::cout << "BlockId=" << pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()
+				<< " Size:" << pImage->GetImageWidth() << " x " << pImage->GetImageHeight()
+				<< " First byte =" << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pImage->GetImageBuffer())) << std::endl;
 
+		}
 	}
 }
 
@@ -105,11 +90,8 @@ void BasicCamera::FreeRunCapture1()
 {
 	while (m_pDataStream->IsGrabbing())
 	{
-		// 프레임 수신 대기 타임스탬프
-		const long long t_before_acq = now_ns();
 		// Retrieve the buffer pointer of image data with a timeout of 5000ms.
 		CIStStreamBufferPtr pStreamBuffer(m_pDataStream->RetrieveBuffer(5000));
-		const long long t_after_acq = now_ns();
 		// Check if the acquired data contains image data.
 		if (pStreamBuffer->GetIStStreamBufferInfo()->IsImagePresent())
 		{
@@ -127,17 +109,10 @@ void BasicCamera::FreeRunCapture1()
 			ImageProcess::ConvertPixelFormat(pImage, isMono, pBuffer);
 			GenICam::gcstring savePath = ImageProcess::SetSavePath(m_strRootDir, m_strCameraName, m_strSerialNumber, frameID);
 			ImageProcess::SaveImage<BMP>(pBuffer, savePath);
-			const long long t_after_save = now_ns();
 
 			// Convert to OpenCV Mat
 			Mat mat = ImageProcess::ConvertToMat(pImage);
-			const long long t_after_cv = now_ns();
 			//TODO: Image processing
-
-			if (m_csv && m_csv->is_open())
-			{
-				m_csv->WriteRow(frameID, t_before_acq, t_after_acq, t_after_save, t_after_cv);
-			}
 		}
 		else
 		{

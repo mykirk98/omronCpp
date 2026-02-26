@@ -38,7 +38,6 @@ protected:
 
 private:
 	std::string m_strRootDir;
-	std::unique_ptr<CSVWriter> m_csv;
 	std::string m_strCameraName;
 	std::string m_strSerialNumber;
 	//std::shared_ptr<ImageSaverThreadPool> m_pThreadPool;
