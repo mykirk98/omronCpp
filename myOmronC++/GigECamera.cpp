@@ -191,9 +191,9 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 				if (m_pFrameQueue)
 					m_pFrameQueue->Push(frame);
 
-				Mat mat = ImageProcess::ConvertToMat(pImage);
-				if (m_pCVMatQueue)
-					m_pCVMatQueue->Push(mat);
+				//Mat mat = ImageProcess::ConvertToMat(pImage);
+				//if (m_pCVMatQueue)
+				//	m_pCVMatQueue->Push(mat);
 
 				m_logger->Log("[" + m_strUDFName + "] CV::Mat Queue size: " + std::to_string(m_pCVMatQueue->Size()));
 				//m_logger->Log("[" + m_strUDFName + "] Image converted to OpenCV Mat.");

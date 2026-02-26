@@ -34,7 +34,6 @@ bool GigEManager::Initialize()
                 {
 				    const std::string& cameraName = camera->GetUserDefinedName();    //TODO: 이 시점에서 cameraName이 어떻게 결정된 것인지 확인 필요
                     camera->SetFrameQueue(m_pFrameQueue);
-                    //TODO: opencv mat 큐 설정
 					camera->SetCVMatQueue(m_pCVMatQueue);
                     m_cameras.push_back(camera);
                     m_cameraMap[cameraName] = camera;
