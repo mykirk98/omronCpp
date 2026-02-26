@@ -169,9 +169,6 @@
     <ClInclude Include="GigEManager.h" />
     <ClInclude Include="ImageProcess.h" />
     <ClInclude Include="ImageSaverThreadPool.h" />
-    <ClInclude Include="PathToGuiAdapter.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="ThreadSafeQueue.h" />
     <ClInclude Include="config.h" />
   </ItemGroup>
