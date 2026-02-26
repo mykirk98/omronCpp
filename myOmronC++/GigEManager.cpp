@@ -144,10 +144,7 @@ void GigEManager::CameraLoop(std::shared_ptr<GigECamera> camera)
 
 int main()
 {
-    std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue = std::make_shared<ThreadSafeQueue<std::string>>();
-    //std::shared_ptr<PathQueue> pathQueue = std::make_shared<PathQueue>();
-    //GigEManager manager(saveRootDir, pathQueue);
-    GigEManager manager(LAB_WINDOW_PC_DIRECTORY);
+    GigEManager manager(HOME_PC_DIRECTORY);
 
     if (!manager.Initialize())
     {
@@ -159,14 +156,8 @@ int main()
 
     for (int i = 0; i < 5; ++i)
     {
-        manager.TriggerSingle("5MP_1");
-        manager.TriggerSingle("5MP_2");
-        //manager.TriggerSingle("5MP_3");
-        //manager.TriggerSingle("5MP_4");
-        //manager.TriggerSingle("12MP_1");
-        //manager.TriggerSingle("12MP_2");
-        manager.TriggerSingle("2MP_1");
-        //manager.TriggerSingle("2MP_2");
+        manager.TriggerSingle("TOP");
+        manager.TriggerSingle("BOTTOM");
 #ifdef _WIN32
         Sleep(150);
 #else
