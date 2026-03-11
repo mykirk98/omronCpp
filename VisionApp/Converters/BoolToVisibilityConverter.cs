@@ -17,5 +17,10 @@ public class BoolToVisibilityConverter : IValueConverter
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        => value is Visibility.Visible;
+    {
+        if(value is Visibility.Visible)
+            return true;
+        else
+            return false;
+    }
 }
