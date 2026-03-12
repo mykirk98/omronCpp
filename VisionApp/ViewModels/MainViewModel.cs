@@ -42,9 +42,11 @@ public partial class MainViewModel : ObservableObject
 
     partial void OnCurrentStateChanged(AppState value)
     {
+        // CurrentState가 변경될 때마다 CanConnect, CanRun, CanStop의 상태도 변경되므로, 이를 알리기 위해 OnPropertyChanged 호출
         OnPropertyChanged(nameof(CanConnect));
         OnPropertyChanged(nameof(CanRun));
         OnPropertyChanged(nameof(CanStop));
+        // RelayCommand의 CanExecute 상태도 변경되었음을 알리기 위해 NotifyCanExecuteChanged 호출
         ConnectCommand.NotifyCanExecuteChanged();
         RunCommand.NotifyCanExecuteChanged();
         StopCommand.NotifyCanExecuteChanged();
@@ -53,7 +55,9 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanConnect))]
     private async Task ConnectAsync()
     {
+        
         _logService.Log("System", "카메라 자동 연결 중...");
+        // await -> ConnectAsync()가 완료될 때까지 기다렸다가 결과를 cameras 변수에 저장, UI 스레드가 블로킹되지 않도록 비동기적으로 실행 (안멈춤)
         var cameras = await _cameraService.ConnectAsync();
 
         Cameras.Clear();
@@ -75,6 +79,7 @@ public partial class MainViewModel : ObservableObject
     private async Task RunAsync()
     {
         _logService.Log("System", "전체 카메라 운전 시작");
+        // await -> StartAllAsync()가 완료될 때까지 기다렸다가 다음 줄 실행, UI 스레드가 블로킹되지 않도록 비동기적으로 실행 (안멈춤)
         await _cameraService.StartAllAsync();
         CurrentState = AppState.Running;
     }
@@ -83,6 +88,7 @@ public partial class MainViewModel : ObservableObject
     private async Task StopAsync()
     {
         _logService.Log("System", "전체 카메라 정지");
+        // await -> StopAllAsync()가 완료될 때까지 기다렸다가 다음 줄 실행, UI 스레드가 블로킹되지 않도록 비동기적으로 실행 (안멈춤)
         await _cameraService.StopAllAsync();
         CurrentState = AppState.Stopped;
     }
@@ -95,6 +101,7 @@ public partial class MainViewModel : ObservableObject
 
     private void OnFrameReceived(string cameraName, BitmapSource image, double fps)
     {
+        // ? : Application.Current가 null이 아닐 때만 Dispatcher.Invoke 실행
         Application.Current?.Dispatcher.Invoke(() =>
         {
             var tile = Cameras.FirstOrDefault(c => c.Name == cameraName);
