@@ -28,5 +28,6 @@ msbuild CameraArchitecture.sln /p:Configuration=Release /p:Platform=x64
 
 ```
 CameraArchitecture.sln
-├── myOmronC++/          # C++20 backend — GigE camera control (see myOmronC++/CLAUDE.md)
+├── myOmronC++/              # C++20 backend — GigE camera control (see myOmronC++/CLAUDE.md)
+├── VisionInspectionApp/     # MFC desktop UI — vision inspection frontend (see VisionInspectionApp/CLAUDE.md)
 ```
