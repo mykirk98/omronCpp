@@ -3,7 +3,6 @@
 
 ## Project Overview
 A Machine VIsion system that manages multiple GigE cameras for real-time control and image capture.
-Planned: 
 
 ## Tech Stack
 - **C++**: C++20, MSVC v145 (VS 2022), OpenCV 4.12.0, Omron StApi SDK (via `STAPI_ROOT_PATH`)
@@ -26,7 +25,6 @@ msbuild CameraArchitecture.sln /p:Configuration=Release /p:Platform=x64
 - OpenCV 4.12.0 installed at `C:\opencv\`
 
 ## Project Structure
-Two independent projects in one solution:
 
 ```
 CameraArchitecture.sln
