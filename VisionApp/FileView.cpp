@@ -4,7 +4,7 @@
 #include "mainfrm.h"
 #include "FileView.h"
 #include "Resource.h"
-#include "VisionInspectionApp.h"
+#include "VisionApp.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE

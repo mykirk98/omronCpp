@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="VisionInspectionApp.h">
+    <ClInclude Include="VisionApp.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="framework.h">
@@ -27,10 +27,13 @@
     <ClInclude Include="MainFrm.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="VisionInspectionAppDoc.h">
+    <ClInclude Include="ChildFrm.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="VisionInspectionAppView.h">
+    <ClInclude Include="VisionAppDoc.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="VisionAppView.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
@@ -56,16 +59,19 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="VisionInspectionApp.cpp">
+    <ClCompile Include="VisionApp.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="MainFrm.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="VisionInspectionAppDoc.cpp">
+    <ClCompile Include="ChildFrm.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="VisionInspectionAppView.cpp">
+    <ClCompile Include="VisionAppDoc.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="VisionAppView.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="FileView.cpp">
@@ -88,7 +94,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="VisionInspectionApp.rc">
+    <ResourceCompile Include="VisionApp.rc">
       <Filter>리소스 파일</Filter>
     </ResourceCompile>
   </ItemGroup>
@@ -156,10 +162,10 @@
     <Image Include="res\userimages.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
-    <Image Include="res\VisionInspectionAppDoc.ico">
+    <Image Include="res\VisionAppDoc.ico">
       <Filter>리소스 파일</Filter>
     </Image>
-    <Image Include="res\VisionInspectionApp.ico">
+    <Image Include="res\VisionApp.ico">
       <Filter>리소스 파일</Filter>
     </Image>
     <Image Include="res\Toolbar.bmp">
@@ -170,7 +176,7 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\VisionInspectionApp.rc2">
+    <None Include="res\VisionApp.rc2">
       <Filter>리소스 파일</Filter>
     </None>
   </ItemGroup>

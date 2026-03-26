@@ -8,12 +8,11 @@
 #include "OutputWnd.h"
 #include "PropertiesWnd.h"
 
-class CMainFrame : public CFrameWndEx
+class CMainFrame : public CMDIFrameWndEx
 {
-	
-protected: // serialization에서만 만들어집니다.
+	DECLARE_DYNAMIC(CMainFrame)
+public:
 	CMainFrame() noexcept;
-	DECLARE_DYNCREATE(CMainFrame)
 
 // 특성입니다.
 public:
@@ -47,6 +46,7 @@ protected:  // 컨트롤 모음이 포함된 멤버입니다.
 // 생성된 메시지 맵 함수
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void OnWindowManager();
 	afx_msg void OnViewCustomize();
 	afx_msg LRESULT OnToolbarCreateNew(WPARAM wp, LPARAM lp);
 	afx_msg void OnApplicationLook(UINT id);

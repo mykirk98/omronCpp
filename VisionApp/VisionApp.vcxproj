@@ -20,9 +20,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>18.0</VCProjectVersion>
-    <ProjectGuid>{969C9347-3A32-7090-678D-AC5D75EA669B}</ProjectGuid>
+    <ProjectGuid>{6B6478A6-1384-A33C-0B2C-DE47D5C1FA1E}</ProjectGuid>
     <Keyword>MFCProj</Keyword>
-    <RootNamespace>VisionInspectionApp</RootNamespace>
+    <RootNamespace>VisionApp</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -183,6 +183,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ChildFrm.h" />
     <ClInclude Include="ClassView.h" />
     <ClInclude Include="FileView.h" />
     <ClInclude Include="framework.h" />
@@ -193,11 +194,12 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="ViewTree.h" />
-    <ClInclude Include="VisionInspectionApp.h" />
-    <ClInclude Include="VisionInspectionAppDoc.h" />
-    <ClInclude Include="VisionInspectionAppView.h" />
+    <ClInclude Include="VisionApp.h" />
+    <ClInclude Include="VisionAppDoc.h" />
+    <ClInclude Include="VisionAppView.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ChildFrm.cpp" />
     <ClCompile Include="ClassView.cpp" />
     <ClCompile Include="FileView.cpp" />
     <ClCompile Include="MainFrm.cpp" />
@@ -210,12 +212,12 @@
     </ClCompile>
     <ClCompile Include="PropertiesWnd.cpp" />
     <ClCompile Include="ViewTree.cpp" />
-    <ClCompile Include="VisionInspectionApp.cpp" />
-    <ClCompile Include="VisionInspectionAppDoc.cpp" />
-    <ClCompile Include="VisionInspectionAppView.cpp" />
+    <ClCompile Include="VisionApp.cpp" />
+    <ClCompile Include="VisionAppDoc.cpp" />
+    <ClCompile Include="VisionAppView.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="VisionInspectionApp.rc" />
+    <ResourceCompile Include="VisionApp.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\classview.bmp" />
@@ -241,11 +243,11 @@
     <Image Include="res\Toolbar.bmp" />
     <Image Include="res\Toolbar256.bmp" />
     <Image Include="res\userimages.bmp" />
-    <Image Include="res\VisionInspectionApp.ico" />
-    <Image Include="res\VisionInspectionAppDoc.ico" />
+    <Image Include="res\VisionApp.ico" />
+    <Image Include="res\VisionAppDoc.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\VisionInspectionApp.rc2" />
+    <None Include="res\VisionApp.rc2" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

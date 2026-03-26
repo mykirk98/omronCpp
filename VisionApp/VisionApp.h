@@ -1,5 +1,5 @@
 ﻿
-// VisionInspectionApp.h: VisionInspectionApp 애플리케이션의 기본 헤더 파일
+// VisionApp.h: VisionApp 애플리케이션의 기본 헤더 파일
 //
 #pragma once
 
@@ -10,14 +10,14 @@
 #include "resource.h"       // 주 기호입니다.
 
 
-// CVisionInspectionAppApp:
-// 이 클래스의 구현에 대해서는 VisionInspectionApp.cpp을(를) 참조하세요.
+// CVisionAppApp:
+// 이 클래스의 구현에 대해서는 VisionApp.cpp을(를) 참조하세요.
 //
 
-class CVisionInspectionAppApp : public CWinAppEx
+class CVisionAppApp : public CWinAppEx
 {
 public:
-	CVisionInspectionAppApp() noexcept;
+	CVisionAppApp() noexcept;
 
 
 // 재정의입니다.
@@ -37,4 +37,4 @@ public:
 	DECLARE_MESSAGE_MAP()
 };
 
-extern CVisionInspectionAppApp theApp;
+extern CVisionAppApp theApp;

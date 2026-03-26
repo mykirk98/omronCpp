@@ -1,16 +1,16 @@
 ﻿
-// VisionInspectionAppDoc.h: CVisionInspectionAppDoc 클래스의 인터페이스
+// VisionAppDoc.h: CVisionAppDoc 클래스의 인터페이스
 //
 
 
 #pragma once
 
 
-class CVisionInspectionAppDoc : public CDocument
+class CVisionAppDoc : public CDocument
 {
 protected: // serialization에서만 만들어집니다.
-	CVisionInspectionAppDoc() noexcept;
-	DECLARE_DYNCREATE(CVisionInspectionAppDoc)
+	CVisionAppDoc() noexcept;
+	DECLARE_DYNCREATE(CVisionAppDoc)
 
 // 특성입니다.
 public:
@@ -29,7 +29,7 @@ public:
 
 // 구현입니다.
 public:
-	virtual ~CVisionInspectionAppDoc();
+	virtual ~CVisionAppDoc();
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 	virtual void Dump(CDumpContext& dc) const;

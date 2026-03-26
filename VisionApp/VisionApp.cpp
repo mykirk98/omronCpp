@@ -1,26 +1,27 @@
 ﻿
-// VisionInspectionApp.cpp: 애플리케이션에 대한 클래스 동작을 정의합니다.
+// VisionApp.cpp: 애플리케이션에 대한 클래스 동작을 정의합니다.
 //
 
 #include "pch.h"
 #include "framework.h"
 #include "afxwinappex.h"
 #include "afxdialogex.h"
-#include "VisionInspectionApp.h"
+#include "VisionApp.h"
 #include "MainFrm.h"
 
-#include "VisionInspectionAppDoc.h"
-#include "VisionInspectionAppView.h"
+#include "ChildFrm.h"
+#include "VisionAppDoc.h"
+#include "VisionAppView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
 
-// CVisionInspectionAppApp
+// CVisionAppApp
 
-BEGIN_MESSAGE_MAP(CVisionInspectionAppApp, CWinAppEx)
-	ON_COMMAND(ID_APP_ABOUT, &CVisionInspectionAppApp::OnAppAbout)
+BEGIN_MESSAGE_MAP(CVisionAppApp, CWinAppEx)
+	ON_COMMAND(ID_APP_ABOUT, &CVisionAppApp::OnAppAbout)
 	// 표준 파일을 기초로 하는 문서 명령입니다.
 	ON_COMMAND(ID_FILE_NEW, &CWinAppEx::OnFileNew)
 	ON_COMMAND(ID_FILE_OPEN, &CWinAppEx::OnFileOpen)
@@ -29,9 +30,9 @@ BEGIN_MESSAGE_MAP(CVisionInspectionAppApp, CWinAppEx)
 END_MESSAGE_MAP()
 
 
-// CVisionInspectionAppApp 생성
+// CVisionAppApp 생성
 
-CVisionInspectionAppApp::CVisionInspectionAppApp() noexcept
+CVisionAppApp::CVisionAppApp() noexcept
 {
 	m_bHiColorIcons = TRUE;
 
@@ -48,20 +49,20 @@ CVisionInspectionAppApp::CVisionInspectionAppApp() noexcept
 
 	// TODO: 아래 애플리케이션 ID 문자열을 고유 ID 문자열로 바꾸십시오(권장).
 	// 문자열에 대한 서식: CompanyName.ProductName.SubProduct.VersionInformation
-	SetAppID(_T("VisionInspectionApp.AppID.NoVersion"));
+	SetAppID(_T("VisionApp.AppID.NoVersion"));
 
 	// TODO: 여기에 생성 코드를 추가합니다.
 	// InitInstance에 모든 중요한 초기화 작업을 배치합니다.
 }
 
-// 유일한 CVisionInspectionAppApp 개체입니다.
+// 유일한 CVisionAppApp 개체입니다.
 
-CVisionInspectionAppApp theApp;
+CVisionAppApp theApp;
 
 
-// CVisionInspectionAppApp 초기화
+// CVisionAppApp 초기화
 
-BOOL CVisionInspectionAppApp::InitInstance()
+BOOL CVisionAppApp::InitInstance()
 {
 	// 애플리케이션 매니페스트가 ComCtl32.dll 버전 6 이상을 사용하여 비주얼 스타일을
 	// 사용하도록 지정하는 경우, Windows XP 상에서 반드시 InitCommonControlsEx()가 필요합니다. 
@@ -76,16 +77,7 @@ BOOL CVisionInspectionAppApp::InitInstance()
 	CWinAppEx::InitInstance();
 
 
-	// OLE 라이브러리를 초기화합니다.
-	if (!AfxOleInit())
-	{
-		AfxMessageBox(IDP_OLE_INIT_FAILED);
-		return FALSE;
-	}
-
-	AfxEnableControlContainer();
-
-	EnableTaskbarInteraction(FALSE);
+	EnableTaskbarInteraction();
 
 	// RichEdit 컨트롤을 사용하려면 AfxInitRichEdit2()가 있어야 합니다.
 	// AfxInitRichEdit2();
@@ -113,15 +105,23 @@ BOOL CVisionInspectionAppApp::InitInstance()
 
 	// 애플리케이션의 문서 템플릿을 등록합니다.  문서 템플릿은
 	//  문서, 프레임 창 및 뷰 사이의 연결 역할을 합니다.
-	CSingleDocTemplate* pDocTemplate;
-	pDocTemplate = new CSingleDocTemplate(
-		IDR_MAINFRAME,
-		RUNTIME_CLASS(CVisionInspectionAppDoc),
-		RUNTIME_CLASS(CMainFrame),       // 주 SDI 프레임 창입니다.
-		RUNTIME_CLASS(CVisionInspectionAppView));
+	CMultiDocTemplate* pDocTemplate;
+	pDocTemplate = new CMultiDocTemplate(IDR_VisionAppTYPE,
+		RUNTIME_CLASS(CVisionAppDoc),
+		RUNTIME_CLASS(CChildFrame), // 사용자 지정 MDI 자식 프레임입니다.
+		RUNTIME_CLASS(CVisionAppView));
 	if (!pDocTemplate)
 		return FALSE;
 	AddDocTemplate(pDocTemplate);
+
+	// 주 MDI 프레임 창을 만듭니다.
+	CMainFrame* pMainFrame = new CMainFrame;
+	if (!pMainFrame || !pMainFrame->LoadFrame(IDR_MAINFRAME))
+	{
+		delete pMainFrame;
+		return FALSE;
+	}
+	m_pMainWnd = pMainFrame;
 
 
 	// 표준 셸 명령, DDE, 파일 열기에 대한 명령줄을 구문 분석합니다.
@@ -134,22 +134,20 @@ BOOL CVisionInspectionAppApp::InitInstance()
 	// 응용 프로그램이 /RegServer, /Register, /Unregserver 또는 /Unregister로 시작된 경우 FALSE를 반환합니다.
 	if (!ProcessShellCommand(cmdInfo))
 		return FALSE;
+	// 주 창이 초기화되었으므로 이를 표시하고 업데이트합니다.
+	pMainFrame->ShowWindow(m_nCmdShow);
+	pMainFrame->UpdateWindow();
 
-	// 창 하나만 초기화되었으므로 이를 표시하고 업데이트합니다.
-	m_pMainWnd->ShowWindow(SW_SHOW);
-	m_pMainWnd->UpdateWindow();
 	return TRUE;
 }
 
-int CVisionInspectionAppApp::ExitInstance()
+int CVisionAppApp::ExitInstance()
 {
 	//TODO: 추가한 추가 리소스를 처리합니다.
-	AfxOleTerm(FALSE);
-
 	return CWinAppEx::ExitInstance();
 }
 
-// CVisionInspectionAppApp 메시지 처리기
+// CVisionAppApp 메시지 처리기
 
 
 // 응용 프로그램 정보에 사용되는 CAboutDlg 대화 상자입니다.
@@ -185,15 +183,15 @@ BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
 
 // 대화 상자를 실행하기 위한 응용 프로그램 명령입니다.
-void CVisionInspectionAppApp::OnAppAbout()
+void CVisionAppApp::OnAppAbout()
 {
 	CAboutDlg aboutDlg;
 	aboutDlg.DoModal();
 }
 
-// CVisionInspectionAppApp 사용자 지정 로드/저장 방법
+// CVisionAppApp 사용자 지정 로드/저장 방법
 
-void CVisionInspectionAppApp::PreLoadState()
+void CVisionAppApp::PreLoadState()
 {
 	BOOL bNameValid;
 	CString strName;
@@ -205,15 +203,15 @@ void CVisionInspectionAppApp::PreLoadState()
 	GetContextMenuManager()->AddMenu(strName, IDR_POPUP_EXPLORER);
 }
 
-void CVisionInspectionAppApp::LoadCustomState()
+void CVisionAppApp::LoadCustomState()
 {
 }
 
-void CVisionInspectionAppApp::SaveCustomState()
+void CVisionAppApp::SaveCustomState()
 {
 }
 
-// CVisionInspectionAppApp 메시지 처리기
+// CVisionAppApp 메시지 처리기
 
 
 

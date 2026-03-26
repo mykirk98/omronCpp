@@ -4,7 +4,7 @@
 #include "MainFrm.h"
 #include "ClassView.h"
 #include "Resource.h"
-#include "VisionInspectionApp.h"
+#include "VisionApp.h"
 
 class CClassViewMenuButton : public CMFCToolBarMenuButton
 {

@@ -1,9 +1,8 @@
 ﻿//{{NO_DEPENDENCIES}}
 // Microsoft Visual C++에서 생성한 포함 파일입니다.
-// VisionInspectionApp.rc에서 사용
+// VisionApp.rc에서 사용
 //
 #define IDD_ABOUTBOX				100
-#define IDP_OLE_INIT_FAILED			100
 #define IDR_POPUP_EDIT				119
 #define ID_STATUSBAR_PANE1			120
 #define ID_STATUSBAR_PANE2			121
@@ -14,7 +13,7 @@
 #define ID_VIEW_CUSTOMIZE			126
 #define IDR_MAINFRAME				128
 #define IDR_MAINFRAME_256			129
-#define IDR_VisionInspectionAppTYPE				130
+#define IDR_VisionAppTYPE				130
 #define ID_WINDOW_MANAGER			131
 #define ID_VIEW_FILEVIEW			133
 #define ID_VIEW_CLASSVIEW			134

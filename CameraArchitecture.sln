@@ -5,7 +5,7 @@ VisualStudioVersion = 18.4.11620.152 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "myOmronC++", "myOmronC++\myOmronC++.vcxproj", "{522D8083-9D2A-43BD-8328-FF187020617C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VisionInspectionApp", "VisionInspectionApp\VisionInspectionApp.vcxproj", "{969C9347-3A32-7090-678D-AC5D75EA669B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VisionApp", "VisionApp\VisionApp.vcxproj", "{6B6478A6-1384-A33C-0B2C-DE47D5C1FA1E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,14 +23,14 @@ Global
 		{522D8083-9D2A-43BD-8328-FF187020617C}.Release|Win32.Build.0 = Release|Win32
 		{522D8083-9D2A-43BD-8328-FF187020617C}.Release|x64.ActiveCfg = Release|x64
 		{522D8083-9D2A-43BD-8328-FF187020617C}.Release|x64.Build.0 = Release|x64
-		{969C9347-3A32-7090-678D-AC5D75EA669B}.Debug|Win32.ActiveCfg = Debug|Win32
-		{969C9347-3A32-7090-678D-AC5D75EA669B}.Debug|Win32.Build.0 = Debug|Win32
-		{969C9347-3A32-7090-678D-AC5D75EA669B}.Debug|x64.ActiveCfg = Debug|x64
-		{969C9347-3A32-7090-678D-AC5D75EA669B}.Debug|x64.Build.0 = Debug|x64
-		{969C9347-3A32-7090-678D-AC5D75EA669B}.Release|Win32.ActiveCfg = Release|Win32
-		{969C9347-3A32-7090-678D-AC5D75EA669B}.Release|Win32.Build.0 = Release|Win32
-		{969C9347-3A32-7090-678D-AC5D75EA669B}.Release|x64.ActiveCfg = Release|x64
-		{969C9347-3A32-7090-678D-AC5D75EA669B}.Release|x64.Build.0 = Release|x64
+		{6B6478A6-1384-A33C-0B2C-DE47D5C1FA1E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6B6478A6-1384-A33C-0B2C-DE47D5C1FA1E}.Debug|Win32.Build.0 = Debug|Win32
+		{6B6478A6-1384-A33C-0B2C-DE47D5C1FA1E}.Debug|x64.ActiveCfg = Debug|x64
+		{6B6478A6-1384-A33C-0B2C-DE47D5C1FA1E}.Debug|x64.Build.0 = Debug|x64
+		{6B6478A6-1384-A33C-0B2C-DE47D5C1FA1E}.Release|Win32.ActiveCfg = Release|Win32
+		{6B6478A6-1384-A33C-0B2C-DE47D5C1FA1E}.Release|Win32.Build.0 = Release|Win32
+		{6B6478A6-1384-A33C-0B2C-DE47D5C1FA1E}.Release|x64.ActiveCfg = Release|x64
+		{6B6478A6-1384-A33C-0B2C-DE47D5C1FA1E}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

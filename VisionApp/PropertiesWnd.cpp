@@ -5,7 +5,7 @@
 #include "PropertiesWnd.h"
 #include "Resource.h"
 #include "MainFrm.h"
-#include "VisionInspectionApp.h"
+#include "VisionApp.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
