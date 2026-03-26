@@ -1,0 +1,13 @@
+1. CMakeLists.txt파일을 만들기
+2. mkdir build
+3. cd build
+4. cmake ..
+5. make
+6. ./myOmronApp
+
+우분투에서 ttyUSB* 포트가 통신이 안될 때 확인해야할 것
+1. ls -l /dev/ttyUSB* -> 내가 포트 번호 재대로 기입했는지 확인하기
+2. groups -> 내 계정이 dialout 그룹에 속해있는지 확인하기 없다면
+2.1. sudo usermod -a -G dialout $USER
+2.2. 재부팅하기
+2.3. groups -> dialout 그룹이 추가되어있을 것

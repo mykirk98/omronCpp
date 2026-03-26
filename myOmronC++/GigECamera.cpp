@@ -100,7 +100,7 @@ void GigECamera::StopAcquisition()
 	}
 }
 
-void GigECamera::SequentialCapture()
+void GigECamera::FreeRunCapture()
 {
 	// A while loop for acquiring data and checking status.
 	// Here, the acquisition runs until it reaches the assigned numbers of frames.
@@ -126,6 +126,11 @@ void GigECamera::ExecuteTrigger()
 void GigECamera::SetFrameQueue(std::shared_ptr<ThreadSafeQueue<FrameData>> pFrameQueue)
 {
 	m_pFrameQueue = pFrameQueue;
+}
+
+void GigECamera::SetCVMatQueue(std::shared_ptr<ThreadSafeQueue<cv::Mat>> pCVMatQueue)
+{
+	m_pCVMatQueue = pCVMatQueue;
 }
 
 const std::string& GigECamera::GetUserDefinedName()
@@ -177,7 +182,7 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 
 				FrameData frame;
 				frame.pImage = pImage;
-				frame.serialNumber = GetSerialNumber();
+				frame.serialNumber = GetSerialNumber(); 
 				frame.frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
 				frame.cameraName = GetUserDefinedName();
 				frame.isMono = pPixelFormatInfo->IsMono();
@@ -187,6 +192,10 @@ void GigECamera::OnCallback(IStCallbackParamBase* pCallbackParam)
 					m_pFrameQueue->Push(frame);
 
 				Mat mat = ImageProcess::ConvertToMat(pImage);
+				if (m_pCVMatQueue)
+					m_pCVMatQueue->Push(mat);
+
+				m_logger->Log("[" + m_strUDFName + "] CV::Mat Queue size: " + std::to_string(m_pCVMatQueue->Size()));
 				//m_logger->Log("[" + m_strUDFName + "] Image converted to OpenCV Mat.");
 #ifdef _WIN32
 				Sleep(75);
@@ -224,7 +233,7 @@ int main()
 	{
 		camera.StartAcquisition();
 
-		//camera.SequentialCapture(); // Capture images sequentially
+		//camera.FreeRunCapture(); // Capture images sequentially
 		while (true)
 		{
 			std::cout << "Press 0 to trigger an image or 1 to exit: ";

@@ -1,8 +1,11 @@
 #pragma once
 #include <StApi_TL.h>	// TL : Transport Layer
 
+#include "ImageProcess.h"
 #include "NodeMapUtil.h"
 #include "ImageSaverThreadPool.h"
+#include "config.h" 
+#include "CSVWriter.h"
 
 using namespace StApi;
 
@@ -11,7 +14,7 @@ class BasicCamera
 {
 public:
 	/* @brief BasicCamera constructor */
-	explicit BasicCamera();
+	explicit BasicCamera(std::string rootDir);
 	/* @brief BasicCamera destructor */
 	~BasicCamera();
 	
@@ -22,32 +25,21 @@ public:
 	/* @brief Stop image acquisition method */
 	void StopAcquisition();
 	/* @brief Sequential image capture function */
-	void SequentialCapture();
-
-	void SetThreadPool(std::shared_ptr<ImageSaverThreadPool> pThreadPool);
+	void FreeRunCapture0();
+	void FreeRunCapture1();
 
 protected:
-	/*
-	@brief Display frame information
-	@param pImage : Image pointer containing frame data
-	@param frameID : Frame ID of the image
-	*/
-	void PrintFrameInfo(const CIStStreamBufferPtr& pStreamBuffer);
-	/*
-	@brief Load saved image from a directory
-	@param pImageBuffer : Image buffer pointer to load the image into
-	@param srcDir : Directory path from which image comes
-	*/
-	void LoadSavedImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& srcDir);
-	
 	/* @brief system object */
-	CIStSystemPtr m_pSystem;
+	//CIStSystemPtr m_pSystem;
 	/* @brief camera device object */
 	CIStDevicePtr m_pDevice;
 	/* @brief datastream object */
 	CIStDataStreamPtr m_pDataStream;
 
 private:
-	std::string m_saveRootDir;
-	std::shared_ptr<ImageSaverThreadPool> m_pThreadPool;
+	std::string m_strRootDir;
+	std::unique_ptr<CSVWriter> m_csv;
+	std::string m_strCameraName;
+	std::string m_strSerialNumber;
+	//std::shared_ptr<ImageSaverThreadPool> m_pThreadPool;
 };

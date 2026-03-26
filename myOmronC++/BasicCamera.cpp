@@ -1,24 +1,17 @@
 #include "BasicCamera.h"
-#include "config.h"
 
-//#define LOGGING
-
-BasicCamera::BasicCamera()
-	: m_saveRootDir("C:\\Users\\mykir\\Work\\Experiments\\") //NOTE: LAB WINDOWS PC DIRECTORY
-	//, m_saveRootDir("C:\\Users\\USER\\Pictures\\")	//NOTE: HOME PC DIRECTORY
-	//, m_saveRootDir("/home/msis/Pictures/SentechExperiments/Experiments1/";)	//NOTE: LAB LINUX PC DIRECTORY
+inline long long now_ns()
 {
-#ifdef LOGGING
-	std::cout << "[BasicCamera] constructed" << std::endl;
-#endif // LOGGING
+	return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+}
 
+BasicCamera::BasicCamera(std::string rootDir)
+	: m_strRootDir(rootDir)
+{
 }
 
 BasicCamera::~BasicCamera()
 {
-#ifdef LOGGING
-	std::cout << "[BasicCamera] destructed" << std::endl;
-#endif // LOGGING
 }
 
 bool BasicCamera::Initialize(const CIStSystemPtr& pSystem)
@@ -26,19 +19,25 @@ bool BasicCamera::Initialize(const CIStSystemPtr& pSystem)
 	try
 	{
 		// Create a camrea device object and connect to the first detected device.
-		m_pDevice = pSystem->CreateFirstIStDevice();//TODO: find another way to connect to a specific camera
+		m_pDevice = pSystem->CreateFirstIStDevice();
 		std::cout << "[BasicCamera] " << m_pDevice->GetIStDeviceInfo()->GetDisplayName() << " : connected" << std::endl;
 		// Create a DataStream object for handling image stream data.
 		m_pDataStream = m_pDevice->CreateIStDataStream(0);
-		std::cout << "[BasicCamera] # of available data stream : " << m_pDevice->GetDataStreamCount() << std::endl;
-		
+
 		//std::string dstCfgDir = "C:\\Users\\USER\\Pictures\\Features.cfg";
 		//NodeMapUtil::Load(m_pDevice, dstCfgDir);
 		//NodeMapUtil::DisplayNodes(m_pDevice->GetRemoteIStPort()->GetINodeMap()->GetNode("Root"));
 
-#ifdef LOGGING
-		std::cout << "[BasicCamera] Initialized" << std::endl;
-#endif // LOGGING
+		m_strCameraName = m_pDevice->GetIStDeviceInfo()->GetDisplayName().c_str();
+		m_strSerialNumber = m_pDevice->GetIStDeviceInfo()->GetSerialNumber().c_str();
+
+		std::string csvPath = m_strRootDir + "log.csv";
+
+		m_csv = std::make_unique<CSVWriter>(csvPath);
+		if (!m_csv->is_open())
+		{
+			std::cerr << "[BasicCamera] Warning: Failed to open CSV file: " << csvPath << std::endl;
+		}
 
 		return true;
 	}
@@ -57,10 +56,6 @@ void BasicCamera::StartAcquisition(uint64_t imageCount)
 		m_pDataStream->StartAcquisition(imageCount);
 		// Start the image acquisition of the camera side.
 		m_pDevice->AcquisitionStart();
-
-#ifdef LOGGING
-		std::cout << "[BasicCamera] Acquisition started" << std::endl;
-#endif // LOGGING
 	}
 	catch (const GenICam::GenericException& e)
 	{
@@ -76,10 +71,6 @@ void BasicCamera::StopAcquisition()
 		m_pDevice->AcquisitionStop();
 		// Stop the image acquisition of the host(PC) side.
 		m_pDataStream->StopAcquisition();
-#ifdef LOGGING
-		std::cout << "[BasicCamera] Acquisition stopped" << std::endl;
-#endif // LOGGING
-
 	}
 	catch (const GenICam::GenericException& e)
 	{
@@ -87,61 +78,65 @@ void BasicCamera::StopAcquisition()
 	}
 }
 
-void BasicCamera::PrintFrameInfo(const CIStStreamBufferPtr& pStreamBuffer)
-{
-	try
-	{
-		std::cout << "Block ID: " << pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID()
-			<< "\tSize: " << pStreamBuffer->GetIStImage()->GetImageWidth() << " x " << pStreamBuffer->GetIStImage()->GetImageHeight()
-			<< "\tFirst byte: " << static_cast<uint32_t>(*reinterpret_cast<uint8_t*>(pStreamBuffer->GetIStImage()->GetImageBuffer()))
-			<< "\ttime stamp: " << pStreamBuffer->GetIStStreamBufferInfo()->GetTimestamp()
-			<< std::endl;
-	}
-	catch (const GenICam::GenericException& e)
-	{
-		std::cerr << "[BasicCamera] Printing frame info error: " << e.GetDescription() << std::endl;
-	}
-}
-
-void BasicCamera::LoadSavedImage(CIStImageBufferPtr& pImageBuffer, const GenICam::gcstring& srcDir)
-{
-	try
-	{
-		// Create a still image file handling class object (filer) for still image processing.
-		CIStStillImageFilerPtr pStillImageFiler(CreateIStFiler(StFilerType_StillImage));
-		
-		std::wcout << std::endl << "[BasicCamera] Loading " << srcDir.c_str() << L"... ";
-		pStillImageFiler->Load(pImageBuffer, srcDir);
-		std::cout << "done" << std::endl;
-	}
-	catch (const GenICam::GenericException& e)
-	{
-		std::cerr << "[BasicCamera] Loading image error: " << e.GetDescription() << std::endl;
-	}
-}
-
-void BasicCamera::SequentialCapture()
+void BasicCamera::FreeRunCapture0()
 {
 	while (m_pDataStream->IsGrabbing())
 	{
+		const long long t_before_acq = now_ns();
+		CIStStreamBufferPtr pStreamBuffer(m_pDataStream->RetrieveBuffer(5000));
+		const long long t_after_acq = now_ns();
+
+		uint64_t frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
+
+		if (pStreamBuffer->GetIStStreamBufferInfo()->IsImagePresent())
+		{
+			IStImage* pImage = pStreamBuffer->GetIStImage();
+		}
+
+		if (m_csv && m_csv->is_open())
+		{
+			m_csv->WriteRow(frameID, t_before_acq, t_after_acq);
+		}
+
+	}
+}
+
+void BasicCamera::FreeRunCapture1()
+{
+	while (m_pDataStream->IsGrabbing())
+	{
+		// 프레임 수신 대기 타임스탬프
+		const long long t_before_acq = now_ns();
 		// Retrieve the buffer pointer of image data with a timeout of 5000ms.
 		CIStStreamBufferPtr pStreamBuffer(m_pDataStream->RetrieveBuffer(5000));
-		
+		const long long t_after_acq = now_ns();
 		// Check if the acquired data contains image data.
 		if (pStreamBuffer->GetIStStreamBufferInfo()->IsImagePresent())
 		{
 			// If yes, we create a IStImage object for further image handling.
 			IStImage* pImage = pStreamBuffer->GetIStImage();
-			PrintFrameInfo(pStreamBuffer);
 
-			if (m_pThreadPool)
+			// Get image information which changes every frame.
+			uint64_t frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
+			const EStPixelFormatNamingConvention_t ePFNC = pImage->GetImagePixelFormat();
+			const IStPixelFormatInfo* const pPixelFormatInfo = GetIStPixelFormatInfo(ePFNC);
+			bool isMono = pPixelFormatInfo->IsMono();
+			
+			// Save the image
+			CIStImageBufferPtr pBuffer(CreateIStImageBuffer());
+			ImageProcess::ConvertPixelFormat(pImage, isMono, pBuffer);
+			GenICam::gcstring savePath = ImageProcess::SetSavePath(m_strRootDir, m_strCameraName, m_strSerialNumber, frameID);
+			ImageProcess::SaveImage<BMP>(pBuffer, savePath);
+			const long long t_after_save = now_ns();
+
+			// Convert to OpenCV Mat
+			Mat mat = ImageProcess::ConvertToMat(pImage);
+			const long long t_after_cv = now_ns();
+			//TODO: Image processing
+
+			if (m_csv && m_csv->is_open())
 			{
-				FrameData frameData;
-				frameData.serialNumber = m_pDevice->GetIStDeviceInfo()->GetSerialNumber();
-				frameData.frameID = pStreamBuffer->GetIStStreamBufferInfo()->GetFrameID();
-				//frameData.pImage = pImage;
-
-				//m_pThreadPool->Enqueue(frameData);
+				m_csv->WriteRow(frameID, t_before_acq, t_after_acq, t_after_save, t_after_cv);
 			}
 		}
 		else
@@ -149,15 +144,6 @@ void BasicCamera::SequentialCapture()
 			std::cout << "[BasicCamera] No image data present in the buffer" << std::endl;
 		}
 	}
-#ifdef LOGGING
-	std::cout << "[BasicCamera] Sequential capture completed" << std::endl;
-#endif // LOGGING
-
-}
-
-void BasicCamera::SetThreadPool(std::shared_ptr<ImageSaverThreadPool> pThreadPool)
-{
-	m_pThreadPool = pThreadPool;
 }
 
 
@@ -167,37 +153,18 @@ void BasicCamera::SetThreadPool(std::shared_ptr<ImageSaverThreadPool> pThreadPoo
 
 int main()
 {
-	std::cout << "==========Basic Camera Example==========" << std::endl;
-
-	int numImages = 10; // Number of images to capture
-
+	int numImages = 100;
 	CStApiAutoInit objStApiAutoInit; // Initialize StApi
-	CIStSystemPtr pSystem(CreateIStSystem()); // Create a system object for device scan and connection
+	CIStSystemPtr pSystem(CreateIStSystem());
 
-	std::shared_ptr<ImageSaverThreadPool> imageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(1, "C:\\Users\\mykir\\Work\\Experiments\\", true);
-	imageSaverThreadPool->Start();
+	BasicCamera camera(HOME_PC_DIRECTORY);
 
-	BasicCamera basicCamera;
-	if (basicCamera.Initialize(pSystem))
+	if (camera.Initialize(pSystem))
 	{
-		basicCamera.StartAcquisition(numImages);
-		basicCamera.SetThreadPool(imageSaverThreadPool);
+		camera.StartAcquisition(numImages);
+		camera.FreeRunCapture1();
 
-
-		std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
-		basicCamera.SequentialCapture();
-		std::chrono::steady_clock::time_point endTime = std::chrono::steady_clock::now();
-		std::chrono::duration<double> elapsedSeconds = endTime - startTime;
-		double averageFPS = numImages / elapsedSeconds.count(); // Calculate average FPS
-		std::cout << "[Main] Average FPs: " << averageFPS << std::endl; // Display average FPS
-
-		basicCamera.StopAcquisition();
+		camera.StopAcquisition();
 	}
-	else
-	{
-		std::cerr << "Camera initialization failed." << std::endl;
-	}
-	imageSaverThreadPool->Stop();
-	return 0;
 }
 */

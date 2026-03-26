@@ -56,6 +56,8 @@ private:
 
 	/*	@brief Frame queue for managing image frames. */
 	std::shared_ptr<ThreadSafeQueue<FrameData>> m_pFrameQueue;
+	/* @brief CVMat queue for managing OpenCV Mat images. */ 
+	std::shared_ptr<ThreadSafeQueue<cv::Mat>> m_pCVMatQueue;
 	/*	@brief Thread pool for saving images. */
 	std::shared_ptr<ImageSaverThreadPool> m_pImageSaverThreadPool;
 	/*	@brief Path queue for managing paths for communicate with other processes. */

@@ -1,4 +1,4 @@
-#include "GigEManager.h"
+ï»¿#include "GigEManager.h"
 
 GigEManager::GigEManager(std::string rootDir)
     : m_strRootDir(rootDir)
@@ -6,6 +6,7 @@ GigEManager::GigEManager(std::string rootDir)
 {
 	m_logger = std::make_shared<Logger>();
     m_pFrameQueue = std::make_shared<ThreadSafeQueue<FrameData>>();
+    m_pCVMatQueue = std::make_shared<ThreadSafeQueue<cv::Mat>>();
 	m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strRootDir, m_pFrameQueue, m_pPathQueue, m_logger);
 }
 
@@ -15,6 +16,7 @@ GigEManager::GigEManager(std::string saveRootDir, std::shared_ptr<ThreadSafeQueu
 	, m_pPathQueue(pathQueue)
 {
     m_pFrameQueue = std::make_shared<ThreadSafeQueue<FrameData>>();
+    m_pCVMatQueue = std::make_shared<ThreadSafeQueue<cv::Mat>>();
     m_pImageSaverThreadPool = std::make_shared<ImageSaverThreadPool>(5, m_strRootDir, m_pFrameQueue, m_pPathQueue, m_logger);
 }
 
@@ -40,8 +42,10 @@ bool GigEManager::Initialize()
                 std::shared_ptr<GigECamera> camera = std::make_shared<GigECamera>(m_strRootDir, m_logger);
                 if (camera->Initialize(pInterface, deviceIdx))
                 {
-				    const std::string& cameraName = camera->GetUserDefinedName();    //TODO: ÀÌ ½ÃÁ¡¿¡¼­ cameraNameÀÌ ¾î¶»°Ô °áÁ¤µÈ °ÍÀÎÁö È®ÀÎ ÇÊ¿ä
+				    const std::string& cameraName = camera->GetUserDefinedName();    //TODO: ì´ ì‹œì ì—ì„œ cameraNameì´ ì–´ë–»ê²Œ ê²°ì •ëœ ê²ƒì¸ì§€ í™•ì¸ í•„ìš”
                     camera->SetFrameQueue(m_pFrameQueue);
+                    //TODO: opencv mat í ì„¤ì •
+					camera->SetCVMatQueue(m_pCVMatQueue);
                     m_cameras.push_back(camera);
                     m_cameraMap[cameraName] = camera;
                 }
@@ -152,11 +156,8 @@ int main()
 {
     std::shared_ptr<ThreadSafeQueue<std::string>> pathQueue = std::make_shared<ThreadSafeQueue<std::string>>();
     //std::shared_ptr<PathQueue> pathQueue = std::make_shared<PathQueue>();
-    std::string rootDir = "C:\\Users\\mykir\\Work\\Experiments\\"; // NOTE: LAB WINDOWS PC DIRECTORY
-    //std::string rootDir = "C:\\Users\\USER\\Pictures\\"; // NOTE: HOME PC DIRECTORY
-    //std::string rootDir = "/home/msis/Pictures/SentechExperiments/Experiments1/"; // NOTE: LAB LINUX PC DIRECTORY
-    //GigEManager manager(rootDir, pathQueue);
-    GigEManager manager(rootDir);
+    //GigEManager manager(saveRootDir, pathQueue);
+    GigEManager manager(LAB_WINDOW_PC_DIRECTORY);
 
     if (!manager.Initialize())
     {
@@ -166,16 +167,24 @@ int main()
 
     manager.StartAll();
 
-    for (int i = 0; i < 10; ++i)
+    for (int i = 0; i < 5; ++i)
     {
         manager.TriggerSingle("5MP_1");
         manager.TriggerSingle("5MP_2");
-        manager.TriggerSingle("5MP_3");
-        manager.TriggerSingle("12MP_1");
-        manager.TriggerSingle("12MP_2");
+        //manager.TriggerSingle("5MP_3");
+        //manager.TriggerSingle("5MP_4");
+        //manager.TriggerSingle("12MP_1");
+        //manager.TriggerSingle("12MP_2");
+        manager.TriggerSingle("2MP_1");
+        //manager.TriggerSingle("2MP_2");
+#ifdef _WIN32
         Sleep(150);
+#else
+        usleep(150 * 1000);  // 150 ms
+#endif // _WIN32
+
     }
-    Sleep(1000);
+    Sleep(3000);
     manager.StopAll();
     return 0;
 }

@@ -25,6 +25,21 @@
     <Filter Include="ThreadPool">
       <UniqueIdentifier>{963ac878-612d-472d-872d-8ba6ba85fe50}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Experiments">
+      <UniqueIdentifier>{c2552b55-1a97-4ed8-818c-c6c42d2dfd08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LightController">
+      <UniqueIdentifier>{f7bd7fdd-7c72-49bf-9271-647ebba67c3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LightController\Interface">
+      <UniqueIdentifier>{5d59e816-b66f-497a-986f-680063e019ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LightController\Adapter">
+      <UniqueIdentifier>{511fb47b-7930-4d04-b3a8-748ba989cf9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LightController\Factory">
+      <UniqueIdentifier>{4156f265-1f66-4251-93ee-2ff99e26b43b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -40,12 +55,6 @@
     <ClCompile Include="BasicCamera.cpp">
       <Filter>Camera</Filter>
     </ClCompile>
-    <ClCompile Include="CameraManager.cpp">
-      <Filter>Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="CameraStaff.cpp">
-      <Filter>Camera</Filter>
-    </ClCompile>
     <ClCompile Include="GigECamera.cpp">
       <Filter>Camera</Filter>
     </ClCompile>
@@ -55,14 +64,26 @@
     <ClCompile Include="ImageSaverThreadPool.cpp">
       <Filter>ThreadPool</Filter>
     </ClCompile>
-    <ClCompile Include="TriggerCamera.cpp">
-      <Filter>Camera</Filter>
-    </ClCompile>
     <ClCompile Include="PathToGuiAdapter.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Logger.cpp">
       <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Experiments.cpp">
+      <Filter>Experiments</Filter>
+    </ClCompile>
+    <ClCompile Include="LCP24100SS.cpp">
+      <Filter>LightController</Filter>
+    </ClCompile>
+    <ClCompile Include="LCP100DC.cpp">
+      <Filter>LightController</Filter>
+    </ClCompile>
+    <ClCompile Include="LightManager.cpp">
+      <Filter>LightController</Filter>
+    </ClCompile>
+    <ClCompile Include="LightFactory.cpp">
+      <Filter>LightController\Factory</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -81,12 +102,6 @@
     <ClInclude Include="BasicCamera.h">
       <Filter>Camera</Filter>
     </ClInclude>
-    <ClInclude Include="CameraManager.h">
-      <Filter>Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="CameraStaff.h">
-      <Filter>Camera</Filter>
-    </ClInclude>
     <ClInclude Include="GigECamera.h">
       <Filter>Camera</Filter>
     </ClInclude>
@@ -96,9 +111,6 @@
     <ClInclude Include="ImageSaverThreadPool.h">
       <Filter>ThreadPool</Filter>
     </ClInclude>
-    <ClInclude Include="TriggerCamera.h">
-      <Filter>Camera</Filter>
-    </ClInclude>
     <ClInclude Include="PathToGuiAdapter.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -107,6 +119,30 @@
     </ClInclude>
     <ClInclude Include="Logger.h">
       <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="CSVWriter.h">
+      <Filter>Experiments</Filter>
+    </ClInclude>
+    <ClInclude Include="LCP24100SS.h">
+      <Filter>LightController</Filter>
+    </ClInclude>
+    <ClInclude Include="LCP100DC.h">
+      <Filter>LightController</Filter>
+    </ClInclude>
+    <ClInclude Include="ILightController.h">
+      <Filter>LightController\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="LCP24100SSAdapter.h">
+      <Filter>LightController\Adapter</Filter>
+    </ClInclude>
+    <ClInclude Include="LCP100DCAdapter.h">
+      <Filter>LightController\Adapter</Filter>
+    </ClInclude>
+    <ClInclude Include="LightManager.h">
+      <Filter>LightController</Filter>
+    </ClInclude>
+    <ClInclude Include="LightFactory.h">
+      <Filter>LightController\Factory</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
