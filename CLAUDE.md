@@ -6,6 +6,7 @@ A Machine VIsion system that manages multiple GigE cameras for real-time control
 
 ## Tech Stack
 - **C++**: C++20, MSVC v145 (VS 2022), OpenCV 4.12.0, Omron StApi SDK (via `STAPI_ROOT_PATH`)
+- **MFC**: Static link, MDI 기반 데스크탑 UI (`VisionApp`)
 
 ## Development Principles
 
@@ -29,5 +30,5 @@ msbuild CameraArchitecture.sln /p:Configuration=Release /p:Platform=x64
 ```
 CameraArchitecture.sln
 ├── myOmronC++/              # C++20 backend — GigE camera control (see myOmronC++/CLAUDE.md)
-├── VisionInspectionApp/     # MFC desktop UI — vision inspection frontend (see VisionInspectionApp/CLAUDE.md)
+├── VisionApp/               # MFC desktop UI — vision inspection frontend (see VisionApp/CLAUDE.md)
 ```
