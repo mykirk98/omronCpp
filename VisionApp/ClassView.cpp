@@ -124,40 +124,61 @@ void CClassView::OnSize(UINT nType, int cx, int cy)
 
 void CClassView::DiscoverAndFillDevices()
 {
-	HTREEITEM hRoot = m_wndClassView.InsertItem(_T("FakeApp 클래스"), 0, 0);
-	m_wndClassView.SetItemState(hRoot, TVIS_BOLD, TVIS_BOLD);
+	m_wndClassView.DeleteAllItems();
+	bool bAnyFound = false;
 
-	HTREEITEM hClass = m_wndClassView.InsertItem(_T("CFakeAboutDlg"), 1, 1, hRoot);
-	m_wndClassView.InsertItem(_T("CFakeAboutDlg()"), 3, 3, hClass);
+	try
+	{
+		using namespace StApi;
 
-	m_wndClassView.Expand(hRoot, TVE_EXPAND);
+		for (uint32_t i = StSystemVendor_Default; i < StSystemVendor_Count; ++i)
+		{
+			IStSystemReleasable* pSystem = nullptr;
+			try
+			{
+				pSystem = CreateIStSystem(
+					static_cast<EStSystemVendor_t>(i), StInterfaceType_All);
+			}
+			catch (const GenICam::GenericException&)
+			{
+				continue; // 미설치 벤더 — 조용히 건너뜀
+			}
 
-	hClass = m_wndClassView.InsertItem(_T("CFakeApp"), 1, 1, hRoot);
-	m_wndClassView.InsertItem(_T("CFakeApp()"), 3, 3, hClass);
-	m_wndClassView.InsertItem(_T("InitInstance()"), 3, 3, hClass);
-	m_wndClassView.InsertItem(_T("OnAppAbout()"), 3, 3, hClass);
+			// System 노드 (이미지 인덱스 0 = 폴더)
+			CString csSystem(pSystem->GetIStSystemInfo()->GetDisplayName().c_str());
+			HTREEITEM hSystem = m_wndClassView.InsertItem(csSystem, 0, 0, TVI_ROOT);
+			m_wndClassView.SetItemState(hSystem, TVIS_BOLD, TVIS_BOLD);
 
-	hClass = m_wndClassView.InsertItem(_T("CFakeAppDoc"), 1, 1, hRoot);
-	m_wndClassView.InsertItem(_T("CFakeAppDoc()"), 4, 4, hClass);
-	m_wndClassView.InsertItem(_T("~CFakeAppDoc()"), 3, 3, hClass);
-	m_wndClassView.InsertItem(_T("OnNewDocument()"), 3, 3, hClass);
+			for (size_t j = 0; j < pSystem->GetInterfaceCount(); ++j)
+			{
+				IStInterface* pIf = pSystem->GetIStInterface(j);
 
-	hClass = m_wndClassView.InsertItem(_T("CFakeAppView"), 1, 1, hRoot);
-	m_wndClassView.InsertItem(_T("CFakeAppView()"), 4, 4, hClass);
-	m_wndClassView.InsertItem(_T("~CFakeAppView()"), 3, 3, hClass);
-	m_wndClassView.InsertItem(_T("GetDocument()"), 3, 3, hClass);
-	m_wndClassView.Expand(hClass, TVE_EXPAND);
+				// Interface 노드 (이미지 인덱스 1 = 클래스)
+				CString csIf(pIf->GetIStInterfaceInfo()->GetDisplayName().c_str());
+				HTREEITEM hIf = m_wndClassView.InsertItem(csIf, 1, 1, hSystem);
 
-	hClass = m_wndClassView.InsertItem(_T("CFakeAppFrame"), 1, 1, hRoot);
-	m_wndClassView.InsertItem(_T("CFakeAppFrame()"), 3, 3, hClass);
-	m_wndClassView.InsertItem(_T("~CFakeAppFrame()"), 3, 3, hClass);
-	m_wndClassView.InsertItem(_T("m_wndMenuBar"), 6, 6, hClass);
-	m_wndClassView.InsertItem(_T("m_wndToolBar"), 6, 6, hClass);
-	m_wndClassView.InsertItem(_T("m_wndStatusBar"), 6, 6, hClass);
+				for (uint32_t k = 0; k < pIf->GetDeviceCount(); ++k)
+				{
+					// Device 노드 (이미지 인덱스 3 = 항목)
+					CString csDev(pIf->GetIStDeviceInfo(k)->GetDisplayName().c_str());
+					m_wndClassView.InsertItem(csDev, 3, 3, hIf);
+					bAnyFound = true;
+				}
+				m_wndClassView.Expand(hIf, TVE_EXPAND);
+			}
+			m_wndClassView.Expand(hSystem, TVE_EXPAND);
 
-	hClass = m_wndClassView.InsertItem(_T("Globals"), 2, 2, hRoot);
-	m_wndClassView.InsertItem(_T("theFakeApp"), 5, 5, hClass);
-	m_wndClassView.Expand(hClass, TVE_EXPAND);
+			pSystem->Release();
+		}
+	}
+	catch (const GenICam::GenericException& e)
+	{
+		TRACE(_T("StApi discovery: %s\n"), CString(e.GetDescription()));
+	}
+	catch (...) {}
+
+	if (!bAnyFound)
+		m_wndClassView.InsertItem(_T("No cameras found"), 0, 0, TVI_ROOT);
 }
 
 void CClassView::OnContextMenu(CWnd* pWnd, CPoint point)
