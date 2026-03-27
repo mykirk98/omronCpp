@@ -11,7 +11,10 @@ A Machine VIsion system that manages multiple GigE cameras for real-time control
 ## Development Principles
 
 Follow @docs/tdd_principles.md for TDD and Tidy First workflow.
-When I say "go", follow the plan.md workflow defined in that document.
+If I ask you to implement a specific feature, refer to tdd_principles.md and create a workflow in docs/plan.md to implement that feature.
+When I say "go", follow the docs/plan.md workflow defined in that document.
+docs/xxx_plan_completed.md files are completed tasks, therefore ignore these completed files.
+
 
 ## Build Commands
 
