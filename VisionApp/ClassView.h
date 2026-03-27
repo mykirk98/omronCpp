@@ -28,7 +28,7 @@ protected:
 	CImageList m_ClassViewImages;
 	UINT m_nCurrSort;
 
-	void DiscoverAndFillDevices();
+	void FillClassView();
 
 // 재정의입니다.
 public:

@@ -111,7 +111,7 @@ int CClassView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 
 	// 정적 트리 뷰 데이터를 더미 코드로 채웁니다.
-	DiscoverAndFillDevices();
+	FillClassView();
 
 	return 0;
 }
@@ -122,7 +122,7 @@ void CClassView::OnSize(UINT nType, int cx, int cy)
 	AdjustLayout();
 }
 
-void CClassView::DiscoverAndFillDevices()
+void CClassView::FillClassView()
 {
 	HTREEITEM hRoot = m_wndClassView.InsertItem(_T("FakeApp 클래스"), 0, 0);
 	m_wndClassView.SetItemState(hRoot, TVIS_BOLD, TVIS_BOLD);
