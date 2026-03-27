@@ -20,10 +20,10 @@
 
 // CVisionAppApp
 
-BEGIN_MESSAGE_MAP(CVisionAppApp, CWinAppEx)	//NOTE: 메시지 맵을 시작하는 매크로, CVisionAppApp 클래스와 CWinAppEx 클래스의 메시지 맵을 연결
-	ON_COMMAND(ID_APP_ABOUT, &CVisionAppApp::OnAppAbout)	//NOTE: ON_COMMAND: 메뉴/버튼 클릭 시 발생하는 WM_COMMAND를 특정 함수에 연결
+BEGIN_MESSAGE_MAP(CVisionAppApp, CWinAppEx)
+	ON_COMMAND(ID_APP_ABOUT, &CVisionAppApp::OnAppAbout)
 	// 표준 파일을 기초로 하는 문서 명령입니다.
-	ON_COMMAND(ID_FILE_NEW, &CWinAppEx::OnFileNew)	// 부모클래스인 CWinAppEx의 OnFileNew 함수를 호출하여 새 문서를 생성하는 명령을 처리
+	ON_COMMAND(ID_FILE_NEW, &CWinAppEx::OnFileNew)
 	ON_COMMAND(ID_FILE_OPEN, &CWinAppEx::OnFileOpen)
 	// 표준 인쇄 설정 명령입니다.
 	ON_COMMAND(ID_FILE_PRINT_SETUP, &CWinAppEx::OnFilePrintSetup)
@@ -38,7 +38,7 @@ CVisionAppApp::CVisionAppApp() noexcept
 
 
 	m_nAppLook = 0;
-	// 다시 시작 관리자 지원, 크래시 등으로부터 앱을 자동 재시작하고 작업 중이던 파일을 복구하는 기능
+	// 다시 시작 관리자 지원
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_ALL_ASPECTS;
 #ifdef _MANAGED
 	// 애플리케이션을 공용 언어 런타임 지원을 사용하여 빌드한 경우(/clr):
@@ -64,7 +64,8 @@ CVisionAppApp theApp;
 
 BOOL CVisionAppApp::InitInstance()
 {
-	// 애플리케이션 매니페스트가 ComCtl32.dll 버전 6 이상을 사용하여 비주얼 스타일을 사용하도록 지정하는 경우, Windows XP 상에서 반드시 InitCommonControlsEx()가 필요합니다. 
+	// 애플리케이션 매니페스트가 ComCtl32.dll 버전 6 이상을 사용하여 비주얼 스타일을
+	// 사용하도록 지정하는 경우, Windows XP 상에서 반드시 InitCommonControlsEx()가 필요합니다. 
 	// InitCommonControlsEx()를 사용하지 않으면 창을 만들 수 없습니다.
 	INITCOMMONCONTROLSEX InitCtrls;
 	InitCtrls.dwSize = sizeof(InitCtrls);
@@ -73,30 +74,34 @@ BOOL CVisionAppApp::InitInstance()
 	InitCtrls.dwICC = ICC_WIN95_CLASSES;
 	InitCommonControlsEx(&InitCtrls);
 
-	CWinAppEx::InitInstance();	// 부모 초기화 먼저 수행
+	CWinAppEx::InitInstance();
 
 
-	EnableTaskbarInteraction();	// Windows 7+ 태스크바 기능 활성화
+	EnableTaskbarInteraction();
 
 	// RichEdit 컨트롤을 사용하려면 AfxInitRichEdit2()가 있어야 합니다.
-	 //AfxInitRichEdit2();
+	// AfxInitRichEdit2();
 
 	// 표준 초기화
-	// 이들 기능을 사용하지 않고 최종 실행 파일의 크기를 줄이려면 아래에서 필요 없는 특정 초기화 루틴을 제거해야 합니다.
+	// 이들 기능을 사용하지 않고 최종 실행 파일의 크기를 줄이려면
+	// 아래에서 필요 없는 특정 초기화
+	// 루틴을 제거해야 합니다.
 	// 해당 설정이 저장된 레지스트리 키를 변경하십시오.
-	// TODO: 이 문자열을 회사 또는 조직의 이름과 같은 적절한 내용으로 수정해야 합니다.
+	// TODO: 이 문자열을 회사 또는 조직의 이름과 같은
+	// 적절한 내용으로 수정해야 합니다.
 	SetRegistryKey(_T("로컬 애플리케이션 마법사에서 생성된 애플리케이션"));
 	LoadStdProfileSettings(4);  // MRU를 포함하여 표준 INI 파일 옵션을 로드합니다.
 
 
-	InitContextMenuManager();	// 우클릭 컨텍스트 메뉴 관리자 초기화
+	InitContextMenuManager();
 
-	InitKeyboardManager();	// 단축키 관리자 초기화
+	InitKeyboardManager();
 
-	InitTooltipManager();	// 툴팁 관리자 초기화
+	InitTooltipManager();
 	CMFCToolTipInfo ttParams;
 	ttParams.m_bVislManagerTheme = TRUE;
-	theApp.GetTooltipManager()->SetTooltipParams(AFX_TOOLTIP_TYPE_ALL, RUNTIME_CLASS(CMFCToolTipCtrl), &ttParams);
+	theApp.GetTooltipManager()->SetTooltipParams(AFX_TOOLTIP_TYPE_ALL,
+		RUNTIME_CLASS(CMFCToolTipCtrl), &ttParams);
 
 	// 애플리케이션의 문서 템플릿을 등록합니다.  문서 템플릿은
 	//  문서, 프레임 창 및 뷰 사이의 연결 역할을 합니다.
